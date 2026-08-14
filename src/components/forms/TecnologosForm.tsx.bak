@@ -1,0 +1,278 @@
+"use client";
+
+// ── Formulario Tecnólogos/Creadores — estilo Typeform ────────────────────────
+// Una pregunta a la vez, fondo inmersivo oscuro. Alimenta:
+//  1) el registro general del Hub de desarrolladores Nayarit
+//  2) la selección de proyectos que se presentan en Revolución Tecnológica (20 sept)
+//
+// Envío actual: mailto (ver src/lib/submitInscripcion.ts — sin backend todavía).
+
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Check, Copy } from "lucide-react";
+import {
+  submitInscripcionByEmail,
+  type InscripcionData,
+} from "@/lib/submitInscripcion";
+
+const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
+
+const BUSCANDO_OPTIONS = [
+  "Inversores",
+  "Clientes",
+  "Mentoría",
+  "Conectar con la comunidad",
+  "Otro",
+] as const;
+
+type FormState = Partial<InscripcionData>;
+
+const TOTAL_STEPS = 6;
+
+export default function TecnologosForm() {
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState<FormState>({ postularEvento: false });
+  const [status, setStatus] = useState<"editing" | "done">("editing");
+  const [copied, setCopied] = useState(false);
+
+  const update = (patch: FormState) => setForm((prev) => ({ ...prev, ...patch }));
+
+  const next = () => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+  const back = () => setStep((s) => Math.max(s - 1, 0));
+
+  const canAdvance = (() => {
+    switch (step) {
+      case 0: return !!form.nombre?.trim();
+      case 1: return !!form.proyecto?.trim();
+      case 2: return !!form.descripcion?.trim();
+      case 3: return !!form.buscando;
+      case 4: return !!form.email?.trim();
+      default: return true;
+    }
+  })();
+
+  const handleSubmit = () => {
+    const data: InscripcionData = {
+      nombre: form.nombre ?? "",
+      proyecto: form.proyecto ?? "",
+      descripcion: form.descripcion ?? "",
+      buscando: form.buscando ?? "",
+      email: form.email ?? "",
+      whatsapp: form.whatsapp,
+      postularEvento: form.postularEvento ?? false,
+    };
+    const { mailtoUrl } = submitInscripcionByEmail(data);
+    window.location.href = mailtoUrl;
+    setStatus("done");
+  };
+
+  const copyFallback = async () => {
+    const data: InscripcionData = {
+      nombre: form.nombre ?? "",
+      proyecto: form.proyecto ?? "",
+      descripcion: form.descripcion ?? "",
+      buscando: form.buscando ?? "",
+      email: form.email ?? "",
+      whatsapp: form.whatsapp,
+      postularEvento: form.postularEvento ?? false,
+    };
+    const { body } = submitInscripcionByEmail(data);
+    await navigator.clipboard.writeText(body);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const inputClass =
+    "w-full border-b-2 border-white/15 bg-transparent pb-3 font-display text-[1.4rem] text-foreground placeholder:text-muted/40 focus:border-allitron-blue focus:outline-none sm:text-[1.8rem]";
+
+  if (status === "done") {
+    return (
+      <div className="flex flex-col items-center gap-6 py-16 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-allitron-blue/15">
+          <Check className="h-6 w-6 text-allitron-blue" strokeWidth={2.5} />
+        </div>
+        <h3 className="font-display text-[1.4rem] font-black text-foreground">
+          ¡Listo, {form.nombre}!
+        </h3>
+        <p className="max-w-sm font-body text-[0.88rem] leading-[1.8] text-muted">
+          Se abrió tu cliente de correo con la inscripción lista para enviar. Si
+          no se abrió o prefieres mandarlo tú mismo, copia el mensaje y
+          envíalo a{" "}
+          <span className="text-foreground">auroraialazaro@gmail.com</span>.
+        </p>
+        <button
+          onClick={copyFallback}
+          className="inline-flex items-center gap-2 border border-white/15 px-5 py-2.5 font-display text-[0.6rem] font-bold tracking-[0.2em] text-muted transition-colors hover:border-white/30 hover:text-foreground"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? "COPIADO" : "COPIAR MENSAJE"}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[560px]">
+      {/* Progress dots */}
+      <div className="mb-10 flex items-center gap-2" aria-hidden="true">
+        {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+          <div
+            key={i}
+            className="h-[3px] flex-1 rounded-full transition-colors duration-300"
+            style={{ background: i <= step ? "#09AFF2" : "rgba(255,255,255,0.12)" }}
+          />
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -14 }}
+          transition={{ duration: 0.4, ease: EASE }}
+        >
+          {step === 0 && (
+            <Question label="¿Cómo te llamas?">
+              <input
+                autoFocus
+                type="text"
+                value={form.nombre ?? ""}
+                onChange={(e) => update({ nombre: e.target.value })}
+                onKeyDown={(e) => e.key === "Enter" && canAdvance && next()}
+                className={inputClass}
+                placeholder="Tu nombre completo"
+              />
+            </Question>
+          )}
+
+          {step === 1 && (
+            <Question label="¿Cuál es tu proyecto o especialidad?">
+              <input
+                autoFocus
+                type="text"
+                value={form.proyecto ?? ""}
+                onChange={(e) => update({ proyecto: e.target.value })}
+                onKeyDown={(e) => e.key === "Enter" && canAdvance && next()}
+                className={inputClass}
+                placeholder="Nombre del proyecto o a qué te dedicas"
+              />
+            </Question>
+          )}
+
+          {step === 2 && (
+            <Question label="Cuéntanos brevemente de qué se trata">
+              <textarea
+                autoFocus
+                rows={3}
+                value={form.descripcion ?? ""}
+                onChange={(e) => update({ descripcion: e.target.value })}
+                className="w-full resize-none border-b-2 border-white/15 bg-transparent pb-3 font-body text-[1rem] leading-[1.7] text-foreground placeholder:text-muted/40 focus:border-allitron-blue focus:outline-none"
+                placeholder="En pocas líneas — qué hace, en qué etapa está"
+              />
+            </Question>
+          )}
+
+          {step === 3 && (
+            <Question label="¿Qué buscas?">
+              <div className="flex flex-col gap-3">
+                {BUSCANDO_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => {
+                      update({ buscando: opt });
+                    }}
+                    className={`flex items-center justify-between border px-5 py-4 text-left font-display text-[0.85rem] font-semibold tracking-[0.02em] transition-all ${
+                      form.buscando === opt
+                        ? "border-allitron-blue bg-allitron-blue/10 text-foreground"
+                        : "border-white/12 text-muted hover:border-white/25"
+                    }`}
+                  >
+                    {opt}
+                    {form.buscando === opt && <Check className="h-4 w-4 text-allitron-blue" />}
+                  </button>
+                ))}
+              </div>
+            </Question>
+          )}
+
+          {step === 4 && (
+            <Question label="¿Cómo te contactamos?">
+              <div className="flex flex-col gap-6">
+                <input
+                  autoFocus
+                  type="email"
+                  value={form.email ?? ""}
+                  onChange={(e) => update({ email: e.target.value })}
+                  className={inputClass}
+                  placeholder="tu@email.com"
+                />
+                <input
+                  type="tel"
+                  value={form.whatsapp ?? ""}
+                  onChange={(e) => update({ whatsapp: e.target.value })}
+                  className="w-full border-b border-white/10 bg-transparent pb-2 font-body text-[0.95rem] text-foreground placeholder:text-muted/40 focus:border-allitron-blue focus:outline-none"
+                  placeholder="WhatsApp (opcional)"
+                />
+              </div>
+            </Question>
+          )}
+
+          {step === 5 && (
+            <Question label="¿Quieres postular tu proyecto para presentarlo en Revolución Tecnológica (20 sept)?">
+              <div className="flex gap-4">
+                {[
+                  { label: "Sí, quiero postular", value: true },
+                  { label: "No, solo únanme al Hub", value: false },
+                ].map((opt) => (
+                  <button
+                    key={String(opt.value)}
+                    onClick={() => update({ postularEvento: opt.value })}
+                    className={`flex-1 border px-5 py-4 text-left font-display text-[0.78rem] font-semibold transition-all ${
+                      form.postularEvento === opt.value
+                        ? "border-allitron-orange bg-allitron-orange/10 text-foreground"
+                        : "border-white/12 text-muted hover:border-white/25"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </Question>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Nav */}
+      <div className="mt-10 flex items-center gap-4">
+        {step > 0 && (
+          <button
+            onClick={back}
+            className="font-display text-[0.62rem] font-bold tracking-[0.2em] text-muted transition-colors hover:text-foreground"
+          >
+            ATRÁS
+          </button>
+        )}
+        <button
+          onClick={step === TOTAL_STEPS - 1 ? handleSubmit : next}
+          disabled={!canAdvance}
+          className="ml-auto inline-flex items-center gap-2 bg-allitron-blue px-6 py-3 font-display text-[0.62rem] font-bold tracking-[0.2em] text-allitron-base transition-colors hover:bg-allitron-blue/85 disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          {step === TOTAL_STEPS - 1 ? "ENVIAR" : "SIGUIENTE"}
+          <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Question({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-8 font-display text-[1.2rem] font-bold leading-[1.3] text-foreground sm:text-[1.5rem]">
+        {label}
+      </h3>
+      {children}
+    </div>
+  );
+}
