@@ -28,12 +28,12 @@ export default function StackingCard({ index, total, children, className = "" }:
   return (
     <div
       ref={ref}
-      className="sticky h-[85vh]"
+      className="sticky"
       style={{ top: `calc(6rem + ${index * 28}px)` }}
     >
       <motion.div
         style={reduced ? undefined : { scale }}
-        className={`h-full origin-top ${className}`}
+        className={`origin-top ${className}`}
       >
         {children}
       </motion.div>

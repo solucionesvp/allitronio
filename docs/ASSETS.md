@@ -9,8 +9,21 @@ Guía canónica para agregar medios estáticos al sitio.
 > 4. Refresca — aparece automáticamente (no se requiere código adicional)
 
 Las rutas están registradas en `src/config/assets.ts`.
-Los componentes usan `OptionalImage` / `OptionalVideo` de `src/components/media/OptionalAsset.tsx`,
-que muestran el asset si existe y ocultan elegantemente si no.
+Los componentes usan `OptionalImage` / `OptionalVideo` de `src/components/media/OptionalAsset.tsx`.
+
+## Placeholders automáticos (agosto 2026)
+
+Si un archivo todavía no existe, **no queda un hueco vacío**: se muestra una
+foto real de stock (Unsplash, licencia libre) elegida por tema. Los temas
+están en `PLACEHOLDER` (`src/config/assets.ts`): `product`, `app`,
+`knowledge`, `analytics`, `spaceInterior`, `spaceExterior`, `workSession`,
+`event`, `person`, `city`.
+
+En cuanto colocas el archivo real en la ruta indicada, sustituye al
+placeholder solo — no hay que tocar código.
+
+> Los placeholders son temporales para presentar el sitio. Reemplázalos por
+> fotos y capturas propias antes de considerarlo material definitivo.
 
 ---
 

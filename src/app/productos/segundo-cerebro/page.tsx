@@ -22,9 +22,10 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import HeroAlli from "@/components/brand/HeroAlli";
 import Magnet from "@/components/effects/Magnet";
-import StackingCard from "@/components/effects/StackingCard";
-import { PRODUCT_SECOND_BRAIN } from "@/config/assets";
+import { OptionalImage } from "@/components/media/OptionalAsset";
+import { PRODUCT_SECOND_BRAIN, STOCK } from "@/config/assets";
 import { SECOND_BRAIN_TOKENS } from "@/config/productTheme";
 import { SB_FLOW, SB_CAPABILITIES, SB_PRICING, type SBCapability } from "@/data/segundoCerebroContent";
 
@@ -141,6 +142,10 @@ export default function SegundoCerebroPage() {
               />
             </motion.div>
           </div>
+
+          {/* Alli acompaña en el hero de cada producto — misma
+              presencia que en el home, con el acento del producto. */}
+          <HeroAlli left="52%" delay={0.5} glow={ACCENT} />
         </section>
 
         {/* ── Problema ──────────────────────────────────────────────── */}
@@ -182,11 +187,6 @@ export default function SegundoCerebroPage() {
 
         {/* ── Cómo funciona — única sección clara ─────────────────────── */}
         <section id="capacidades" className="relative w-full bg-[var(--color-light)] px-8 py-24 lg:px-16 xl:px-24">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: "linear-gradient(to bottom, var(--color-surface) 0%, transparent 100%)" }}
-          />
           <div className="relative mx-auto max-w-[900px]">
             <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-secondary/50">
               CÓMO FUNCIONA
@@ -221,11 +221,6 @@ export default function SegundoCerebroPage() {
 
         {/* ── Capacidades ───────────────────────────────────────────── */}
         <section className="relative w-full bg-allitron-base px-8 py-24 lg:px-16 xl:px-24">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: "linear-gradient(to bottom, var(--color-light) 0%, transparent 100%)" }}
-          />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"
@@ -287,23 +282,93 @@ export default function SegundoCerebroPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Magnet padding={80} strength={9}>
-                <PhotoFrame src={PRODUCT_SECOND_BRAIN.telegram} alt="Segundo Cerebro — captura por Telegram" aspect="aspect-[4/5]" />
+                <PhotoFrame src={PRODUCT_SECOND_BRAIN.telegram} alt="Segundo Cerebro — captura por Telegram" aspect="aspect-[4/5]" theme="app" />
               </Magnet>
-              <PhotoFrame src={PRODUCT_SECOND_BRAIN.vault} alt="Segundo Cerebro — vault de Obsidian" aspect="aspect-[4/5]" />
+              <PhotoFrame src={PRODUCT_SECOND_BRAIN.vault} alt="Segundo Cerebro — vault de Obsidian" aspect="aspect-[4/5]" theme="knowledge" />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Momentos de captura — el producto dentro de un día real ──── */}
+        <section className="relative w-full overflow-hidden bg-surface-soft px-8 py-24 lg:px-16 xl:px-24">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(ellipse 55% 45% at 20% 10%, ${ACCENT_SOFT} 0%, transparent 65%)` }}
+          />
+          <div className="relative mx-auto max-w-[1200px]">
+            <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em]" style={{ color: ACCENT }}>
+              EN UN DÍA CUALQUIERA
+            </motion.span>
+            <motion.h2
+              {...reveal(0.06)}
+              className="mb-14 max-w-[720px] font-display font-black leading-[0.98] tracking-tight text-foreground"
+              style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)" }}
+            >
+              TODO LO QUE HOY SE TE OLVIDA, MAÑANA ESTÁ AHÍ.
+            </motion.h2>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              {[
+                { t: "En una junta", d: "Dictas lo acordado por voz. Queda ligado a la persona y al proyecto." },
+                { t: "En el camino", d: "Se te ocurre algo, lo mandas a Telegram. No se pierde ni se duplica." },
+                { t: "Al cerrar el día", d: "Todo está estructurado en tu vault, navegable desde donde pertenece." },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.t}
+                  {...reveal(0.08 * i)}
+                  className="group relative overflow-hidden rounded-2xl"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <OptionalImage
+                      src={STOCK.secondBrain[i]}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      fallback={<div className="h-full w-full bg-allitron-navy/30" />}
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0"
+                      style={{
+                        background: `linear-gradient(to top, #101820 8%, ${ACCENT}22 55%, transparent 100%)`,
+                      }}
+                    />
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <h3 className="font-display text-[0.95rem] font-black text-foreground">
+                      {item.t}
+                    </h3>
+                    <p className="mt-1.5 font-body text-[0.8rem] leading-[1.7] text-muted">
+                      {item.d}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ── Principio diferenciador — No notas huérfanas ─────────────── */}
-        <section className="relative w-full bg-surface-soft px-8 py-28 lg:px-16 xl:px-24">
-          <div className="mx-auto max-w-[720px] text-center">
+        <section className="relative w-full overflow-hidden bg-allitron-base px-8 py-28 lg:px-16 xl:px-24">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(ellipse 50% 50% at 50% 45%, ${ACCENT}14 0%, transparent 68%)` }}
+          />
+          <div className="relative mx-auto max-w-[760px] text-center">
             <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em]" style={{ color: ACCENT }}>
               EL PRINCIPIO
             </motion.span>
             <motion.h2
               {...reveal(0.06)}
-              className="font-display font-black leading-[1.05] tracking-tight text-foreground"
-              style={{ fontSize: "clamp(1.9rem, 4vw, 3rem)" }}
+              className="font-display font-black leading-[1.05] tracking-tight"
+              style={{
+                fontSize: "clamp(2.2rem, 5vw, 3.6rem)",
+                background: GRADIENT,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
             >
               Ninguna nota queda huérfana.
             </motion.h2>
@@ -335,25 +400,71 @@ export default function SegundoCerebroPage() {
               IMPLEMENTACIÓN A TU MEDIDA.
             </motion.h2>
 
-            <div className="relative flex flex-col gap-6">
-              {SB_PRICING.map((tier, i) => (
-                <StackingCard key={tier.name} index={i} total={SB_PRICING.length}>
-                  <div
-                    className="flex h-full flex-col justify-center gap-4 rounded-sm border-t-2 bg-allitron-base p-10 sm:p-14"
-                    style={{ borderColor: i === 0 ? ACCENT : "rgba(255,255,255,0.12)" }}
+            {/* Tarjetas de nivel — cada una con su propio CTA. Antes eran
+                bloques de texto sin acción; ahora cada nivel cierra en un
+                botón concreto que lleva al formulario con el nivel elegido. */}
+            <div className="grid gap-5 lg:grid-cols-3">
+              {SB_PRICING.map((tier, i) => {
+                const featured = i === 1;
+                return (
+                  <motion.div
+                    key={tier.name}
+                    {...reveal(0.08 * i)}
+                    className={`group relative flex flex-col overflow-hidden rounded-2xl p-8 transition-transform duration-500 hover:-translate-y-1.5 sm:p-10 ${featured ? "glass-strong" : "glass"}`}
                   >
-                    <h3 className="font-display text-[1.6rem] font-black text-foreground sm:text-[2rem]">
+                    {/* Halo de color que responde al hover */}
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      style={{
+                        background: `radial-gradient(ellipse 70% 60% at 50% 0%, ${ACCENT}20 0%, transparent 70%)`,
+                      }}
+                    />
+
+                    {featured && (
+                      <span
+                        className="relative mb-5 inline-flex w-fit items-center rounded-full px-3 py-1 font-display text-[0.5rem] font-bold tracking-[0.24em] text-white"
+                        style={{ background: GRADIENT }}
+                      >
+                        MÁS ELEGIDO
+                      </span>
+                    )}
+
+                    <h3 className="relative font-display text-[1.35rem] font-black text-foreground">
                       {tier.name}
                     </h3>
-                    <p className="font-display text-[1.5rem] font-bold" style={{ color: ACCENT }}>
+
+                    <p
+                      className="relative mt-3 font-display text-[2.1rem] font-black leading-none"
+                      style={{
+                        background: GRADIENT,
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text",
+                        color: "transparent",
+                      }}
+                    >
                       {tier.price}
                     </p>
-                    <p className="max-w-[560px] font-body text-[0.9rem] leading-[1.85] text-muted">
+
+                    <p className="relative mt-5 flex-1 font-body text-[0.87rem] leading-[1.85] text-muted">
                       {tier.description}
                     </p>
-                  </div>
-                </StackingCard>
-              ))}
+
+                    <a
+                      href="#contacto"
+                      className="relative mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-display text-[0.6rem] font-bold tracking-[0.2em] transition-transform duration-300 hover:scale-[1.03]"
+                      style={
+                        featured
+                          ? { background: GRADIENT, color: "#fff" }
+                          : { border: `1px solid ${ACCENT}55`, color: ACCENT }
+                      }
+                    >
+                      QUIERO ESTE NIVEL
+                      <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    </a>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>

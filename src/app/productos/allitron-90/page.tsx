@@ -12,9 +12,11 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import HeroAlli from "@/components/brand/HeroAlli";
 import Magnet from "@/components/effects/Magnet";
 import StackingCard from "@/components/effects/StackingCard";
-import { PRODUCT_ALLITRON90, PEOPLE } from "@/config/assets";
+import { OptionalImage } from "@/components/media/OptionalAsset";
+import { PRODUCT_ALLITRON90, PEOPLE, STOCK } from "@/config/assets";
 import { A90_FLOW, A90_WHY_ONE, A90_DELIVERABLES } from "@/data/allitron90Content";
 
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
@@ -112,15 +114,14 @@ export default function Allitron90Page() {
               <AllitronGraph solutionId="allitron-90" surface="dark" className="h-full w-full" />
             </motion.div>
           </div>
+
+          {/* Alli acompaña en el hero de cada producto — misma
+              presencia que en el home, con el acento del producto. */}
+          <HeroAlli left="52%" delay={0.5} glow={BLUE} />
         </section>
 
         {/* ── Cómo funciona ─────────────────────────────────────────── */}
         <section id="como-funciona" className="relative w-full bg-[var(--color-light)] px-8 py-24 lg:px-16 xl:px-24">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: "linear-gradient(to bottom, var(--color-allitron-base) 0%, transparent 100%)" }}
-          />
           <div className="relative mx-auto max-w-[900px]">
             <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-secondary/50">
               CÓMO FUNCIONA
@@ -138,20 +139,42 @@ export default function Allitron90Page() {
                 <StackingCard key={step.n} index={i} total={A90_FLOW.length}>
                   <motion.div
                     {...reveal(0.06 * i)}
-                    className="flex h-full flex-col justify-center gap-3 rounded-sm border border-secondary/10 bg-white p-10 sm:p-14"
+                    className="grid min-h-[42vh] items-center gap-8 overflow-hidden rounded-sm border border-secondary/10 bg-white p-8 sm:grid-cols-[1fr_0.85fr] sm:gap-12 sm:p-12"
                   >
-                    <span
-                      className="font-display text-[1.6rem] font-black tabular-nums"
-                      style={{ color: i === 1 ? ORANGE : BLUE }}
+                    <div className={i % 2 === 1 ? "sm:order-2" : ""}>
+                      <span
+                        className="font-display text-[1.6rem] font-black tabular-nums"
+                        style={{ color: i === 1 ? ORANGE : BLUE }}
+                      >
+                        {step.n}
+                      </span>
+                      <h3 className="mt-2 font-display text-[1.3rem] font-bold text-[#101820] sm:text-[1.7rem]">
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 max-w-[460px] font-body text-[0.9rem] leading-[1.85] text-secondary">
+                        {step.text}
+                      </p>
+                    </div>
+
+                    {/* Imagen de apoyo por paso — da ritmo visual al recorrido.
+                        Material de stock temporal, ver STOCK en config/assets. */}
+                    <div
+                      className={`relative aspect-[4/3] overflow-hidden rounded-sm ${i % 2 === 1 ? "sm:order-1" : ""}`}
                     >
-                      {step.n}
-                    </span>
-                    <h3 className="font-display text-[1.3rem] font-bold text-[#101820] sm:text-[1.6rem]">
-                      {step.title}
-                    </h3>
-                    <p className="max-w-[560px] font-body text-[0.9rem] leading-[1.85] text-secondary">
-                      {step.text}
-                    </p>
+                      <OptionalImage
+                        src={STOCK.a90[i] ?? STOCK.a90[0]}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        fallback={<div className="h-full w-full bg-secondary/5" />}
+                      />
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(140deg, ${i === 1 ? ORANGE : BLUE}22 0%, transparent 62%)`,
+                        }}
+                      />
+                    </div>
                   </motion.div>
                 </StackingCard>
               ))}
@@ -208,7 +231,7 @@ export default function Allitron90Page() {
           <div className="mx-auto grid max-w-[1100px] gap-12 lg:grid-cols-[0.6fr_1fr] lg:items-center">
             <motion.div {...reveal(0)}>
               <Magnet padding={90} strength={7}>
-                <PhotoFrame src={PEOPLE.alejandroValdez} alt="Alejandro Valdés" aspect="aspect-[4/5]" />
+                <PhotoFrame src={PEOPLE.alejandroValdez} alt="Alejandro Valdés" aspect="aspect-[4/5]" theme="person" />
               </Magnet>
             </motion.div>
             <div>
@@ -248,9 +271,9 @@ export default function Allitron90Page() {
             </motion.h2>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <PhotoFrame src={PRODUCT_ALLITRON90.hero} alt="Allitron 90 — inicio del diagnóstico" aspect="aspect-[3/4]" />
-              <PhotoFrame src={PRODUCT_ALLITRON90.diagnostic} alt="Allitron 90 — proceso de diagnóstico" aspect="aspect-[3/4]" />
-              <PhotoFrame src={PRODUCT_ALLITRON90.roadmap} alt="Allitron 90 — roadmap de 90 días" aspect="aspect-[3/4]" />
+              <PhotoFrame src={PRODUCT_ALLITRON90.hero} alt="Allitron 90 — inicio del diagnóstico" aspect="aspect-[3/4]" theme="product" />
+              <PhotoFrame src={PRODUCT_ALLITRON90.diagnostic} alt="Allitron 90 — proceso de diagnóstico" aspect="aspect-[3/4]" theme="analytics" />
+              <PhotoFrame src={PRODUCT_ALLITRON90.roadmap} alt="Allitron 90 — roadmap de 90 días" aspect="aspect-[3/4]" theme="knowledge" />
             </div>
           </div>
         </section>

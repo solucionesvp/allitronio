@@ -6,13 +6,14 @@
 // Mobile: stacked product → graph → product → graph
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SOLUTIONS, type SolutionData, type MethodologyPhase } from "@/data/solutions";
 import AllitronGraph from "@/components/visual/AllitronGraph";
 import type { SolutionId } from "@/components/visual/graph/types";
 import AlliGuide from "@/components/brand/AlliGuide";
-import { PRODUCT_ACCENTS } from "@/config/productTheme";
+import { PRODUCT_ACCENTS, PRODUCT_NAMES, PRODUCT_ROUTES } from "@/config/productTheme";
 
 // ── EASING ───────────────────────────────────────────────────────────────────
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
@@ -145,6 +146,9 @@ interface ProductProps {
 
 function ProductItem({ data, index, isActive, onActivate, observerRef }: ProductProps) {
   const numeral = String(index + 1).padStart(2, "0");
+  const accent = PRODUCT_ACCENTS[data.id as SolutionId];
+  const landingHref = PRODUCT_ROUTES[data.id as SolutionId];
+  const productName = PRODUCT_NAMES[data.id as SolutionId];
 
   return (
     <article
@@ -220,15 +224,30 @@ function ProductItem({ data, index, isActive, onActivate, observerRef }: Product
                 </p>
               )}
 
-              {/* CTA */}
-              <div className="mt-8">
+              {/* CTAs — botón sólido a la landing del producto + enlace
+                  directo al formulario. Antes solo había un enlace
+                  subrayado y no quedaba claro que cada producto tiene su
+                  propia página. */}
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link
+                  href={landingHref}
+                  onClick={(e) => e.stopPropagation()}
+                  className="group/cta inline-flex items-center gap-2 rounded-full px-6 py-3 font-display text-[0.6rem] font-bold tracking-[0.2em] text-white shadow-[0_10px_28px_rgba(0,0,0,0.18)] transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style={{ background: accent }}
+                >
+                  VER {productName.toUpperCase()}
+                  <ArrowUpRight
+                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5"
+                    strokeWidth={2.5}
+                  />
+                </Link>
+
                 <a
                   href={data.ctaAnchor || "#"}
-                  className="inline-flex items-center gap-2 border-b border-allitron-blue pb-1 font-display text-[0.58rem] font-bold tracking-[0.22em] text-[#101820] transition-all hover:border-allitron-orange hover:text-allitron-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-allitron-blue focus-visible:ring-offset-2"
                   onClick={(e) => e.stopPropagation()}
+                  className="glass-light inline-flex items-center gap-2 rounded-full px-5 py-3 font-display text-[0.6rem] font-bold tracking-[0.2em] text-[#101820] transition-colors duration-300 hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-allitron-blue"
                 >
                   {data.ctaText}
-                  <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
                 </a>
               </div>
 
@@ -381,16 +400,6 @@ export default function Solutions() {
         {/* Alli marca el cambio Hero → Productos */}
         <AlliGuide variant="blue" side="right" size={76} className="-top-9" />
 
-        {/* ── Chapter transition from dark Hero ────────────────────── */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-          style={{
-            background:
-              "linear-gradient(to bottom, var(--color-allitron-base) 0%, transparent 100%)",
-          }}
-        />
-
         {/* Section boundary node */}
         <div
           aria-hidden="true"
@@ -515,16 +524,6 @@ export default function Solutions() {
       {/* Alli marca el cambio Hero → Productos */}
       <AlliGuide variant="blue" side="right" size={64} className="-top-7" />
 
-      {/* Transition overlay */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 h-32 w-full"
-        style={{
-          background:
-            "linear-gradient(to bottom, var(--color-allitron-base) 0%, transparent 100%)",
-        }}
-      />
-
       {/* Header */}
       <div className="relative px-6 pb-10 pt-28">
         <span className="mb-4 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-secondary/50">
@@ -589,14 +588,22 @@ export default function Solutions() {
                   </p>
                 )}
 
-                <div className="mt-6">
+                <div className="mt-7 flex flex-wrap items-center gap-2.5">
+                  <Link
+                    href={PRODUCT_ROUTES[sol.id as SolutionId]}
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-display text-[0.58rem] font-bold tracking-[0.18em] text-white shadow-[0_8px_22px_rgba(0,0,0,0.16)]"
+                    style={{ background: PRODUCT_ACCENTS[sol.id as SolutionId] }}
+                  >
+                    VER {PRODUCT_NAMES[sol.id as SolutionId].toUpperCase()}
+                    <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
+                  </Link>
                   <a
                     href={sol.ctaAnchor || "#"}
-                    className="inline-flex items-center gap-2 border-b border-allitron-blue pb-0.5 font-display text-[0.56rem] font-bold tracking-[0.2em] text-[#101820] transition-all hover:border-allitron-orange hover:text-allitron-blue"
+                    className="glass-light inline-flex items-center rounded-full px-4 py-2.5 font-display text-[0.58rem] font-bold tracking-[0.18em] text-[#101820]"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {sol.ctaText}
-                    <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
                   </a>
                 </div>
 

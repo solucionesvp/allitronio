@@ -24,9 +24,11 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import HeroAlli from "@/components/brand/HeroAlli";
 import Magnet from "@/components/effects/Magnet";
 import StackingCard from "@/components/effects/StackingCard";
-import { PRODUCT_LAZUP } from "@/config/assets";
+import { OptionalImage } from "@/components/media/OptionalAsset";
+import { PRODUCT_LAZUP, STOCK } from "@/config/assets";
 import { LAZUP_TOKENS } from "@/config/productTheme";
 import { LAZUP_FLOW, LAZUP_MODULES, LAZUP_VERTICALS, type LazupModule } from "@/data/lazupContent";
 
@@ -151,6 +153,10 @@ export default function LazupPage() {
               />
             </motion.div>
           </div>
+
+          {/* Alli acompaña en el hero de cada producto — misma
+              presencia que en el home, con el acento del producto. */}
+          <HeroAlli left="52%" delay={0.5} glow={T.accent} />
         </section>
 
         {/* ── Problema ──────────────────────────────────────────────── */}
@@ -193,11 +199,6 @@ export default function LazupPage() {
 
         {/* ── Cómo funciona — única sección clara, como el home Hero→Solutions ── */}
         <section id="como-funciona" className="relative w-full bg-[var(--color-light)] px-8 py-24 lg:px-16 xl:px-24">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: `linear-gradient(to bottom, ${T.surface} 0%, transparent 100%)` }}
-          />
           <div className="relative mx-auto max-w-[900px]">
             <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-secondary/50">
               CÓMO FUNCIONA
@@ -232,11 +233,6 @@ export default function LazupPage() {
 
         {/* ── Módulos ───────────────────────────────────────────────── */}
         <section className="relative w-full px-8 py-24 lg:px-16 xl:px-24" style={{ background: T.bg }}>
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: "linear-gradient(to bottom, var(--color-light) 0%, transparent 100%)" }}
-          />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"
@@ -299,10 +295,10 @@ export default function LazupPage() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <Magnet padding={80} strength={9}>
-                <PhotoFrame src={PRODUCT_LAZUP.conversations} alt="LAZUP — bandeja de conversaciones" aspect="aspect-[3/4]" />
+                <PhotoFrame src={PRODUCT_LAZUP.conversations} alt="LAZUP — bandeja de conversaciones" aspect="aspect-[3/4]" theme="app" />
               </Magnet>
-              <PhotoFrame src={PRODUCT_LAZUP.crm} alt="LAZUP — Contacto 360 y pipeline" aspect="aspect-[3/4]" />
-              <PhotoFrame src={PRODUCT_LAZUP.appointments} alt="LAZUP — catálogo y citas" aspect="aspect-[3/4]" />
+              <PhotoFrame src={PRODUCT_LAZUP.crm} alt="LAZUP — Contacto 360 y pipeline" aspect="aspect-[3/4]" theme="product" />
+              <PhotoFrame src={PRODUCT_LAZUP.appointments} alt="LAZUP — catálogo y citas" aspect="aspect-[3/4]" theme="product" />
             </div>
           </div>
         </section>
@@ -325,21 +321,41 @@ export default function LazupPage() {
               {LAZUP_VERTICALS.map((v, i) => (
                 <StackingCard key={v.name} index={i} total={LAZUP_VERTICALS.length}>
                   <div
-                    className="flex h-full flex-col justify-center gap-5 rounded-sm border-t-2 p-10 sm:p-14"
+                    className="grid min-h-[44vh] items-center gap-8 overflow-hidden rounded-sm border-t-2 p-8 sm:grid-cols-[1fr_0.8fr] sm:gap-12 sm:p-12"
                     style={{ borderColor: i === 0 ? T.accent : T.border, background: T.bg }}
                   >
-                    <span className="block font-display text-[0.52rem] font-bold tracking-[0.3em]" style={{ color: T.textMuted }}>
-                      {v.tag.toUpperCase()}
-                    </span>
-                    <h3
-                      className="font-display font-black leading-[0.95]"
-                      style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)", color: T.text }}
-                    >
-                      {v.name}
-                    </h3>
-                    <p className="max-w-[560px] font-body text-[0.9rem] leading-[1.85]" style={{ color: T.textMuted }}>
-                      {v.description}
-                    </p>
+                    <div>
+                      <span className="block font-display text-[0.52rem] font-bold tracking-[0.3em]" style={{ color: T.textMuted }}>
+                        {v.tag.toUpperCase()}
+                      </span>
+                      <h3
+                        className="mt-4 font-display font-black leading-[0.95]"
+                        style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)", color: T.text }}
+                      >
+                        {v.name}
+                      </h3>
+                      <p className="mt-4 max-w-[460px] font-body text-[0.9rem] leading-[1.85]" style={{ color: T.textMuted }}>
+                        {v.description}
+                      </p>
+                    </div>
+
+                    {/* Imagen de referencia por vertical — material de stock
+                        temporal (ver STOCK en config/assets.ts). */}
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
+                      <OptionalImage
+                        src={STOCK.lazupVerticals[i] ?? STOCK.lazupVerticals[0]}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        fallback={<div className="h-full w-full" style={{ background: T.surfaceSoft }} />}
+                      />
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(140deg, ${T.accent}33 0%, ${T.bg}cc 100%)`,
+                        }}
+                      />
+                    </div>
                   </div>
                 </StackingCard>
               ))}

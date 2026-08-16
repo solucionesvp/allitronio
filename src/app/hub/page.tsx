@@ -12,7 +12,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { OptionalImage } from "@/components/media/OptionalAsset";
 import ImmersiveForm from "@/components/forms/ImmersiveForm";
-import { HUB_PATHS_IMAGES } from "@/config/assets";
+import { HUB_PATHS_IMAGES, PLACEHOLDER } from "@/config/assets";
 import { HUB_PATHS, type HubPathId } from "@/data/hubPaths";
 
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
@@ -21,6 +21,13 @@ const PATH_IMAGE: Record<HubPathId, string> = {
   publico: HUB_PATHS_IMAGES.publico,
   empresa: HUB_PATHS_IMAGES.empresa,
   creador: HUB_PATHS_IMAGES.creador,
+};
+
+/** Foto real de stock mientras no exista la foto propia de cada camino */
+const PATH_PLACEHOLDER: Record<HubPathId, string> = {
+  publico: PLACEHOLDER.event,
+  empresa: PLACEHOLDER.workSession,
+  creador: PLACEHOLDER.knowledge,
 };
 
 export default function HubPage() {
@@ -94,6 +101,7 @@ export default function HubPage() {
                       <OptionalImage
                         src={PATH_IMAGE[path.id]}
                         alt=""
+                        placeholder={PATH_PLACEHOLDER[path.id]}
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         fallback={
                           <div

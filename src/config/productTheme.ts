@@ -18,9 +18,27 @@
  * reutilizan sus tokens ya documentados arriba. */
 export const PRODUCT_ACCENTS: Record<"allitron-90" | "local" | "second-brain" | "lazup", string> = {
   "allitron-90": "#F2874C",
-  local: "#10B981",
+  local: "#E5484D",
   "second-brain": "#8B5CF6",
   lazup: "#D84482",
+};
+
+/** Nombre comercial de cada producto — fuente única para menús, CTAs y
+ * cualquier lugar que necesite nombrarlos. Antes se derivaba cortando el
+ * titular, lo que producía textos sin sentido ("VER ENCUENTRA"). */
+export const PRODUCT_NAMES: Record<"allitron-90" | "local" | "second-brain" | "lazup", string> = {
+  "allitron-90": "Allitron 90",
+  local: "Domina Google",
+  "second-brain": "Segundo Cerebro",
+  lazup: "LAZUP",
+};
+
+/** Ruta de la landing de cada producto — fuente única. */
+export const PRODUCT_ROUTES: Record<"allitron-90" | "local" | "second-brain" | "lazup", string> = {
+  "allitron-90": "/productos/allitron-90",
+  local: "/productos/domina-google",
+  "second-brain": "/productos/segundo-cerebro",
+  lazup: "/productos/lazup",
 };
 
 /** Tokens reales del sistema visual de LAZUP (tema oscuro) — para que la
@@ -50,12 +68,16 @@ export const SECOND_BRAIN_TOKENS = {
 } as const;
 
 /** "Domina Google" (id interno "local" / antes "MAPS 2.0", no usar ese nombre
- * públicamente). Sin sistema de color documentado — esmeralda como decisión
- * de diseño: visibilidad/crecimiento, deliberadamente distinto de los colores
- * de marca de Google (no se copia su paleta). */
+ * públicamente).
+ *
+ * Actualizado agosto 2026 (decisión de Lups): pasa de esmeralda a una familia
+ * roja. Es un rojo *evocativo* del pin de Google Maps y del momento de
+ * búsqueda, no la paleta de marca de Google — se usa un tono más profundo y
+ * sobrio (#D93025 → #8C1D18) para que se lea elegante sobre el fondo oscuro
+ * de Allitron y no como una imitación del logo de Google. */
 export const DOMINA_GOOGLE_TOKENS = {
-  accent: "#10B981",
-  accentDeep: "#047857",
-  accentSoft: "rgba(16,185,129,0.12)",
-  gradient: "linear-gradient(135deg, #34D399 0%, #10B981 48%, #047857 100%)",
+  accent: "#E5484D",
+  accentDeep: "#8C1D18",
+  accentSoft: "rgba(229,72,77,0.13)",
+  gradient: "linear-gradient(135deg, #F2645F 0%, #D93025 50%, #8C1D18 100%)",
 } as const;

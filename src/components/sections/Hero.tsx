@@ -10,50 +10,11 @@ import {
   useReducedMotion,
   useScroll,
   type MotionValue,
-  type Transition,
-  type TargetAndTransition,
 } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import Magnet from "@/components/effects/Magnet";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { HERO } from "@/config/assets";
+import HeroAlli from "@/components/brand/HeroAlli";
 
 // ── Animation helpers ────────────────────────────────────────────
-const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
-
-interface AnimProps {
-  initial: TargetAndTransition;
-  animate: TargetAndTransition;
-  transition: Transition;
-}
-
-const INSTANT: AnimProps = {
-  initial: { opacity: 1, y: 0 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0 },
-};
-const INSTANT_FADE: AnimProps = {
-  initial: { opacity: 1 },
-  animate: { opacity: 1 },
-  transition: { duration: 0 },
-};
-
-function makeUp(delay: number): AnimProps {
-  return {
-    initial: { opacity: 0, y: 16 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.65, delay, ease: EASE },
-  };
-}
-
-function makeFade(delay: number): AnimProps {
-  return {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    transition: { duration: 0.65, delay, ease: EASE },
-  };
-}
-
 // ── Node graph data ──────────────────────────────────────────────
 interface Satellite {
   x: number;   // 0–1 normalized within the graph container
@@ -330,9 +291,6 @@ export default function Hero() {
     [rawMouseX, rawMouseY],
   );
 
-  const up   = (delay: number): AnimProps => (reduced ? INSTANT      : makeUp(delay));
-  const fade = (delay: number): AnimProps => (reduced ? INSTANT_FADE : makeFade(delay));
-
   return (
     <section
       ref={heroRef}
@@ -409,63 +367,51 @@ export default function Hero() {
         <div className="max-w-[520px] lg:max-w-[600px] xl:max-w-[660px]">
 
           {/* Eyebrow */}
-          <motion.p
-            initial={up(0).initial}
-            animate={up(0).animate}
-            transition={up(0).transition}
-            className="mb-6 font-display text-[0.58rem] font-semibold tracking-[0.44em] text-allitron-blue"
+          <p
+            className="rise-in mb-6 font-display text-[0.58rem] font-semibold tracking-[0.44em] text-allitron-blue"
+            style={{ animationDelay: "0s" }}
           >
             NAYARIT · MÉXICO
-          </motion.p>
+          </p>
 
           {/* Title */}
           <h1
             className="font-display font-black leading-[0.9] tracking-tight"
             style={{ fontSize: "clamp(2.9rem, 7vw, 6.5rem)" }}
           >
-            <motion.span
-              initial={up(0.12).initial}
-              animate={up(0.12).animate}
-              transition={up(0.12).transition}
-              className="block text-foreground"
+            <span
+              className="rise-in block text-foreground"
+              style={{ animationDelay: "0.12s" }}
             >
               CONECTANDO
-            </motion.span>
-            <motion.span
-              initial={up(0.22).initial}
-              animate={up(0.22).animate}
-              transition={up(0.22).transition}
-              className="block text-allitron-blue"
+            </span>
+            <span
+              className="rise-in block text-allitron-blue"
+              style={{ animationDelay: "0.22s" }}
             >
               EL FUTURO.
-            </motion.span>
+            </span>
           </h1>
 
           {/* Editorial separator */}
-          <motion.div
-            initial={fade(0.35).initial}
-            animate={fade(0.35).animate}
-            transition={fade(0.35).transition}
-            className="mt-8 h-px w-10 bg-allitron-blue/35"
+          <div
+            className="fade-in mt-8 h-px w-10 bg-allitron-blue/35"
+            style={{ animationDelay: "0.35s" }}
           />
 
           {/* Description */}
-          <motion.p
-            initial={fade(0.44).initial}
-            animate={fade(0.44).animate}
-            transition={fade(0.44).transition}
-            className="mt-6 max-w-[390px] font-body text-[0.875rem] leading-[1.85] text-muted sm:text-[0.92rem]"
+          <p
+            className="fade-in mt-6 max-w-[390px] font-body text-[0.875rem] leading-[1.85] text-muted sm:text-[0.92rem]"
+            style={{ animationDelay: "0.44s" }}
           >
             Tecnología, inteligencia artificial y estrategia para transformar
             empresas, conectar talento y acelerar la adopción del futuro.
-          </motion.p>
+          </p>
 
           {/* CTAs */}
-          <motion.div
-            initial={fade(0.57).initial}
-            animate={fade(0.57).animate}
-            transition={fade(0.57).transition}
-            className="mt-10 flex flex-wrap gap-4"
+          <div
+            className="fade-in mt-10 flex flex-wrap gap-4"
+            style={{ animationDelay: "0.57s" }}
           >
             <a
               href="#allitron"
@@ -480,15 +426,13 @@ export default function Hero() {
             >
               CONOCER EL HUB
             </a>
-          </motion.div>
+          </div>
         </div>
 
         {/* Pillars */}
-        <motion.div
-          initial={fade(0.74).initial}
-          animate={fade(0.74).animate}
-          transition={fade(0.74).transition}
-          className="mt-14 flex flex-wrap items-center gap-y-3 lg:mt-20"
+        <div
+          className="fade-in mt-14 flex flex-wrap items-center gap-y-3 lg:mt-20"
+          style={{ animationDelay: "0.74s" }}
         >
           {PILLARS.map((pillar, idx) => (
             <div key={pillar} className="flex items-center">
@@ -500,33 +444,14 @@ export default function Hero() {
               </span>
             </div>
           ))}
-        </motion.div>
+        </div>
       </motion.div>
 
-      {/* ── Retrato magnético ──────────────────────────────────────
-          Sigue el cursor cuando pasa cerca. No compite con el grafo —
-          es un elemento pequeño y humano, no el visual dominante. */}
-      <motion.div
-        initial={fade(0.85).initial}
-        animate={fade(0.85).animate}
-        transition={fade(0.85).transition}
-        className="absolute bottom-8 right-8 z-20 lg:bottom-12 lg:right-16 xl:right-24"
-      >
-        <Magnet padding={90} strength={4}>
-          <div className="h-[92px] w-[92px] overflow-hidden rounded-full border border-white/[0.12] shadow-[0_8px_28px_rgba(0,0,0,0.4)] sm:h-[112px] sm:w-[112px]">
-            <OptionalImage
-              src={HERO.portrait}
-              alt=""
-              className="h-full w-full object-cover"
-              fallback={
-                <div className="flex h-full w-full items-center justify-center bg-allitron-navy/40">
-                  <span className="h-2 w-2 rounded-full bg-allitron-blue/50 animate-node-breathe" aria-hidden="true" />
-                </div>
-              }
-            />
-          </div>
-        </Magnet>
-      </motion.div>
+      {/* ── Alli — anfitrión del inicio ─────────────────────────────
+          Mismo componente que usan las 4 landings de producto, para que la
+          presencia y el comportamiento responsive sean idénticos en todo
+          el sitio. Va detrás del texto (z-[6] vs z-10 del contenido). */}
+      <HeroAlli left="68%" glow="#09AFF2" />
     </section>
   );
 }

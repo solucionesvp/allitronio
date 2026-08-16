@@ -112,13 +112,13 @@ export default function HubTeaser() {
           className="relative grid grid-cols-2 gap-3 sm:gap-4"
         >
           <motion.div className="col-span-1 row-span-2" style={reduced ? undefined : { y: yTall }}>
-            <PhotoFrame src={HUB.interiorWide} alt="Interior del Hub Allitron" aspect="aspect-[4/5]" />
+            <PhotoFrame src={HUB.interiorWide} alt="Interior del Hub Allitron" aspect="aspect-[4/5]" theme="spaceInterior" />
           </motion.div>
           <motion.div style={reduced ? undefined : { y: yWork }}>
-            <PhotoFrame src={HUB.workSession} alt="Sesión de trabajo en el Hub" aspect="aspect-[4/3]" />
+            <PhotoFrame src={HUB.workSession} alt="Sesión de trabajo en el Hub" aspect="aspect-[4/3]" theme="workSession" />
           </motion.div>
           <motion.div style={reduced ? undefined : { y: yEvent }}>
-            <PhotoFrame src={HUB.event} alt="Evento en el Hub Allitron" aspect="aspect-[4/3]" />
+            <PhotoFrame src={HUB.event} alt="Evento en el Hub Allitron" aspect="aspect-[4/3]" theme="event" />
           </motion.div>
         </motion.div>
       </div>

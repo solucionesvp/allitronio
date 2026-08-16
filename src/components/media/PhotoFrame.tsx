@@ -1,12 +1,13 @@
 "use client";
 
 // ── PhotoFrame — slot listo para recibir una foto real ───────────────────────
-// Mientras no exista el archivo en /public, muestra un placeholder de marca
-// (gradiente + nodo pulsante) en vez de espacio vacío o ícono roto.
-// En cuanto se coloca el archivo en la ruta registrada en config/assets.ts,
-// aparece automáticamente — no requiere tocar código.
+// Mientras no exista el archivo en /public, muestra una foto real de stock
+// (placeholder temático, ver PLACEHOLDER en config/assets.ts) en vez de un
+// espacio vacío. En cuanto se coloca el archivo en la ruta registrada en
+// config/assets.ts, aparece automáticamente — no requiere tocar código.
 
 import { OptionalImage } from "./OptionalAsset";
+import { PLACEHOLDER, type PlaceholderTheme } from "@/config/assets";
 
 interface PhotoFrameProps {
   src: string;
@@ -14,6 +15,8 @@ interface PhotoFrameProps {
   className?: string;
   /** Clase de aspect-ratio de Tailwind, ej. "aspect-[4/3]" */
   aspect?: string;
+  /** Tema del placeholder remoto mientras no exista la foto real */
+  theme?: PlaceholderTheme;
 }
 
 export function PhotoFrame({
@@ -21,6 +24,7 @@ export function PhotoFrame({
   alt,
   className = "",
   aspect = "aspect-[4/3]",
+  theme = "product",
 }: PhotoFrameProps) {
   return (
     <div
@@ -29,6 +33,7 @@ export function PhotoFrame({
       <OptionalImage
         src={src}
         alt={alt}
+        placeholder={PLACEHOLDER[theme]}
         className="h-full w-full object-cover"
         fallback={
           <div className="absolute inset-0 flex items-center justify-center">

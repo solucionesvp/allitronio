@@ -27,8 +27,7 @@ export default function Footer() {
               <OptionalImage
                 src={BRAND_LOGO.light}
                 alt="Allitron"
-                height={20}
-                className="h-5 w-auto"
+                style={{ height: 24, width: "auto" }}
                 fallback={<span>ALLITRON</span>}
               />
             </Link>
@@ -86,10 +85,10 @@ export default function Footer() {
             className="inline-flex items-center gap-2 font-body text-[0.72rem] text-muted/60 transition-colors hover:text-foreground"
           >
             <OptionalImage
-              src={BRAND_ALLI.monochrome}
+              src={BRAND_ALLI.primary}
               alt=""
-              height={16}
-              className="h-4 w-auto opacity-70"
+              style={{ height: 18, width: "auto" }}
+              className="opacity-70"
               fallback={null}
             />
             Hecho con <span aria-hidden="true">♥</span> por somoslazaro.com

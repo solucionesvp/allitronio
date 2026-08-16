@@ -26,6 +26,7 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import HeroAlli from "@/components/brand/HeroAlli";
 import Magnet from "@/components/effects/Magnet";
 import StackingCard from "@/components/effects/StackingCard";
 import { PRODUCT_LOCAL } from "@/config/assets";
@@ -139,6 +140,10 @@ export default function DominaGooglePage() {
               <AllitronGraph solutionId="local" surface="dark" accent={ACCENT} className="h-full w-full" />
             </motion.div>
           </div>
+
+          {/* Alli acompaña en el hero de cada producto — misma
+              presencia que en el home, con el acento del producto. */}
+          <HeroAlli left="52%" delay={0.5} glow={ACCENT} />
         </section>
 
         {/* ── Problema — el argumento central ──────────────────────────── */}
@@ -223,11 +228,6 @@ export default function DominaGooglePage() {
 
         {/* ── Qué incluye — única sección clara ────────────────────────── */}
         <section className="relative w-full bg-[var(--color-light)] px-8 py-24 lg:px-16 xl:px-24">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: "linear-gradient(to bottom, var(--color-surface) 0%, transparent 100%)" }}
-          />
           <div className="relative mx-auto max-w-[1100px]">
             <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-secondary/50">
               QUÉ INCLUYE
@@ -261,11 +261,6 @@ export default function DominaGooglePage() {
 
         {/* ── Cómo trabajamos — método real de 4 fases ─────────────────── */}
         <section id="proceso" className="relative w-full bg-allitron-base px-8 py-24 lg:px-16 xl:px-24">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-40 w-full"
-            style={{ background: "linear-gradient(to bottom, var(--color-light) 0%, transparent 100%)" }}
-          />
           <div className="relative mx-auto max-w-[1200px]">
             <motion.span {...reveal(0)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-muted/70">
               CÓMO TRABAJAMOS
@@ -283,15 +278,15 @@ export default function DominaGooglePage() {
                 <StackingCard key={phase.id} index={i} total={LOCAL_METHODOLOGY.length}>
                   <motion.div
                     {...reveal(0.06 * i)}
-                    className="grid h-full items-center gap-8 rounded-sm border border-white/[0.06] bg-surface/70 p-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:p-12"
+                    className="grid items-center gap-8 rounded-sm border border-white/[0.06] bg-surface/70 p-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:p-12"
                   >
                     <div className={i % 2 === 1 ? "lg:order-2" : ""}>
                       {i === 0 ? (
                         <Magnet padding={80} strength={9}>
-                          <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" />
+                          <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" theme="analytics" />
                         </Magnet>
                       ) : (
-                        <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" />
+                        <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" theme="analytics" />
                       )}
                     </div>
                     <div className={i % 2 === 1 ? "lg:order-1" : ""}>

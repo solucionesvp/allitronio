@@ -291,7 +291,7 @@ export default function EventoPage() {
               transition={{ duration: 0.7, ease: EASE }}
               className="order-2 lg:order-1"
             >
-              <PhotoFrame src={EVENTS["2026-09-20"].space} alt="Sede del evento — por confirmar" aspect="aspect-[4/3]" />
+              <PhotoFrame src={EVENTS["2026-09-20"].space} alt="Sede del evento — por confirmar" aspect="aspect-[4/3]" theme="event" />
             </motion.div>
 
             <div className="order-1 lg:order-2">

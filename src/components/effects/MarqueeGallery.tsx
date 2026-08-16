@@ -1,18 +1,25 @@
 "use client";
 
-// ── MarqueeGallery — dos filas de imágenes que se desplazan con el scroll ──
-// Adaptado de una referencia visual, reconstruido con nuestros propios
-// assets (ya registrados en config/assets.ts — no assets nuevos requeridos
-// para el uso en el home). Fila 1 se mueve a la derecha, fila 2 a la
-// izquierda, cada una triplicada para loop visual continuo.
+// ── MarqueeGallery — dos filas de imágenes en movimiento continuo ──────────
+// El carrusel SIEMPRE está en movimiento: la animación base es CSS puro
+// (`.marquee-left` / `.marquee-right` en globals.css), así que no depende del
+// scroll ni de JavaScript y nunca se queda congelado.
+// El scroll suma un desplazamiento extra encima, en un wrapper interno, para
+// conservar la sensación de parallax al recorrer la sección.
+//
+// Cada fila se triplica para que el bucle sea invisible: la animación
+// desplaza exactamente 1/3 del ancho total y vuelve a empezar.
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { OptionalImage } from "@/components/media/OptionalAsset";
+import { PLACEHOLDER, type PlaceholderTheme } from "@/config/assets";
 
 export interface MarqueeImage {
   src: string;
   alt: string;
+  /** Placeholder temático mientras no exista la foto real */
+  theme?: PlaceholderTheme;
 }
 
 interface MarqueeGalleryProps {
@@ -30,7 +37,7 @@ function Tile({ img }: { img: MarqueeImage }) {
       <OptionalImage
         src={img.src}
         alt={img.alt}
-        loading="lazy"
+        placeholder={PLACEHOLDER[img.theme ?? "product"]}
         className="h-full w-full object-cover"
         fallback={
           <div className="flex h-full w-full items-center justify-center bg-allitron-navy/25">
@@ -45,42 +52,57 @@ function Tile({ img }: { img: MarqueeImage }) {
 export default function MarqueeGallery({ images, className = "" }: MarqueeGalleryProps) {
   const reduced = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLDivElement>(null);
-  const row1Ref = useRef<HTMLDivElement>(null);
-  const row2Ref = useRef<HTMLDivElement>(null);
+  const drift1Ref = useRef<HTMLDivElement>(null);
+  const drift2Ref = useRef<HTMLDivElement>(null);
 
   const mid = Math.ceil(images.length / 2);
   const row1 = tripleRow(images.slice(0, mid));
   const row2 = tripleRow(images.slice(mid));
 
+  // Desplazamiento adicional por scroll — se aplica al wrapper, no a la pista
+  // animada, para que no interfiera con la animación CSS continua.
   useEffect(() => {
     if (reduced) return;
 
+    let frame = 0;
     const handleScroll = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-      const rect = section.getBoundingClientRect();
-      const sectionTop = rect.top + window.scrollY;
-      const offset = (window.scrollY - sectionTop + window.innerHeight) * 0.3;
-      if (row1Ref.current) row1Ref.current.style.transform = `translateX(${offset - 200}px)`;
-      if (row2Ref.current) row2Ref.current.style.transform = `translateX(${-(offset - 200)}px)`;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const section = sectionRef.current;
+        if (!section) return;
+        const rect = section.getBoundingClientRect();
+        // Progreso de la sección respecto al viewport, centrado en 0
+        const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height) - 0.5;
+        const offset = progress * 260;
+        if (drift1Ref.current) drift1Ref.current.style.transform = `translateX(${offset}px)`;
+        if (drift2Ref.current) drift2Ref.current.style.transform = `translateX(${-offset}px)`;
+      });
     };
 
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [reduced]);
 
   return (
     <div ref={sectionRef} className={`flex flex-col gap-3 overflow-hidden ${className}`}>
-      <div ref={row1Ref} className="flex gap-3" style={{ willChange: "transform" }}>
-        {row1.map((img, i) => (
-          <Tile key={`r1-${i}`} img={img} />
-        ))}
+      <div ref={drift1Ref} style={{ willChange: "transform" }}>
+        <div className="marquee-left flex w-max gap-3">
+          {row1.map((img, i) => (
+            <Tile key={`r1-${i}`} img={img} />
+          ))}
+        </div>
       </div>
-      <div ref={row2Ref} className="flex gap-3" style={{ willChange: "transform" }}>
-        {row2.map((img, i) => (
-          <Tile key={`r2-${i}`} img={img} />
-        ))}
+      <div ref={drift2Ref} style={{ willChange: "transform" }}>
+        <div className="marquee-right flex w-max gap-3">
+          {row2.map((img, i) => (
+            <Tile key={`r2-${i}`} img={img} />
+          ))}
+        </div>
       </div>
     </div>
   );
