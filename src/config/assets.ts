@@ -27,11 +27,19 @@ export const BRAND_LOGO = {
 
 export const BRAND_ALLI = {
   /** Alli — versión full color, fondo transparente */
-  primary: `${B}/brand/alli/alli-primary.webp`,
+  primary: `${B}/brand/alli/alli-primary.png`,
   /** Alli — versión sobre fondo azul Allitron */
-  blue: `${B}/brand/alli/alli-blue.webp`,
+  blue: `${B}/brand/alli/alli-blue.png`,
   /** Alli — versión monocromática / ghosting */
-  monochrome: `${B}/brand/alli/alli-monochrome.webp`,
+  monochrome: `${B}/brand/alli/alli-monochrome.png`,
+} as const;
+
+// ── Hero ─────────────────────────────────────────────────────────
+export const HERO = {
+  /** Retrato/visual con efecto magnético (sigue el cursor) en el Hero del
+   * home. Puede ser una persona (Lups, Alejandro, equipo) o un visual de
+   * marca — decisión abierta, no asumida por el código. */
+  portrait: `${B}/hero/hero-portrait.png`,
 } as const;
 
 // ── Products ─────────────────────────────────────────────────────
@@ -118,6 +126,7 @@ export const PEOPLE = {
 // ── Convenience aggregate (optional, for component use) ──────────
 export const ASSETS = {
   brand: { logo: BRAND_LOGO, alli: BRAND_ALLI },
+  hero: HERO,
   products: {
     allitron90: PRODUCT_ALLITRON90,
     local: PRODUCT_LOCAL,

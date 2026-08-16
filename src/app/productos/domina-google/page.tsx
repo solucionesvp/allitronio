@@ -26,6 +26,8 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import Magnet from "@/components/effects/Magnet";
+import StackingCard from "@/components/effects/StackingCard";
 import { PRODUCT_LOCAL } from "@/config/assets";
 import { DOMINA_GOOGLE_TOKENS } from "@/config/productTheme";
 import { LOCAL_METHODOLOGY } from "@/data/solutions";
@@ -276,44 +278,51 @@ export default function DominaGooglePage() {
               MÉTODO PROPIO. CUATRO FASES, ONCE PASOS.
             </motion.h2>
 
-            <div className="flex flex-col gap-16">
+            <div className="relative flex flex-col gap-6">
               {LOCAL_METHODOLOGY.map((phase, i) => (
-                <motion.div
-                  key={phase.id}
-                  {...reveal(0.06 * i)}
-                  className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-14"
-                >
-                  <div className={i % 2 === 1 ? "lg:order-2" : ""}>
-                    <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" />
-                  </div>
-                  <div className={i % 2 === 1 ? "lg:order-1" : ""}>
-                    <span className="mb-3 flex items-baseline gap-3">
-                      <span className="font-display text-[0.5rem] font-bold tracking-[0.3em]" style={{ color: ACCENT }}>
-                        {phase.phase}
-                      </span>
-                    </span>
-                    <h3 className="mb-5 font-display text-[1.4rem] font-black text-foreground">
-                      {phase.label}
-                    </h3>
-                    <div className="flex flex-col gap-4">
-                      {phase.steps.map((step) => (
-                        <div key={step.number} className="flex gap-3">
-                          <span className="font-display text-[0.62rem] font-bold tabular-nums text-muted/50">
-                            {step.number}
-                          </span>
-                          <div>
-                            <span className="font-display text-[0.72rem] font-bold tracking-wide text-foreground/90">
-                              {step.label}
-                            </span>
-                            <p className="mt-1 font-body text-[0.82rem] leading-[1.65] text-muted">
-                              {step.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                <StackingCard key={phase.id} index={i} total={LOCAL_METHODOLOGY.length}>
+                  <motion.div
+                    {...reveal(0.06 * i)}
+                    className="grid h-full items-center gap-8 rounded-sm border border-white/[0.06] bg-surface/70 p-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:p-12"
+                  >
+                    <div className={i % 2 === 1 ? "lg:order-2" : ""}>
+                      {i === 0 ? (
+                        <Magnet padding={80} strength={9}>
+                          <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" />
+                        </Magnet>
+                      ) : (
+                        <PhotoFrame src={PHASE_PHOTOS[i]} alt={`Domina Google — fase ${phase.label}`} aspect="aspect-[4/3]" />
+                      )}
                     </div>
-                  </div>
-                </motion.div>
+                    <div className={i % 2 === 1 ? "lg:order-1" : ""}>
+                      <span className="mb-3 flex items-baseline gap-3">
+                        <span className="font-display text-[0.5rem] font-bold tracking-[0.3em]" style={{ color: ACCENT }}>
+                          {phase.phase}
+                        </span>
+                      </span>
+                      <h3 className="mb-5 font-display text-[1.4rem] font-black text-foreground">
+                        {phase.label}
+                      </h3>
+                      <div className="flex flex-col gap-4">
+                        {phase.steps.map((step) => (
+                          <div key={step.number} className="flex gap-3">
+                            <span className="font-display text-[0.62rem] font-bold tabular-nums text-muted/50">
+                              {step.number}
+                            </span>
+                            <div>
+                              <span className="font-display text-[0.72rem] font-bold tracking-wide text-foreground/90">
+                                {step.label}
+                              </span>
+                              <p className="mt-1 font-body text-[0.82rem] leading-[1.65] text-muted">
+                                {step.description}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </StackingCard>
               ))}
             </div>
           </div>

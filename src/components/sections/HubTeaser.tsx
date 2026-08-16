@@ -4,20 +4,35 @@
 // Estático (sin formulario aquí — eso vive en /hub). Fotos vía PhotoFrame:
 // se ven en cuanto Lups coloque los archivos en las rutas de config/assets.ts.
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { HUB, BRAND_ALLI } from "@/config/assets";
+import { HUB } from "@/config/assets";
+import AlliGuide from "@/components/brand/AlliGuide";
 
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 
 export default function HubTeaser() {
+  const reduced = useReducedMotion() ?? false;
+
+  // Parallax — mismo lenguaje de scroll del Hero/Solutions: cada foto se
+  // mueve a una velocidad distinta, dando la sensación de estar asomándose
+  // a distintas ventanas del Hub mientras se hace scroll.
+  const gridRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: gridRef,
+    offset: ["start end", "end start"],
+  });
+  const yTall = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const yWork = useTransform(scrollYProgress, [0, 1], [-25, 25]);
+  const yEvent = useTransform(scrollYProgress, [0, 1], [15, -35]);
+
   return (
     <section
       id="hub"
-      className="relative w-full overflow-hidden bg-allitron-base px-8 py-28 lg:px-16 xl:px-24"
+      className="relative w-full bg-allitron-base px-8 py-28 lg:px-16 xl:px-24"
     >
       {/* Ambient accent */}
       <div
@@ -28,6 +43,9 @@ export default function HubTeaser() {
             "radial-gradient(ellipse 45% 45% at 15% 15%, rgba(9,175,242,0.07) 0%, transparent 60%)",
         }}
       />
+
+      {/* Alli marca el cambio Productos → Hub */}
+      <AlliGuide variant="primary" side="left" size={80} className="-top-9" />
 
       <div className="relative mx-auto grid max-w-[1440px] gap-16 lg:grid-cols-2 lg:items-center lg:gap-12">
         {/* Text */}
@@ -86,35 +104,27 @@ export default function HubTeaser() {
 
         {/* Photo grid */}
         <motion.div
+          ref={gridRef}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, delay: 0.12, ease: EASE }}
           className="relative grid grid-cols-2 gap-3 sm:gap-4"
         >
-          <PhotoFrame
-            src={HUB.interiorWide}
-            alt="Interior del Hub Allitron"
-            aspect="aspect-[4/5]"
-            className="col-span-1 row-span-2"
-          />
-          <PhotoFrame src={HUB.workSession} alt="Sesión de trabajo en el Hub" aspect="aspect-[4/3]" />
-          <PhotoFrame src={HUB.event} alt="Evento en el Hub Allitron" aspect="aspect-[4/3]" />
-
-          {/* Alli — ghost/decorativo, aparición sutil */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-8 -right-6 w-24 sm:w-28"
-          >
-            <OptionalImage
-              src={BRAND_ALLI.monochrome}
-              alt=""
-              className="w-full opacity-40"
-              fallback={null}
-            />
-          </div>
+          <motion.div className="col-span-1 row-span-2" style={reduced ? undefined : { y: yTall }}>
+            <PhotoFrame src={HUB.interiorWide} alt="Interior del Hub Allitron" aspect="aspect-[4/5]" />
+          </motion.div>
+          <motion.div style={reduced ? undefined : { y: yWork }}>
+            <PhotoFrame src={HUB.workSession} alt="Sesión de trabajo en el Hub" aspect="aspect-[4/3]" />
+          </motion.div>
+          <motion.div style={reduced ? undefined : { y: yEvent }}>
+            <PhotoFrame src={HUB.event} alt="Evento en el Hub Allitron" aspect="aspect-[4/3]" />
+          </motion.div>
         </motion.div>
       </div>
+
+      {/* Alli marca el cambio Hub → Footer */}
+      <AlliGuide variant="monochrome" side="right" size={72} className="-bottom-8" />
     </section>
   );
 }

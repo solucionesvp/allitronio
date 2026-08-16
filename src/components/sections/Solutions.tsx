@@ -6,11 +6,13 @@
 // Mobile: stacked product → graph → product → graph
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SOLUTIONS, type SolutionData, type MethodologyPhase } from "@/data/solutions";
 import AllitronGraph from "@/components/visual/AllitronGraph";
 import type { SolutionId } from "@/components/visual/graph/types";
+import AlliGuide from "@/components/brand/AlliGuide";
+import { PRODUCT_ACCENTS } from "@/config/productTheme";
 
 // ── EASING ───────────────────────────────────────────────────────────────────
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
@@ -247,7 +249,12 @@ function ProductItem({ data, index, isActive, onActivate, observerRef }: Product
 function MobileGraphSlot({ solutionId }: { solutionId: SolutionId }) {
   return (
     <div className="relative mx-4 aspect-[4/3] overflow-hidden rounded-sm bg-[#F4F6F5]">
-      <AllitronGraph solutionId={solutionId} surface="light" className="h-full w-full" />
+      <AllitronGraph
+        solutionId={solutionId}
+        surface="light"
+        accent={PRODUCT_ACCENTS[solutionId]}
+        className="h-full w-full"
+      />
     </div>
   );
 }
@@ -283,6 +290,41 @@ export default function Solutions() {
   // Map product article elements for intersection observer
   const articleRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // ── Parallax ambient — dos manchas de color que se desplazan a
+  // velocidades distintas mientras se recorre toda la sección. Es el mismo
+  // "único elemento interactivo" del Hero, continuado aquí — no un efecto
+  // nuevo por sección, sino el mismo lenguaje de scroll sosteniéndose.
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const blobBlueY = useTransform(scrollYProgress, [0, 1], [-140, 140]);
+  const blobOrangeY = useTransform(scrollYProgress, [0, 1], [110, -110]);
+
+  const ambientBlobs = !reduced && (
+    <>
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[-8%] top-[8%] h-[420px] w-[420px] rounded-full"
+        style={{
+          y: blobBlueY,
+          background: "radial-gradient(circle, rgba(9,175,242,0.055) 0%, transparent 70%)",
+          filter: "blur(50px)",
+        }}
+      />
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[-6%] top-[55%] h-[380px] w-[380px] rounded-full"
+        style={{
+          y: blobOrangeY,
+          background: "radial-gradient(circle, rgba(242,135,76,0.045) 0%, transparent 70%)",
+          filter: "blur(50px)",
+        }}
+      />
+    </>
+  );
 
   // Detect mobile
   useEffect(() => {
@@ -329,10 +371,16 @@ export default function Solutions() {
   if (!isMobileView) {
     return (
       <section
+        ref={sectionRef}
         id="productos"
         className="relative w-full bg-[var(--color-light)]"
         aria-label="Soluciones Allitron"
       >
+        {ambientBlobs}
+
+        {/* Alli marca el cambio Hero → Productos */}
+        <AlliGuide variant="blue" side="right" size={76} className="-top-9" />
+
         {/* ── Chapter transition from dark Hero ────────────────────── */}
         <div
           aria-hidden="true"
@@ -400,10 +448,28 @@ export default function Solutions() {
               className="sticky top-0 flex items-center justify-center"
               style={{ height: "100vh" }}
             >
+              {/* Panel de color por producto — el mismo lenguaje "cartel"
+                  de Cyclemon, pero con los acentos reales de cada producto
+                  en vez de colores inventados. Crossfade suave al cambiar. */}
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                {SOLUTIONS.map((sol) => (
+                  <motion.div
+                    key={sol.id}
+                    className="absolute inset-0"
+                    animate={{ opacity: activeSolution === sol.id ? 1 : 0 }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                    style={{
+                      background: `radial-gradient(ellipse 60% 55% at 50% 50%, ${PRODUCT_ACCENTS[sol.id]}24 0%, transparent 70%)`,
+                    }}
+                  />
+                ))}
+              </div>
+
               <div className="relative h-[75vh] w-full max-h-[640px]">
                 <AllitronGraph
                   solutionId={activeSolution}
                   surface="light"
+                  accent={PRODUCT_ACCENTS[activeSolution]}
                   className="h-full w-full"
                 />
               </div>
@@ -439,10 +505,16 @@ export default function Solutions() {
   // ── MOBILE layout ───────────────────────────────────────────────────────
   return (
     <section
+      ref={sectionRef}
       id="productos"
       className="relative w-full bg-[var(--color-light)]"
       aria-label="Soluciones Allitron"
     >
+      {ambientBlobs}
+
+      {/* Alli marca el cambio Hero → Productos */}
+      <AlliGuide variant="blue" side="right" size={64} className="-top-7" />
+
       {/* Transition overlay */}
       <div
         aria-hidden="true"
@@ -480,11 +552,15 @@ export default function Solutions() {
 
           return (
             <div key={sol.id}>
-              {/* Product text */}
+              {/* Product text — tinte de color propio del producto, mismo
+                  criterio de "panel" que en desktop */}
               <div
                 ref={setRef(sol.id)}
                 data-product-id={sol.id}
                 className="px-6 py-12"
+                style={{
+                  background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${PRODUCT_ACCENTS[sol.id]}14 0%, transparent 70%)`,
+                }}
                 onClick={() => setActiveSolution(sol.id as SolutionId)}
               >
                 <div className="mb-4 flex items-center gap-4">

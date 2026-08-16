@@ -14,6 +14,16 @@ que muestran el asset si existe y ocultan elegantemente si no.
 
 ---
 
+## Hero (home)
+
+| Archivo | Ruta en `public/` | Uso | Formato |
+|---|---|---|---|
+| `hero-portrait.png` | `assets/hero/hero-portrait.png` | Retrato/visual con efecto magnético (sigue el cursor) en el Hero del home | PNG (cargado como .png, no .webp — confirmado agosto 2026), fondo transparente recomendado |
+
+> Quién o qué aparece aquí es tu decisión — puede ser una persona (Lups, Alejandro, equipo) o un visual de marca/producto. El código no asume nada. Recorte vertical (retrato), ~1200×1500px, sujeto centrado con espacio de sobra arriba (el efecto magnético desplaza la imagen unos px en cualquier dirección al acercar el cursor).
+
+---
+
 ## Brand — Logo
 
 | Archivo | Ruta en `public/` | Uso | Formato |
@@ -29,15 +39,22 @@ que muestran el asset si existe y ocultan elegantemente si no.
 
 ## Brand — Alli
 
-Alli es el personaje de Allitron. Nombre canónico en código: **Alli** (no "chango", no "mascot").
-Aparece en puntos estratégicos: Hub, eventos, empty states, microinteracciones.
-**No agregar en todas las secciones.**
+Alli es el personaje de Allitron (isotipo registrado; "el chango" en conversación,
+**Alli** es el nombre canónico en código — no usar "chango" ni "mascot" en el código).
+
+**Actualizado agosto 2026:** decisión de diseño confirmada — Alli aparece en
+cada cambio de sección del home (`AlliGuide`, `src/components/brand/AlliGuide.tsx`),
+marcando las costuras Hero→Productos→Hub→Footer como un anfitrión que guía el
+scroll. Reemplaza la restricción anterior ("no agregar en todas las secciones").
+Sigue sin usarse dentro del contenido de cada sección — solo en las transiciones.
 
 | Archivo | Ruta en `public/` | Uso | Formato |
 |---|---|---|---|
-| `alli-primary.webp` | `assets/brand/alli/alli-primary.webp` | Versión full color, transparente | WebP, fondo transparente |
-| `alli-blue.webp` | `assets/brand/alli/alli-blue.webp` | Sobre fondo Allitron Blue | WebP |
-| `alli-monochrome.webp` | `assets/brand/alli/alli-monochrome.webp` | Ghost / decorativo | WebP |
+| `alli-primary.png` | `assets/brand/alli/alli-primary.png` | Versión full color, transparente | PNG, fondo transparente |
+| `alli-blue.png` | `assets/brand/alli/alli-blue.png` | Sobre fondo Allitron Blue | PNG |
+| `alli-monochrome.png` | `assets/brand/alli/alli-monochrome.png` | Ghost / decorativo | PNG |
+
+> Cargados como `.png` (no `.webp`) — confirmado agosto 2026.
 
 ---
 

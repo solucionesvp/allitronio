@@ -11,10 +11,17 @@
  * cambiar en un solo lugar si se define un color oficial más adelante.
  */
 
-export const PRODUCT_ACCENTS = {
-  lazup: "#D84482",
+/** Mapa completo — un acento real por producto, usado tanto en las landings
+ * individuales como en los paneles de color del home (Solutions) y en el
+ * AllitronGraph reskineado por producto durante el scroll. Allitron 90 usa
+ * el naranja nativo de Allitron (no es "by Somos Lázaro"); los otros tres
+ * reutilizan sus tokens ya documentados arriba. */
+export const PRODUCT_ACCENTS: Record<"allitron-90" | "local" | "second-brain" | "lazup", string> = {
+  "allitron-90": "#F2874C",
+  local: "#10B981",
   "second-brain": "#8B5CF6",
-} as const;
+  lazup: "#D84482",
+};
 
 /** Tokens reales del sistema visual de LAZUP (tema oscuro) — para que la
  * landing use exactamente las mismas superficies que el producto real. */

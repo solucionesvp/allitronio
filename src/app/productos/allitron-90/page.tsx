@@ -12,6 +12,8 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import Magnet from "@/components/effects/Magnet";
+import StackingCard from "@/components/effects/StackingCard";
 import { PRODUCT_ALLITRON90, PEOPLE } from "@/config/assets";
 import { A90_FLOW, A90_WHY_ONE, A90_DELIVERABLES } from "@/data/allitron90Content";
 
@@ -131,30 +133,28 @@ export default function Allitron90Page() {
               DE UNA GUÍA DE PREGUNTAS A UN PLAN DE 90 DÍAS.
             </motion.h2>
 
-            <div className="flex flex-col">
+            <div className="relative flex flex-col gap-5">
               {A90_FLOW.map((step, i) => (
-                <motion.div
-                  key={step.n}
-                  {...reveal(0.06 * i)}
-                  className="flex flex-col gap-2 border-t border-secondary/10 py-7 sm:flex-row sm:gap-8"
-                >
-                  <span
-                    className="font-display text-[1.2rem] font-black tabular-nums"
-                    style={{ color: i === 1 ? ORANGE : BLUE }}
+                <StackingCard key={step.n} index={i} total={A90_FLOW.length}>
+                  <motion.div
+                    {...reveal(0.06 * i)}
+                    className="flex h-full flex-col justify-center gap-3 rounded-sm border border-secondary/10 bg-white p-10 sm:p-14"
                   >
-                    {step.n}
-                  </span>
-                  <div>
-                    <h3 className="mb-1.5 font-display text-[0.95rem] font-bold text-[#101820]">
+                    <span
+                      className="font-display text-[1.6rem] font-black tabular-nums"
+                      style={{ color: i === 1 ? ORANGE : BLUE }}
+                    >
+                      {step.n}
+                    </span>
+                    <h3 className="font-display text-[1.3rem] font-bold text-[#101820] sm:text-[1.6rem]">
                       {step.title}
                     </h3>
-                    <p className="max-w-[560px] font-body text-[0.86rem] leading-[1.75] text-secondary">
+                    <p className="max-w-[560px] font-body text-[0.9rem] leading-[1.85] text-secondary">
                       {step.text}
                     </p>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </StackingCard>
               ))}
-              <div className="border-t border-secondary/10" />
             </div>
           </div>
         </section>
@@ -207,7 +207,9 @@ export default function Allitron90Page() {
         <section className="relative w-full bg-surface px-8 py-24 lg:px-16 xl:px-24">
           <div className="mx-auto grid max-w-[1100px] gap-12 lg:grid-cols-[0.6fr_1fr] lg:items-center">
             <motion.div {...reveal(0)}>
-              <PhotoFrame src={PEOPLE.alejandroValdez} alt="Alejandro Valdés" aspect="aspect-[4/5]" />
+              <Magnet padding={90} strength={7}>
+                <PhotoFrame src={PEOPLE.alejandroValdez} alt="Alejandro Valdés" aspect="aspect-[4/5]" />
+              </Magnet>
             </motion.div>
             <div>
               <motion.span {...reveal(0.06)} className="mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-muted/70">

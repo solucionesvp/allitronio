@@ -22,6 +22,8 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import Magnet from "@/components/effects/Magnet";
+import StackingCard from "@/components/effects/StackingCard";
 import { PRODUCT_SECOND_BRAIN } from "@/config/assets";
 import { SECOND_BRAIN_TOKENS } from "@/config/productTheme";
 import { SB_FLOW, SB_CAPABILITIES, SB_PRICING, type SBCapability } from "@/data/segundoCerebroContent";
@@ -284,7 +286,9 @@ export default function SegundoCerebroPage() {
             </motion.h2>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <PhotoFrame src={PRODUCT_SECOND_BRAIN.telegram} alt="Segundo Cerebro — captura por Telegram" aspect="aspect-[4/5]" />
+              <Magnet padding={80} strength={9}>
+                <PhotoFrame src={PRODUCT_SECOND_BRAIN.telegram} alt="Segundo Cerebro — captura por Telegram" aspect="aspect-[4/5]" />
+              </Magnet>
               <PhotoFrame src={PRODUCT_SECOND_BRAIN.vault} alt="Segundo Cerebro — vault de Obsidian" aspect="aspect-[4/5]" />
             </div>
           </div>
@@ -331,24 +335,24 @@ export default function SegundoCerebroPage() {
               IMPLEMENTACIÓN A TU MEDIDA.
             </motion.h2>
 
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="relative flex flex-col gap-6">
               {SB_PRICING.map((tier, i) => (
-                <motion.div
-                  key={tier.name}
-                  {...reveal(0.08 * i)}
-                  className="border-t-2 pt-6"
-                  style={{ borderColor: i === 0 ? ACCENT : "rgba(255,255,255,0.12)" }}
-                >
-                  <h3 className="mb-2 font-display text-[1rem] font-black text-foreground">
-                    {tier.name}
-                  </h3>
-                  <p className="mb-4 font-display text-[1.3rem] font-bold" style={{ color: ACCENT }}>
-                    {tier.price}
-                  </p>
-                  <p className="font-body text-[0.85rem] leading-[1.75] text-muted">
-                    {tier.description}
-                  </p>
-                </motion.div>
+                <StackingCard key={tier.name} index={i} total={SB_PRICING.length}>
+                  <div
+                    className="flex h-full flex-col justify-center gap-4 rounded-sm border-t-2 bg-allitron-base p-10 sm:p-14"
+                    style={{ borderColor: i === 0 ? ACCENT : "rgba(255,255,255,0.12)" }}
+                  >
+                    <h3 className="font-display text-[1.6rem] font-black text-foreground sm:text-[2rem]">
+                      {tier.name}
+                    </h3>
+                    <p className="font-display text-[1.5rem] font-bold" style={{ color: ACCENT }}>
+                      {tier.price}
+                    </p>
+                    <p className="max-w-[560px] font-body text-[0.9rem] leading-[1.85] text-muted">
+                      {tier.description}
+                    </p>
+                  </div>
+                </StackingCard>
               ))}
             </div>
           </div>

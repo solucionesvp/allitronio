@@ -8,11 +8,15 @@ import {
   useSpring,
   useTransform,
   useReducedMotion,
+  useScroll,
   type MotionValue,
   type Transition,
   type TargetAndTransition,
 } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import Magnet from "@/components/effects/Magnet";
+import { OptionalImage } from "@/components/media/OptionalAsset";
+import { HERO } from "@/config/assets";
 
 // ── Animation helpers ────────────────────────────────────────────
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
@@ -58,7 +62,9 @@ interface Satellite {
   orange?: boolean;
 }
 
-// Satellites: intentionally asymmetric, not a simple circle pattern
+// Satellites: intentionally asymmetric, not a simple circle pattern.
+// Densificado — el grafo original (7 nodos) se sentía disperso frente al
+// resto del sitio; ahora tiene la misma densidad de malla que AllitronGraph.
 const SATELLITES: Satellite[] = [
   { x: 0.16, y: 0.18, delay: 0.0  },
   { x: 0.60, y: 0.10, delay: 0.35 },
@@ -67,12 +73,41 @@ const SATELLITES: Satellite[] = [
   { x: 0.40, y: 0.86, delay: 0.9  },
   { x: 0.06, y: 0.60, delay: 0.18 },
   { x: 0.46, y: 0.44, delay: 0.45, orange: true }, // inner node, no hub connection
+  { x: 0.30, y: 0.42, delay: 0.25 },
+  { x: 0.70, y: 0.55, delay: 0.6  },
+  { x: 0.24, y: 0.75, delay: 0.15 },
+  { x: 0.92, y: 0.15, delay: 0.5  },
+  { x: 0.55, y: 0.28, delay: 0.8  },
+  { x: 0.10, y: 0.40, delay: 0.35 },
 ];
 
-const HUB_CONNECTIONS = [0, 1, 2, 3, 4, 5] as const; // SATELLITES indices
+// Ambient dots — sin conexión al hub, solo densidad de fondo (mismo
+// recurso que el campo de partículas de AllitronGraph/engine.ts).
+const AMBIENT_DOTS: { x: number; y: number; delay: number }[] = [
+  { x: 0.50, y: 0.06, delay: 0.2 },
+  { x: 0.76, y: 0.24, delay: 0.9 },
+  { x: 0.96, y: 0.55, delay: 0.4 },
+  { x: 0.66, y: 0.92, delay: 1.1 },
+  { x: 0.14, y: 0.94, delay: 0.6 },
+  { x: 0.02, y: 0.30, delay: 1.3 },
+  { x: 0.34, y: 0.60, delay: 0.8 },
+  { x: 0.58, y: 0.68, delay: 0.3 },
+  { x: 0.80, y: 0.82, delay: 1.0 },
+  { x: 0.20, y: 0.06, delay: 0.5 },
+];
+
+const HUB_CONNECTIONS = [0, 1, 2, 3, 4, 5, 7, 10, 11] as const; // SATELLITES indices
 const SAT_CONNECTIONS: [number, number][] = [
   [0, 1], [1, 2], [2, 3], [3, 6], [4, 6], [5, 0],
+  [7, 6], [8, 3], [9, 4], [12, 5], [8, 10], [9, 7],
 ];
+
+// Aristas con pulso viajero — refuerzan la sensación de "energía"
+// circulando por la red, igual que las aristas energizadas del motor
+// Canvas usado en el resto del sitio.
+const PULSE_SATELLITES = [1, 4, 10] as const; // subset of HUB_CONNECTIONS
+const PULSE_SPEEDS = [2.4, 3.1, 2.7]; // segundos por recorrido
+const PULSE_PHASES = [0, 0.34, 0.68]; // desfase inicial [0–1]
 
 // ── NodeGraph ────────────────────────────────────────────────────
 interface NodeGraphProps {
@@ -85,10 +120,16 @@ function NodeGraph({ rawMouseX, rawMouseY, reduced }: NodeGraphProps) {
   const svgRef    = useRef<SVGSVGElement>(null);
   const hubRef    = useRef<SVGCircleElement>(null);
   const hubGlowRef = useRef<SVGCircleElement>(null);
+  const hubGlowOuterRef = useRef<SVGCircleElement>(null);
 
   // One ref slot per hub-satellite line
   const lineRefs = useRef<(SVGLineElement | null)[]>(
     Array(HUB_CONNECTIONS.length).fill(null) as (SVGLineElement | null)[],
+  );
+
+  // One ref slot per traveling pulse dot
+  const pulseRefs = useRef<(SVGCircleElement | null)[]>(
+    Array(PULSE_SATELLITES.length).fill(null) as (SVGCircleElement | null)[],
   );
 
   // Cache SVG dimensions to avoid per-frame getBoundingClientRect
@@ -111,7 +152,7 @@ function NodeGraph({ rawMouseX, rawMouseY, reduced }: NodeGraphProps) {
   const hubSpringY = useSpring(hubNormY, { stiffness: 26, damping: 34, mass: 1.6 });
 
   // Imperatively update hub + dynamic lines without re-renders
-  useAnimationFrame(() => {
+  useAnimationFrame((time) => {
     if (reduced) return;
     const { w, h } = dims.current;
     if (w === 0 || h === 0) return;
@@ -123,6 +164,8 @@ function NodeGraph({ rawMouseX, rawMouseY, reduced }: NodeGraphProps) {
     hubRef.current?.setAttribute("cy", String(hy));
     hubGlowRef.current?.setAttribute("cx", String(hx));
     hubGlowRef.current?.setAttribute("cy", String(hy));
+    hubGlowOuterRef.current?.setAttribute("cx", String(hx));
+    hubGlowOuterRef.current?.setAttribute("cy", String(hy));
 
     HUB_CONNECTIONS.forEach((satIdx, lineIdx) => {
       const line = lineRefs.current[lineIdx];
@@ -132,6 +175,20 @@ function NodeGraph({ rawMouseX, rawMouseY, reduced }: NodeGraphProps) {
       line.setAttribute("y1", String(hy));
       line.setAttribute("x2", String(sat.x * w));
       line.setAttribute("y2", String(sat.y * h));
+    });
+
+    // Traveling pulses — un punto de luz recorriendo hub→satélite en loop,
+    // dando la sensación de energía circulando por la red.
+    PULSE_SATELLITES.forEach((satIdx, i) => {
+      const pulse = pulseRefs.current[i];
+      if (!pulse) return;
+      const sat = SATELLITES[satIdx];
+      const tRaw = (time / 1000 / PULSE_SPEEDS[i] + PULSE_PHASES[i]) % 1;
+      const px = hx + (sat.x * w - hx) * tRaw;
+      const py = hy + (sat.y * h - hy) * tRaw;
+      pulse.setAttribute("cx", String(px));
+      pulse.setAttribute("cy", String(py));
+      pulse.setAttribute("opacity", String(Math.sin(tRaw * Math.PI) * 0.95));
     });
   });
 
@@ -146,7 +203,24 @@ function NodeGraph({ rawMouseX, rawMouseY, reduced }: NodeGraphProps) {
           <stop offset="0%" stopColor="#09AFF2" stopOpacity="0.32" />
           <stop offset="100%" stopColor="#09AFF2" stopOpacity="0" />
         </radialGradient>
+        <radialGradient id="graphHubGlowOuter" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#09AFF2" stopOpacity="0.14" />
+          <stop offset="100%" stopColor="#09AFF2" stopOpacity="0" />
+        </radialGradient>
       </defs>
+
+      {/* Ambient background particles — densidad de fondo, sin conexión */}
+      {AMBIENT_DOTS.map((dot, idx) => (
+        <circle
+          key={`ambient-${idx}`}
+          cx={`${dot.x * 100}%`}
+          cy={`${dot.y * 100}%`}
+          r="1"
+          fill="rgba(9,175,242,0.35)"
+          className="animate-node-breathe"
+          style={{ animationDelay: `${dot.delay}s` }}
+        />
+      ))}
 
       {/* Satellite ↔ satellite connections (static) */}
       {SAT_CONNECTIONS.map(([a, b], idx) => {
@@ -197,7 +271,22 @@ function NodeGraph({ rawMouseX, rawMouseY, reduced }: NodeGraphProps) {
         />
       ))}
 
-      {/* Hub ambient glow (ref-updated) */}
+      {/* Traveling pulses — energía circulando hub→satélite (ref-updated) */}
+      {!reduced &&
+        PULSE_SATELLITES.map((_, i) => (
+          <circle
+            key={`pulse-${i}`}
+            ref={(el) => {
+              pulseRefs.current[i] = el;
+            }}
+            r="2"
+            fill="#F5F7F8"
+            opacity="0"
+          />
+        ))}
+
+      {/* Hub ambient glow — dos capas (ref-updated) */}
+      <circle ref={hubGlowOuterRef} cx="50%" cy="50%" r="46" fill="url(#graphHubGlowOuter)" />
       <circle ref={hubGlowRef} cx="50%" cy="50%" r="24" fill="url(#graphHubGlow)" />
 
       {/* Hub organizer node (ref-updated) */}
@@ -213,6 +302,20 @@ const PILLARS = ["TECNOLOGÍA", "INTELIGENCIA ARTIFICIAL", "ESTRATEGIA"] as cons
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
   const reduced = shouldReduceMotion ?? false;
+
+  // ── Parallax scroll — el único elemento interactivo de scroll del home:
+  // el fondo, el grafo y el contenido se mueven a velocidades distintas
+  // mientras el hero sale de vista, dando la sensación de profundidad
+  // (ref. Cyclemon: un solo efecto de scroll bien ejecutado > mil elementos).
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const bgParallaxY = useTransform(scrollYProgress, [0, 1], [0, 110]);
+  const graphParallaxY = useTransform(scrollYProgress, [0, 1], [0, 70]);
+  const graphParallaxOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+  const contentParallaxY = useTransform(scrollYProgress, [0, 1], [0, -55]);
 
   // Normalized mouse position over entire hero section (0–1)
   const rawMouseX = useMotionValue(0.5);
@@ -232,11 +335,16 @@ export default function Hero() {
 
   return (
     <section
+      ref={heroRef}
       className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden"
       onMouseMove={handleMouseMove}
     >
       {/* ── Background layers ───────────────────────────────────── */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={reduced ? undefined : { y: bgParallaxY }}
+      >
         {/* L1: Base */}
         <div className="absolute inset-0 bg-allitron-base" />
 
@@ -269,7 +377,7 @@ export default function Hero() {
               "radial-gradient(ellipse 22% 14% at 93% 7%, rgba(242,135,76,0.06) 0%, transparent 55%)",
           }}
         />
-      </div>
+      </motion.div>
 
       {/* ── Node graph — right zone, desktop only ───────────────── */}
       {/*
@@ -278,7 +386,7 @@ export default function Hero() {
           <Image src="/assets/hero/hero-visual.webp" fill alt="" className="object-cover object-right" />
           Recommended path: public/assets/hero/hero-visual.webp
       */}
-      <div
+      <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 right-0 hidden w-[54%] lg:block"
         style={{
@@ -286,13 +394,18 @@ export default function Hero() {
             "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 18%, black 42%)",
           WebkitMaskImage:
             "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 18%, black 42%)",
+          ...(reduced ? {} : { y: graphParallaxY, opacity: graphParallaxOpacity }),
         }}
       >
         <NodeGraph rawMouseX={rawMouseX} rawMouseY={rawMouseY} reduced={reduced} />
-      </div>
+      </motion.div>
 
-      {/* ── Main content ─────────────────────────────────────────── */}
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-8 pb-16 pt-32 lg:px-16 xl:px-24">
+      {/* ── Main content — desplaza a velocidad distinta del fondo,
+          creando la sensación de profundidad al hacer scroll ────── */}
+      <motion.div
+        className="relative z-10 mx-auto w-full max-w-[1440px] px-8 pb-16 pt-32 lg:px-16 xl:px-24"
+        style={reduced ? undefined : { y: contentParallaxY }}
+      >
         <div className="max-w-[520px] lg:max-w-[600px] xl:max-w-[660px]">
 
           {/* Eyebrow */}
@@ -388,7 +501,32 @@ export default function Hero() {
             </div>
           ))}
         </motion.div>
-      </div>
+      </motion.div>
+
+      {/* ── Retrato magnético ──────────────────────────────────────
+          Sigue el cursor cuando pasa cerca. No compite con el grafo —
+          es un elemento pequeño y humano, no el visual dominante. */}
+      <motion.div
+        initial={fade(0.85).initial}
+        animate={fade(0.85).animate}
+        transition={fade(0.85).transition}
+        className="absolute bottom-8 right-8 z-20 lg:bottom-12 lg:right-16 xl:right-24"
+      >
+        <Magnet padding={90} strength={4}>
+          <div className="h-[92px] w-[92px] overflow-hidden rounded-full border border-white/[0.12] shadow-[0_8px_28px_rgba(0,0,0,0.4)] sm:h-[112px] sm:w-[112px]">
+            <OptionalImage
+              src={HERO.portrait}
+              alt=""
+              className="h-full w-full object-cover"
+              fallback={
+                <div className="flex h-full w-full items-center justify-center bg-allitron-navy/40">
+                  <span className="h-2 w-2 rounded-full bg-allitron-blue/50 animate-node-breathe" aria-hidden="true" />
+                </div>
+              }
+            />
+          </div>
+        </Magnet>
+      </motion.div>
     </section>
   );
 }

@@ -24,6 +24,8 @@ import Footer from "@/components/layout/Footer";
 import { PhotoFrame } from "@/components/media/PhotoFrame";
 import ProductLeadForm from "@/components/forms/ProductLeadForm";
 import AllitronGraph from "@/components/visual/AllitronGraph";
+import Magnet from "@/components/effects/Magnet";
+import StackingCard from "@/components/effects/StackingCard";
 import { PRODUCT_LAZUP } from "@/config/assets";
 import { LAZUP_TOKENS } from "@/config/productTheme";
 import { LAZUP_FLOW, LAZUP_MODULES, LAZUP_VERTICALS, type LazupModule } from "@/data/lazupContent";
@@ -296,7 +298,9 @@ export default function LazupPage() {
             </motion.h2>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <PhotoFrame src={PRODUCT_LAZUP.conversations} alt="LAZUP — bandeja de conversaciones" aspect="aspect-[3/4]" />
+              <Magnet padding={80} strength={9}>
+                <PhotoFrame src={PRODUCT_LAZUP.conversations} alt="LAZUP — bandeja de conversaciones" aspect="aspect-[3/4]" />
+              </Magnet>
               <PhotoFrame src={PRODUCT_LAZUP.crm} alt="LAZUP — Contacto 360 y pipeline" aspect="aspect-[3/4]" />
               <PhotoFrame src={PRODUCT_LAZUP.appointments} alt="LAZUP — catálogo y citas" aspect="aspect-[3/4]" />
             </div>
@@ -317,24 +321,27 @@ export default function LazupPage() {
               MISMO NÚCLEO. VOCABULARIO DISTINTO SEGÚN TU NEGOCIO.
             </motion.h2>
 
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="relative flex flex-col gap-6">
               {LAZUP_VERTICALS.map((v, i) => (
-                <motion.div
-                  key={v.name}
-                  {...reveal(0.08 * i)}
-                  className="border-t-2 pt-6"
-                  style={{ borderColor: i === 0 ? T.accent : T.border }}
-                >
-                  <span className="mb-3 block font-display text-[0.5rem] font-bold tracking-[0.24em]" style={{ color: T.textMuted }}>
-                    {v.tag.toUpperCase()}
-                  </span>
-                  <h3 className="mb-3 font-display text-[1.1rem] font-black" style={{ color: T.text }}>
-                    {v.name}
-                  </h3>
-                  <p className="font-body text-[0.85rem] leading-[1.75]" style={{ color: T.textMuted }}>
-                    {v.description}
-                  </p>
-                </motion.div>
+                <StackingCard key={v.name} index={i} total={LAZUP_VERTICALS.length}>
+                  <div
+                    className="flex h-full flex-col justify-center gap-5 rounded-sm border-t-2 p-10 sm:p-14"
+                    style={{ borderColor: i === 0 ? T.accent : T.border, background: T.bg }}
+                  >
+                    <span className="block font-display text-[0.52rem] font-bold tracking-[0.3em]" style={{ color: T.textMuted }}>
+                      {v.tag.toUpperCase()}
+                    </span>
+                    <h3
+                      className="font-display font-black leading-[0.95]"
+                      style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)", color: T.text }}
+                    >
+                      {v.name}
+                    </h3>
+                    <p className="max-w-[560px] font-body text-[0.9rem] leading-[1.85]" style={{ color: T.textMuted }}>
+                      {v.description}
+                    </p>
+                  </div>
+                </StackingCard>
               ))}
             </div>
           </div>
