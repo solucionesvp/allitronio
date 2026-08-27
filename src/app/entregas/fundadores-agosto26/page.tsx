@@ -88,7 +88,7 @@ export default function HubFundadoresPage() {
           <BentoTile
             icon={ICONS_CONTENIDO.pdf}
             title="Riesgos y contradicciones"
-            subtitle="Los 10 puntos que no deben darse por resueltos — con área afectada y mitigación recomendada."
+            subtitle="Los 12 puntos que no deben darse por resueltos — con área afectada y mitigación recomendada."
             kind="documento"
             href="/entregas/fundadores-agosto26/riesgos-y-contradicciones"
             delay={0.05}

@@ -57,12 +57,27 @@ const LINEA_DE_TIEMPO: RoadmapItem[] = [
     fecha: "Sep.–oct. 2026",
   },
   {
-    titulo: "Evento principal (tentativo)",
-    compromiso: "Fecha tentativa del evento piloto — no debe registrarse como sede o fecha confirmada (80% de certeza expresado por Alejandro).",
+    titulo: "Evento principal — 26 de noviembre",
+    compromiso: "Fecha confirmada por Lups como la vigente para el evento. La sede sigue sin confirmación por escrito (80% de certeza expresado por Alejandro).",
     responsable: "Alejandro + equipo",
     fecha: "26 nov. 2026",
     nota: "Sede reconocida de forma dudosa; falta confirmación por escrito.",
     notaTone: "warning",
+  },
+  {
+    titulo: "Infografía “Nayarit Innovador” recibida del lado de Hash/David",
+    compromiso: "Llega un temario de IA (fundamentos, madurez de datos, tipos de IA, prompts, implementación) con la misma fecha del 26 de noviembre impresa — consistente con la fecha del evento, pero es solo guía temática, no un evento producido. Allitron sigue siendo responsable de diseñar y operar el 100% del evento (sede, producción, registro, convocatoria, ponentes, seguimiento).",
+    responsable: "Allitron",
+    fecha: "Recibida 27 ago. 2026",
+    nota: "No confirma sede, marca Google, ponentes ni producción — falta verificar quién elaboró y aprobó la pieza.",
+    notaTone: "warning",
+  },
+  {
+    titulo: "Reunión de coordinación con David y Jahasiel — no es el evento",
+    compromiso: "Invitación real de Google Calendar (“EVENTO NAYARIT: ALLITRON”), organizada por David Carrera Palacios (david@xerpas.com.mx), con Jahasiel (jahasiel@google.com) y allitron.mx como invitados, vía Google Meet, 9am–1pm. Es una sesión de trabajo/coordinación distinta del evento público del 26 de noviembre — no debe confundirse ni mezclarse esa fecha con la del evento en ningún material.",
+    responsable: "David (organiza) + Allitron",
+    fecha: "19 nov. 2026, 9am–1pm",
+    nota: "Confirma que David y Jahasiel son contactos reales y activos; no cambia la fecha del evento, que sigue siendo el 26 de noviembre.",
   },
 ];
 
@@ -159,7 +174,7 @@ export default function ModeloYEventoPage() {
               { texto: "Se evalúan renta, colaboración con recinto, producción técnica, operadores, luz, sonido, patrocinadores y boletaje.", etiqueta: "Por definir" },
               { texto: "El evento debe generar negocio posterior: clientes, talleres, SaaS, consultoría o comunidad — no solo fotografías o reputación.", etiqueta: "Criterio de éxito" },
               { texto: "Se propone estudiar eventos de Querétaro y asistir a encuentros previos como referencia de formato.", etiqueta: "Investigación" },
-              { texto: "Relación con Google (Hash, empleado; David, Google Partner externo) es exploratoria y operativa — no prueba alianza, patrocinio ni autorización para anunciar “un evento donde va a estar Google”.", etiqueta: "Verificar antes de anunciar" },
+              { texto: "Relación con Google viene de tres reuniones previas (11, 14 y 26 de agosto) más contacto de calendario confirmado el 27: Jahasiel (“Hash”) usa jahasiel@google.com y David es David Carrera Palacios de Xerpas (david@xerpas.com.mx). Los correos son reales, pero eso sigue sin ser alianza, patrocinio ni autorización para anunciar “un evento donde va a estar Google”.", etiqueta: "Verificar antes de anunciar" },
               { texto: "Se rechaza de facto pagar una propuesta cercana a $400,000 MXN para construir productos/hub; se prefiere pagar viáticos/charlas o negociar comisión sobre ventas.", etiqueta: "Decisión de costo" },
             ]}
           />

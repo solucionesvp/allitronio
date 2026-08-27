@@ -18,6 +18,9 @@ const PREGUNTAS = [
   { texto: "¿Qué figura jurídica recomienda por escrito un abogado/contador y por qué?", etiqueta: "Legal" },
   { texto: "¿Qué actividades quedan fuera para proteger LAZUP, Lázaro y negocios previos?", etiqueta: "Legal / IP" },
   { texto: "¿Cuál es la decisión de continuar o cancelar si no hay autorización, sede, ventas o patrocinio?", etiqueta: "Gobierno" },
+  { texto: "Ya se confirmaron los correos de Jahasiel (jahasiel@google.com) y David (david@xerpas.com.mx, de Xerpas) — falta su cargo exacto en Google y si Albert/Alver/Álvaro es un tercer contacto distinto.", etiqueta: "Legal / marca" },
+  { texto: "¿Quién elaboró y aprobó la infografía “Nayarit Innovador” recibida el 27 de agosto, y se puede usar como pieza oficial del curso?", etiqueta: "Evento" },
+  { texto: "¿Desde cuándo se puede presentar a José como “socio y CTO” frente a terceros, y qué pasa con esa representación ya hecha ante Hash/David mientras el acuerdo de fundadores no está firmado?", etiqueta: "Gobierno" },
 ];
 
 export default function PreguntasPendientesPage() {

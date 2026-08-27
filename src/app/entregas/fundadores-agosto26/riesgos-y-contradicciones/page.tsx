@@ -8,9 +8,9 @@ import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
 
 const RIESGOS = [
   {
-    titulo: "Marca Google — el mayor riesgo reputacional y legal",
+    titulo: "Marca Google — identidad ya confirmada, autorización todavía no",
     texto:
-      "Área: legal / marca. El equipo habla a veces como si la presencia de Google en el evento estuviera asegurada; documentalmente solo hay contactos y conversaciones con Hash (empleado directo de Google) y David (Google Partner externo, no empleado). Mitigación: cualquier uso de nombre, logo, anuncio o frase “Google estará” necesita autorización escrita y alcance exacto antes de publicarse. No anunciar nada hasta tenerla.",
+      "Área: legal / marca. Actualizado 27 ago.: una invitación real de Google Calendar confirma que Jahasiel (“Hash”) usa el correo jahasiel@google.com, y que David es David Carrera Palacios, con correo david@xerpas.com.mx — es decir, David participa a través de Xerpas, la misma empresa de la propuesta de $384,000 MXN ya evaluada aparte. Un correo @google.com es evidencia real de vínculo con Google, pero sigue sin haber contrato, autorización de logo, patrocinio ni designación de Allitron como partner u hub oficial. Mitigación: no anunciar “evento con Google” ni usar su marca hasta tener autorización escrita y alcance exacto; usar mientras tanto la redacción segura: “ALLITRON explora un piloto regional de adopción tecnológica en Tepic con especialistas, empresas e instituciones.” Al comunicar a David, tener claro que también representa a Xerpas, no solo a Google.",
     critico: true,
   },
   {
@@ -58,6 +58,17 @@ const RIESGOS = [
     texto:
       "Área: gobierno interno. Fundador, socio, líder, vendedor y responsable se mezclan sin definición formal de gobierno. Mitigación: fijar roles, facultades y cadena de decisión como parte del acuerdo de fundadores, no dejarlo implícito.",
   },
+  {
+    titulo: "Cargo de José ya presentado a terceros, sin formalizar internamente",
+    texto:
+      "Área: gobierno / legal. En la reunión del 14 de agosto con Hash y David, Alejandro ya presentó a José Guadalupe como “socio y CTO” de Allitron — un cargo societario que, a la fecha de esta reunión del 26 de agosto, sigue sin estar formalizado entre los tres. Mitigación: no representar cargos societarios ante terceros (Google, clientes, prensa) hasta que el acuerdo de fundadores esté firmado — la expectativa externa ya va por delante del acuerdo interno.",
+    critico: true,
+  },
+  {
+    titulo: "Guía temática recibida no es un evento producido",
+    texto:
+      "Área: evento / operativo. El 27 de agosto, del lado de Hash/David llegó una infografía (“Nayarit Innovador: Transformación con Inteligencia Artificial”) con fecha impresa 26 de noviembre — la misma fecha tentativa que salió de esta reunión interna, lo cual da algo de consistencia a la fecha, pero no confirma sede, marca Google, ponentes ni producción. Las reuniones dejan claro que Allitron debe diseñar y operar el evento completo; la guía solo aporta el temario. Mitigación: no comunicar el evento como “con Google” ni como ya producido — falta también verificar quién elaboró y aprobó esa pieza.",
+  },
 ];
 
 export default function RiesgosPage() {
@@ -93,7 +104,7 @@ export default function RiesgosPage() {
             transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
             className="font-display text-[0.62rem] font-semibold tracking-[0.4em] text-allitron-orange"
           >
-            10 PUNTOS QUE NO DEBEN DARSE POR RESUELTOS
+            12 PUNTOS QUE NO DEBEN DARSE POR RESUELTOS
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
