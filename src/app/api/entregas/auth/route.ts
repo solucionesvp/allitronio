@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 const CODE_BY_SCOPE: Record<string, string | undefined> = {
   entregas_familia: process.env.ENTREGAS_CODE_FAMILIA,
   entregas_shineray: process.env.ENTREGAS_CODE_SHINERAY,
+  entregas_fundadores: process.env.ENTREGAS_CODE_FUNDADORES,
 };
 
 const VALID_SCOPES = new Set(Object.keys(CODE_BY_SCOPE));

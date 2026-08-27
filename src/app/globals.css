@@ -36,6 +36,12 @@
 
 html {
   scroll-behavior: smooth;
+  /* Fix (ago 2026): en iOS Safari, `overflow-x: hidden` solo en `body` no
+     alcanza a evitar el rebote lateral al hacer scroll si algún elemento
+     (blobs decorativos, Alli posicionado absoluto, etc.) empuja el ancho
+     del documento más allá del viewport. Hay que ponerlo también en
+     `html`, que es el elemento que realmente hace scroll en mobile. */
+  overflow-x: hidden;
 }
 
 body {

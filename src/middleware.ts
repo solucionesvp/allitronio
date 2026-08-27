@@ -4,11 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 // No es un truco de JS en el cliente: si no hay cookie válida, el servidor
 // nunca manda el HTML de la página protegida, redirige a /entregas/acceso.
 
-type Scope = "entregas_familia" | "entregas_shineray";
+type Scope = "entregas_familia" | "entregas_shineray" | "entregas_fundadores";
 
 const PROTECTED: { prefix: string; scope: Scope }[] = [
   { prefix: "/entregas/valdes-menchaca-talavera", scope: "entregas_familia" },
   { prefix: "/entregas/shineray", scope: "entregas_shineray" },
+  { prefix: "/entregas/fundadores-agosto26", scope: "entregas_fundadores" },
 ];
 
 export function middleware(req: NextRequest) {
