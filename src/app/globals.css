@@ -186,6 +186,35 @@ body {
     mask-composite: exclude;
   }
 
+  /* ——— Neumorfismo — hub de entregas —————————————————————————————
+     Superficie táctil clara para los hubs bento de /entregas (dashboards de
+     acceso a documentos y media). Distinta de `.glass` (translúcida sobre
+     fondo oscuro): aquí el relleno es sólido (--color-light) y la
+     profundidad viene de dos sombras —una clara, una oscura con tinte navy
+     de marca en vez de negro puro— para que no se lea como neumorfismo
+     genérico. `.neu` = superficie elevada (tarjetas); `.neu-inset` =
+     superficie hundida (el "socket" donde se asienta un ícono). */
+  .neu {
+    background: var(--color-light);
+    box-shadow:
+      10px 10px 22px rgba(3, 64, 88, 0.14),
+      -10px -10px 22px rgba(255, 255, 255, 0.9);
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+  }
+
+  .neu-hover:hover {
+    box-shadow:
+      14px 14px 30px rgba(3, 64, 88, 0.18),
+      -14px -14px 30px rgba(255, 255, 255, 0.95);
+  }
+
+  .neu-inset {
+    background: var(--color-light);
+    box-shadow:
+      inset 5px 5px 12px rgba(3, 64, 88, 0.14),
+      inset -5px -5px 12px rgba(255, 255, 255, 0.85);
+  }
+
   /* ——— Alli del hero ————————————————————————————————————————————
      La posición horizontal vive solo aquí (no se usa `left-1/2` en el
      componente) para que no compita con las utilidades de Tailwind: en móvil

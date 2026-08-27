@@ -71,6 +71,51 @@ Sigue sin usarse dentro del contenido de cada sección — solo en las transicio
 
 ---
 
+## Íconos por tipo de contenido (hub de entrega — bento)
+
+Set de 6 íconos vectoriales para identificar tipo de pieza en cualquier hub de
+entrega bento (documentos, PDF, video, etc.), estilo glass/táctil ligero
+consistente con la dirección visual de la marca. SVG (vectorial, no requiere
+@2x/@3x).
+
+| Archivo | Ruta en `public/` | Uso |
+|---|---|---|
+| `documento.svg` | `assets/brand/icons-contenido/documento.svg` | Tarjeta de documento genérico (Word, notas, etc.) |
+| `pdf.svg` | `assets/brand/icons-contenido/pdf.svg` | Tarjeta de PDF |
+| `video.svg` | `assets/brand/icons-contenido/video.svg` | Tarjeta de video |
+| `presentacion.svg` | `assets/brand/icons-contenido/presentacion.svg` | Tarjeta de presentación/deck |
+| `imagen.svg` | `assets/brand/icons-contenido/imagen.svg` | Tarjeta de imagen/foto |
+| `link.svg` | `assets/brand/icons-contenido/link.svg` | Tarjeta de link externo |
+
+> Generados como vector para que escalen limpio en cualquier tamaño de tarjeta
+> bento sin pesar. Acentos alternan azul `#09AFF2` y naranja `#F2874C` sobre
+> base glass navy/casi-negro, para que las tarjetas del hub se distingan entre
+> sí a simple vista.
+
+---
+
+## Entregas — hub Valdés Menchaca Talavera (reunión Shineray 25 agosto 2026)
+
+Videos mostrados en la reunión, referenciados desde el modal "Videos mostrados
+en la reunión" del hub interno (`/entregas/valdes-menchaca-talavera`). Hasta
+que se coloque el archivo real, se muestra un poster/placeholder — el modal
+nunca queda vacío.
+
+| Archivo | Ruta en `public/` | Uso |
+|---|---|---|
+| `video-historia-empresarial.mp4` | `assets/entregas/valdes-menchaca-talavera/video-historia-empresarial.mp4` | Video "historia empresarial" mostrado en la reunión |
+| `video-historia-empresarial-poster.webp` | `assets/entregas/valdes-menchaca-talavera/video-historia-empresarial-poster.webp` | Poster/placeholder del video anterior (tema `city`) mientras no exista el .mp4 |
+| `video-por-que-confiar.mp4` | `assets/entregas/valdes-menchaca-talavera/video-por-que-confiar.mp4` | Video "por qué confiar en nosotros" mostrado en la reunión |
+| `video-por-que-confiar-poster.webp` | `assets/entregas/valdes-menchaca-talavera/video-por-que-confiar-poster.webp` | Poster/placeholder del video anterior (tema `spaceExterior`) mientras no exista el .mp4 |
+
+> Registrado en `ENTREGAS.valdesMenchacaTalavera` (`src/config/assets.ts`). Al
+> colocar los `.mp4` reales en esta ruta, sustituyen el poster automáticamente
+> — no requiere tocar código. Este hub y su contenido son de uso interno
+> (familia), protegidos por passcode server-side (`middleware.ts` +
+> `ENTREGAS_CODE_FAMILIA`); no se exponen al hub de Shineray.
+
+---
+
 ## Productos — Allitron 90
 
 | Archivo | Ruta en `public/` | Uso |

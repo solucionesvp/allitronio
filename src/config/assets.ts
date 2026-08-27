@@ -123,6 +123,30 @@ export const PEOPLE = {
   lups: `${B}/people/lups.webp`,
 } as const;
 
+// ── Content-type icons (bento de entrega) ─────────────────────────
+export const ICONS_CONTENIDO = {
+  documento: `${B}/brand/icons-contenido/documento.svg`,
+  pdf: `${B}/brand/icons-contenido/pdf.svg`,
+  video: `${B}/brand/icons-contenido/video.svg`,
+  presentacion: `${B}/brand/icons-contenido/presentacion.svg`,
+  imagen: `${B}/brand/icons-contenido/imagen.svg`,
+  link: `${B}/brand/icons-contenido/link.svg`,
+} as const;
+
+// ── Entregas — hubs privados por cliente/reunión ──────────────────
+export const ENTREGAS = {
+  valdesMenchacaTalavera: {
+    /** VIDEO 1 mostrado en la reunión — historia empresarial desde 1958 */
+    videoHistoria: `${B}/entregas/valdes-menchaca-talavera/video-historia-empresarial.mp4`,
+    /** Poster/placeholder de Video 1 mientras no exista el archivo real */
+    videoHistoriaPoster: `${B}/entregas/valdes-menchaca-talavera/video-historia-empresarial-poster.webp`,
+    /** VIDEO 2 — "por qué Shineray debe confiar en nosotros" */
+    videoConfianza: `${B}/entregas/valdes-menchaca-talavera/video-por-que-confiar.mp4`,
+    /** Poster/placeholder de Video 2 mientras no exista el archivo real */
+    videoConfianzaPoster: `${B}/entregas/valdes-menchaca-talavera/video-por-que-confiar-poster.webp`,
+  },
+} as const;
+
 // ── Placeholders remotos ─────────────────────────────────────────
 /**
  * Fotos reales (Unsplash, licencia libre) que se muestran mientras el asset
@@ -202,6 +226,8 @@ export const ASSETS = {
   nayarit: NAYARIT,
   events: EVENTS,
   people: PEOPLE,
+  iconsContenido: ICONS_CONTENIDO,
+  entregas: ENTREGAS,
 } as const;
 
 export type AssetPath = string;
