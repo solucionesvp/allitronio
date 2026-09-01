@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const allowed = ["nombre", "tipo", "propietario_inversion", "descripcion", "recurrente_mensual_mxn", "activo", "orden"];
+  const allowed = ["nombre", "tipo", "propietario_inversion", "descripcion", "recurrente_mensual_mxn", "precio_recuperacion_mensual", "meta_clientes_recuperacion", "activo", "orden"];
   const update: Record<string, unknown> = {};
   for (const k of allowed) if (k in body) update[k] = body[k];
 

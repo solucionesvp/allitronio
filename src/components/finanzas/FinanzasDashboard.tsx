@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Plus, RefreshCcw, X, Trash2, Settings, Archive } from "lucide-react";
+import { Download, Plus, RefreshCcw, X, Trash2, Settings, Archive, Calculator } from "lucide-react";
 
 // ── Tipos ────────────────────────────────────────────────────────────────
 export interface Proyecto {
@@ -12,6 +12,8 @@ export interface Proyecto {
   propietario_inversion: "Lups" | "Alejandro" | "Allitron" | "Miki" | "Mixto";
   descripcion: string | null;
   recurrente_mensual_mxn: number | null;
+  precio_recuperacion_mensual: number | null;
+  meta_clientes_recuperacion: number | null;
   activo: boolean;
   orden: number;
 }
@@ -45,6 +47,14 @@ const ESTADOS = ["Pagado", "Recurrente activo", "Proyectado"] as const;
 const TIPOS = ["producto", "evento", "activo_socio"] as const;
 const PROPIETARIOS = ["Lups", "Alejandro", "Allitron", "Miki", "Mixto"] as const;
 const HORIZONTES = [3, 6, 12] as const;
+const TABS = [
+  { id: "resumen", label: "Resumen" },
+  { id: "movimientos", label: "Movimientos" },
+  { id: "recuperacion", label: "Recuperación" },
+  { id: "servicios", label: "Servicios" },
+  { id: "socios", label: "Activos de socios" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
 
 function fmtMXN(n: number) {
   return "$" + Math.round(n).toLocaleString("es-MX") + " MXN";
@@ -77,6 +87,8 @@ type ProyForm = {
   propietario_inversion: (typeof PROPIETARIOS)[number];
   descripcion: string;
   recurrente_mensual_mxn: string;
+  precio_recuperacion_mensual: string;
+  meta_clientes_recuperacion: string;
 };
 
 type ServForm = {
@@ -96,6 +108,8 @@ const EMPTY_PROY_FORM: ProyForm = {
   propietario_inversion: "Lups",
   descripcion: "",
   recurrente_mensual_mxn: "0",
+  precio_recuperacion_mensual: "0",
+  meta_clientes_recuperacion: "0",
 };
 
 const EMPTY_SERV_FORM: ServForm = {
@@ -138,6 +152,8 @@ export default function FinanzasDashboard({
   const [servicios, setServicios] = useState<Servicio[]>(initialServicios);
   const [tipoCambio, setTipoCambio] = useState(initialTipoCambio);
 
+  const [tab, setTab] = useState<TabId>("resumen");
+
   const [fProyecto, setFProyecto] = useState("");
   const [fQuien, setFQuien] = useState("");
   const [fEstado, setFEstado] = useState("");
@@ -161,6 +177,13 @@ export default function FinanzasDashboard({
   });
   const [proyForm, setProyForm] = useState<ProyForm>(EMPTY_PROY_FORM);
   const [servForm, setServForm] = useState<ServForm>(EMPTY_SERV_FORM);
+
+  // Recuperación: producto seleccionado + simulador de clientes (no se
+  // guarda, es solo para "jugar" con escenarios)
+  const [recuperaProyId, setRecuperaProyId] = useState<string>("");
+  const [simClientes, setSimClientes] = useState<string>("");
+  const [recuperaEditOpen, setRecuperaEditOpen] = useState(false);
+  const [recuperaDraft, setRecuperaDraft] = useState({ precio: "0", meta: "0" });
 
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -248,9 +271,8 @@ export default function FinanzasDashboard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [movimientosActivosSocios, catalogoActivosSocios, tipoCambio]);
 
-  // Proyecciones: recurrente_mensual_mxn (estimado manual por proyecto) x
-  // horizonte + lo ya marcado como "Proyectado" en movimientos (dato real
-  // capturado, no inventado).
+  // Proyección de gasto: recurrente_mensual_mxn (estimado manual) x
+  // horizonte + lo ya marcado como "Proyectado" en movimientos.
   const proyecciones = useMemo(() => {
     return catalogoProductos
       .map((p) => {
@@ -262,15 +284,36 @@ export default function FinanzasDashboard({
   }, [catalogoProductos, horizonte, summary]);
   const proyeccionTotal = proyecciones.reduce((acc, r) => acc + r.total, 0);
 
+  // Servicios activos reales por proyecto (clientes en bruto, sin nombres)
+  const clientesRealesPorProyecto = useMemo(() => {
+    const map: Record<string, number> = {};
+    servicios.forEach((s) => {
+      if (!s.proyecto_id) return;
+      map[s.proyecto_id] = (map[s.proyecto_id] || 0) + s.clientes_activos;
+    });
+    return map;
+  }, [servicios]);
+
+  // ── Recuperación de inversión: selección de producto → cálculo en vivo ──
+  const recuperaProy = recuperaProyId ? proyectosById[recuperaProyId] : catalogoProductos[0];
+  const recuperaTotalInvertido = recuperaProy ? summary.porProyecto[recuperaProy.id]?.gastado || 0 : 0;
+  const recuperaClientesReales = recuperaProy ? clientesRealesPorProyecto[recuperaProy.id] || 0 : 0;
+  const recuperaClientesSim =
+    simClientes !== "" ? parseFloat(simClientes) || 0 : recuperaProy?.meta_clientes_recuperacion || recuperaClientesReales || 0;
+  const recuperaPrecio = recuperaProy?.precio_recuperacion_mensual || 0;
+  const recuperaIngresoMensual = recuperaPrecio * recuperaClientesSim;
+  const recuperaMeses = recuperaIngresoMensual > 0 ? recuperaTotalInvertido / recuperaIngresoMensual : null;
+  const recuperaAnos = recuperaMeses !== null ? recuperaMeses / 12 : null;
+
   // ── Movimientos: CRUD ─────────────────────────────────────────────────
-  function openAddMov() {
+  function openAddMov(defaultProyectoId?: string) {
     setMovForm({
-      proyecto_id: catalogoProductos[0]?.id || "",
+      proyecto_id: defaultProyectoId || catalogoProductos[0]?.id || "",
       concepto: "",
       fecha: "",
       monto: "",
       moneda: "MXN",
-      quien_pago: "Lups",
+      quien_pago: defaultProyectoId && proyectosById[defaultProyectoId]?.tipo === "activo_socio" ? "Alejandro" : "Lups",
       estado: "Pagado",
       notas: "",
     });
@@ -367,6 +410,8 @@ export default function FinanzasDashboard({
       propietario_inversion: p.propietario_inversion,
       descripcion: p.descripcion || "",
       recurrente_mensual_mxn: String(p.recurrente_mensual_mxn || 0),
+      precio_recuperacion_mensual: String(p.precio_recuperacion_mensual || 0),
+      meta_clientes_recuperacion: String(p.meta_clientes_recuperacion || 0),
     });
   }
   function resetProyForm() {
@@ -383,6 +428,8 @@ export default function FinanzasDashboard({
       propietario_inversion: proyForm.propietario_inversion,
       descripcion: proyForm.descripcion.trim(),
       recurrente_mensual_mxn: parseFloat(proyForm.recurrente_mensual_mxn) || 0,
+      precio_recuperacion_mensual: parseFloat(proyForm.precio_recuperacion_mensual) || 0,
+      meta_clientes_recuperacion: parseInt(proyForm.meta_clientes_recuperacion, 10) || 0,
     };
     try {
       if (proyForm.id) {
@@ -435,6 +482,41 @@ export default function FinanzasDashboard({
         }
       } else {
         showToast("No se pudo archivar (" + json.error + ").");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Guardado rápido de los supuestos de recuperación desde la pestaña
+  // Recuperación (sin pasar por el modal completo de catálogo).
+  function openRecuperaEdit() {
+    if (!recuperaProy) return;
+    setRecuperaDraft({
+      precio: String(recuperaProy.precio_recuperacion_mensual || 0),
+      meta: String(recuperaProy.meta_clientes_recuperacion || 0),
+    });
+    setRecuperaEditOpen(true);
+  }
+  async function handleSaveRecupera() {
+    if (!recuperaProy) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/finanzas/proyectos/${recuperaProy.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          precio_recuperacion_mensual: parseFloat(recuperaDraft.precio) || 0,
+          meta_clientes_recuperacion: parseInt(recuperaDraft.meta, 10) || 0,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setProyectos((prev) => prev.map((p) => (p.id === recuperaProy.id ? json.proyecto : p)));
+        setRecuperaEditOpen(false);
+        showToast("Supuestos de recuperación guardados.");
+      } else {
+        showToast("No se pudo guardar.");
       }
     } finally {
       setBusy(false);
@@ -567,14 +649,14 @@ export default function FinanzasDashboard({
 
   return (
     <main className="min-h-svh bg-slate-50 px-4 pb-24 pt-8 text-slate-900 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-[1180px]">
-        <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mx-auto max-w-[1100px]">
+        <header className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-[1.35rem] font-bold text-slate-900">Allitron — Control Financiero</h1>
-            <p className="font-body text-[0.8rem] text-slate-500">
+            <h1 className="font-display text-[1.3rem] font-bold text-slate-900">Allitron — Control Financiero</h1>
+            <p className="font-body text-[0.78rem] text-slate-500">
               Sesión: <span className="font-semibold text-allitron-blue">{isAdmin ? "administrador" : "solo consulta"}</span>
               {!configurado && (
-                <span className="ml-2 font-semibold text-allitron-orange">· Supabase no configurado todavía en este entorno</span>
+                <span className="ml-2 font-semibold text-allitron-orange">· Supabase no configurado todavía</span>
               )}
             </p>
           </div>
@@ -585,244 +667,375 @@ export default function FinanzasDashboard({
               </button>
             )}
             {isAdmin && (
-              <button onClick={() => setServiciosOpen(true)} className={btnGhost}>
-                <Settings size={14} /> Servicios
-              </button>
-            )}
-            {isAdmin && (
               <button onClick={() => setFxOpen(true)} className={btnGhost}>
                 <RefreshCcw size={14} /> Tipo de cambio ({tipoCambio})
               </button>
             )}
             <button onClick={exportCsv} className={btnGhost}>
-              <Download size={14} /> Exportar CSV
+              <Download size={14} /> CSV
             </button>
             {isAdmin && (
-              <button onClick={openAddMov} className={btnPrimary}>
+              <button onClick={() => openAddMov()} className={btnPrimary}>
                 <Plus size={15} /> Agregar movimiento
               </button>
             )}
           </div>
         </header>
 
-        {/* ── Resumen productos/eventos Allitron ── */}
-        <h2 className="mb-3 font-display text-[0.85rem] font-bold uppercase tracking-wide text-slate-500">
-          Productos, servicios y eventos — inversión de Lups aportada a Allitron
-        </h2>
-        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <div className={`${card} col-span-2 lg:col-span-3`}>
-            <p className="font-body text-[0.68rem] uppercase tracking-wider text-slate-500">Total gastado / comprometido</p>
-            <p className="mt-2 font-display text-[1.6rem] font-bold text-slate-900">{fmtMXN(summary.gastado)}</p>
-          </div>
-          <div className={`${card} col-span-2 lg:col-span-3`}>
-            <p className="font-body text-[0.68rem] uppercase tracking-wider text-slate-500">Proyectado (no gastado aún)</p>
-            <p className="mt-2 font-display text-[1.6rem] font-bold text-allitron-orange">{fmtMXN(summary.proyectado)}</p>
-          </div>
-          {PERSONAS.map((p) => (
-            <div key={p} className={`${card} sm:col-span-1`}>
-              <p className="font-body text-[0.65rem] uppercase tracking-wider text-slate-500">Aportado por {p}</p>
-              <p className="mt-1.5 font-display text-[1.05rem] font-bold text-slate-900">{fmtMXN(summary.porPersona[p] || 0)}</p>
-            </div>
+        {/* ── Navegación por pestañas ── */}
+        <nav className="mb-6 flex flex-wrap gap-1.5 border-b border-slate-200 pb-2">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`rounded-lg px-3.5 py-1.5 font-body text-[0.8rem] font-bold transition ${
+                tab === t.id ? "bg-allitron-blue text-white" : "text-slate-500 hover:bg-white hover:text-slate-800"
+              }`}
+            >
+              {t.label}
+            </button>
           ))}
-          {catalogoProductos.map((p) => (
-            <div key={p.id} className={`${card} sm:col-span-1`}>
-              <p className="font-body text-[0.65rem] uppercase tracking-wider text-slate-500">{p.nombre}</p>
-              <p className="mt-1.5 font-display text-[1.05rem] font-bold text-slate-900">{fmtMXN(summary.porProyecto[p.id]?.gastado || 0)}</p>
-              {(summary.porProyecto[p.id]?.proyectado || 0) > 0 && (
-                <p className="mt-0.5 font-body text-[0.68rem] font-semibold text-allitron-orange">
-                  + {fmtMXN(summary.porProyecto[p.id].proyectado)} proyectado
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+        </nav>
 
-        {/* ── Proyecciones ── */}
-        <section className={`${card} mb-8`}>
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-[0.95rem] font-bold text-slate-900">Proyección de gasto</h2>
-            <div className="flex gap-1.5">
-              {HORIZONTES.map((h) => (
-                <button
-                  key={h}
-                  onClick={() => setHorizonte(h)}
-                  className={`rounded-lg px-3 py-1.5 font-body text-[0.75rem] font-bold ${
-                    horizonte === h ? "bg-allitron-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {h} meses
-                </button>
-              ))}
+        {/* ═══════════════ RESUMEN ═══════════════ */}
+        {tab === "resumen" && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className={card}>
+                <p className="font-body text-[0.68rem] uppercase tracking-wider text-slate-500">Total gastado / comprometido</p>
+                <p className="mt-2 font-display text-[1.5rem] font-bold text-slate-900">{fmtMXN(summary.gastado)}</p>
+                <p className="mt-1 font-body text-[0.7rem] text-slate-400">Productos, servicios y eventos — no incluye activos de socios</p>
+              </div>
+              <div className={card}>
+                <p className="font-body text-[0.68rem] uppercase tracking-wider text-slate-500">Proyectado (no gastado aún)</p>
+                <p className="mt-2 font-display text-[1.5rem] font-bold text-allitron-orange">{fmtMXN(summary.proyectado)}</p>
+              </div>
             </div>
-          </div>
-          {proyecciones.length === 0 ? (
-            <p className="font-body text-[0.8rem] text-slate-500">
-              Sin proyección todavía. Define un &quot;gasto recurrente mensual estimado&quot; por proyecto desde Catálogo, o marca
-              movimientos futuros con estado &quot;Proyectado&quot;.
-            </p>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {proyecciones.map((r) => (
-                  <div key={r.proyecto.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-                    <p className="font-body text-[0.7rem] font-bold text-slate-600">{r.proyecto.nombre}</p>
-                    <p className="mt-1 font-display text-[1.05rem] font-bold text-slate-900">{fmtMXN(r.total)}</p>
-                    <p className="font-body text-[0.66rem] text-slate-500">
-                      {r.recurrente > 0 && `${fmtMXN(r.recurrente)} recurrente`}
-                      {r.recurrente > 0 && r.proyectadoManual > 0 && " + "}
-                      {r.proyectadoManual > 0 && `${fmtMXN(r.proyectadoManual)} marcado`}
-                    </p>
+
+            <div className={card}>
+              <p className="mb-2.5 font-body text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">Aportado por</p>
+              <div className="flex flex-wrap gap-4">
+                {PERSONAS.map((p) => (
+                  <div key={p}>
+                    <p className="font-body text-[0.7rem] text-slate-500">{p}</p>
+                    <p className="font-display text-[1rem] font-bold text-slate-900">{fmtMXN(summary.porPersona[p] || 0)}</p>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 font-body text-[0.78rem] font-bold text-slate-700">
-                Total proyectado a {horizonte} meses: <span className="text-allitron-blue">{fmtMXN(proyeccionTotal)}</span>
-              </p>
-            </>
-          )}
-          <p className="mt-3 font-body text-[0.68rem] leading-relaxed text-slate-400">
-            El &quot;recurrente mensual estimado&quot; es un dato que captura el admin a criterio por proyecto (Catálogo → editar) —
-            no se infiere automáticamente del histórico, que no viene desglosado mes a mes.
-          </p>
-        </section>
+            </div>
 
-        {/* ── Filtros + tabla de movimientos ── */}
-        <section className={`${card} mb-8`}>
-          <div className="mb-4 flex flex-wrap gap-2">
-            <select value={fProyecto} onChange={(e) => setFProyecto(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
-              <option value="">Todos los proyectos</option>
-              {catalogoProductos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
-            <select value={fQuien} onChange={(e) => setFQuien(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
-              <option value="">Todos (Lups / Alejandro / Miki)</option>
-              {PERSONAS.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-            <select value={fEstado} onChange={(e) => setFEstado(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
-              <option value="">Todos los estados</option>
-              {ESTADOS.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse font-body text-[0.8rem]">
-              <thead>
-                <tr className="border-b border-slate-200 text-left text-[0.68rem] uppercase tracking-wide text-slate-500">
-                  <th className="py-2 pr-3">Fecha</th>
-                  <th className="py-2 pr-3">Proyecto</th>
-                  <th className="py-2 pr-3">Concepto</th>
-                  <th className="py-2 pr-3 text-right">Monto</th>
-                  <th className="py-2 pr-3 text-right">MXN</th>
-                  <th className="py-2 pr-3">Quién</th>
-                  <th className="py-2 pr-3">Estado</th>
-                  <th className="py-2 pr-3">Notas</th>
-                  {isAdmin && <th className="py-2 pr-3"></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((m) => (
-                  <tr key={m.id} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="py-2.5 pr-3 whitespace-nowrap">{m.fecha}</td>
-                    <td className="py-2.5 pr-3">{proyectosById[m.proyecto_id]?.nombre || "—"}</td>
-                    <td className="py-2.5 pr-3">{m.concepto}</td>
-                    <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtOriginal(m.monto, m.moneda)}</td>
-                    <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtMXN(toMXN(m))}</td>
-                    <td className="py-2.5 pr-3">{m.quien_pago}</td>
-                    <td className="py-2.5 pr-3">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[0.68rem] font-bold ${
-                          m.estado === "Pagado"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : m.estado === "Proyectado"
-                            ? "bg-amber-50 text-amber-600"
-                            : "bg-orange-50 text-allitron-orange"
-                        }`}
-                      >
-                        {m.estado}
-                      </span>
-                    </td>
-                    <td className="py-2.5 pr-3 max-w-[220px] text-slate-500">{m.notas}</td>
-                    {isAdmin && (
-                      <td className="py-2.5 pr-3">
-                        <button onClick={() => openEditMov(m)} className="rounded-lg border border-slate-200 px-2.5 py-1 text-[0.72rem] text-slate-700 hover:bg-slate-100">
-                          Editar
-                        </button>
-                      </td>
-                    )}
-                  </tr>
+            <div className={card}>
+              <p className="mb-3 font-body text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">Por proyecto</p>
+              <div className="divide-y divide-slate-100">
+                {catalogoProductos.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between py-2.5">
+                    <span className="font-body text-[0.82rem] text-slate-700">{p.nombre}</span>
+                    <span className="text-right">
+                      <span className="font-body text-[0.85rem] font-bold text-slate-900">{fmtMXN(summary.porProyecto[p.id]?.gastado || 0)}</span>
+                      {(summary.porProyecto[p.id]?.proyectado || 0) > 0 && (
+                        <span className="ml-2 font-body text-[0.7rem] font-semibold text-allitron-orange">
+                          +{fmtMXN(summary.porProyecto[p.id].proyectado)}
+                        </span>
+                      )}
+                    </span>
+                  </div>
                 ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={isAdmin ? 9 : 8} className="py-8 text-center text-slate-400">
-                      No hay movimientos con este filtro todavía.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              </div>
+            </div>
           </div>
-        </section>
+        )}
 
-        {/* ── Servicios activos (valor + clientes en bruto, sin nombres) ── */}
-        {servicios.length > 0 && (
-          <section className={`${card} mb-8`}>
-            <h2 className="mb-3 font-display text-[0.95rem] font-bold text-slate-900">Servicios activos</h2>
+        {/* ═══════════════ MOVIMIENTOS ═══════════════ */}
+        {tab === "movimientos" && (
+          <section className={card}>
+            <div className="mb-4 flex flex-wrap gap-2">
+              <select value={fProyecto} onChange={(e) => setFProyecto(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
+                <option value="">Todos los proyectos</option>
+                {catalogoProductos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+              <select value={fQuien} onChange={(e) => setFQuien(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
+                <option value="">Todos (Lups / Alejandro / Miki)</option>
+                {PERSONAS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+              <select value={fEstado} onChange={(e) => setFEstado(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
+                <option value="">Todos los estados</option>
+                {ESTADOS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] border-collapse font-body text-[0.8rem]">
+              <table className="w-full min-w-[760px] border-collapse font-body text-[0.8rem]">
                 <thead>
                   <tr className="border-b border-slate-200 text-left text-[0.68rem] uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-3">Servicio</th>
+                    <th className="py-2 pr-3">Fecha</th>
                     <th className="py-2 pr-3">Proyecto</th>
-                    <th className="py-2 pr-3 text-right">Valor</th>
-                    <th className="py-2 pr-3">Periodicidad</th>
-                    <th className="py-2 pr-3 text-right">Clientes activos</th>
+                    <th className="py-2 pr-3">Concepto</th>
+                    <th className="py-2 pr-3 text-right">Monto</th>
+                    <th className="py-2 pr-3 text-right">MXN</th>
+                    <th className="py-2 pr-3">Quién</th>
+                    <th className="py-2 pr-3">Estado</th>
+                    {isAdmin && <th className="py-2 pr-3"></th>}
                   </tr>
                 </thead>
                 <tbody>
-                  {servicios.map((s) => (
-                    <tr key={s.id} className="border-b border-slate-100">
-                      <td className="py-2.5 pr-3">{s.nombre}</td>
-                      <td className="py-2.5 pr-3">{s.proyecto_id ? proyectosById[s.proyecto_id]?.nombre || "—" : "—"}</td>
-                      <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtOriginal(s.valor, s.moneda)}</td>
-                      <td className="py-2.5 pr-3 capitalize">{s.periodicidad}</td>
-                      <td className="py-2.5 pr-3 text-right">{s.clientes_activos}</td>
+                  {filtered.map((m) => (
+                    <tr key={m.id} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="py-2.5 pr-3 whitespace-nowrap">{m.fecha}</td>
+                      <td className="py-2.5 pr-3">{proyectosById[m.proyecto_id]?.nombre || "—"}</td>
+                      <td className="py-2.5 pr-3">{m.concepto}</td>
+                      <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtOriginal(m.monto, m.moneda)}</td>
+                      <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtMXN(toMXN(m))}</td>
+                      <td className="py-2.5 pr-3">{m.quien_pago}</td>
+                      <td className="py-2.5 pr-3">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[0.68rem] font-bold ${
+                            m.estado === "Pagado"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : m.estado === "Proyectado"
+                              ? "bg-amber-50 text-amber-600"
+                              : "bg-orange-50 text-allitron-orange"
+                          }`}
+                        >
+                          {m.estado}
+                        </span>
+                      </td>
+                      {isAdmin && (
+                        <td className="py-2.5 pr-3">
+                          <button onClick={() => openEditMov(m)} className="rounded-lg border border-slate-200 px-2.5 py-1 text-[0.72rem] text-slate-700 hover:bg-slate-100">
+                            Editar
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={isAdmin ? 8 : 7} className="py-8 text-center text-slate-400">
+                        No hay movimientos con este filtro todavía.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </section>
         )}
 
-        {/* ── Activos de socios — completamente separado ── */}
-        {catalogoActivosSocios.length > 0 && (
-          <section className="rounded-2xl border border-dashed border-slate-300 bg-slate-100/60 p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <Archive size={16} className="text-slate-500" />
-              <h2 className="font-display text-[0.95rem] font-bold text-slate-700">Activos de socios (independiente de Allitron-productos)</h2>
+        {/* ═══════════════ RECUPERACIÓN (interconectado por producto) ═══════════════ */}
+        {tab === "recuperacion" && (
+          <div className="space-y-4">
+            <div className={card}>
+              <label className={labelCls}>
+                Elegir producto / servicio
+                <select
+                  value={recuperaProy?.id || ""}
+                  onChange={(e) => { setRecuperaProyId(e.target.value); setSimClientes(""); }}
+                  className={inputCls}
+                >
+                  {catalogoProductos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+              </label>
             </div>
-            <p className="mb-4 font-body text-[0.75rem] leading-relaxed text-slate-500">
-              Inversión física de cada socio (p. ej. el edificio/hub de Alejandro), separada por completo de lo que Lups aporta en
-              productos. No se suma a los totales de arriba. El acuerdo entre ambas inversiones queda pendiente entre Lups y
-              Alejandro.
-            </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {catalogoActivosSocios.map((p) => (
-                <div key={p.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="font-body text-[0.72rem] font-bold text-slate-600">{p.nombre}</p>
-                  <p className="mt-1 font-display text-[1.15rem] font-bold text-slate-900">{fmtMXN(summaryActivos.porActivo[p.id] || 0)}</p>
-                  <p className="mt-1 font-body text-[0.68rem] text-slate-400">Inversión de: {p.propietario_inversion}</p>
+
+            {recuperaProy && (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <div className={card}>
+                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-slate-500">Invertido</p>
+                    <p className="mt-1 font-display text-[1.1rem] font-bold text-slate-900">{fmtMXN(recuperaTotalInvertido)}</p>
+                  </div>
+                  <div className={card}>
+                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-slate-500">Precio / cliente / mes</p>
+                    <p className="mt-1 font-display text-[1.1rem] font-bold text-slate-900">{fmtMXN(recuperaPrecio)}</p>
+                  </div>
+                  <div className={card}>
+                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-slate-500">Clientes activos hoy</p>
+                    <p className="mt-1 font-display text-[1.1rem] font-bold text-slate-900">{recuperaClientesReales}</p>
+                  </div>
+                  {isAdmin && (
+                    <button onClick={openRecuperaEdit} className={`${btnGhost} h-full justify-center`}>
+                      <Settings size={14} /> Ajustar precio / meta
+                    </button>
+                  )}
                 </div>
-              ))}
+
+                <div className={card}>
+                  <div className="mb-3 flex items-center gap-2">
+                    <Calculator size={16} className="text-allitron-blue" />
+                    <p className="font-body text-[0.82rem] font-bold text-slate-800">Simulador de recuperación</p>
+                  </div>
+                  <label className={labelCls}>
+                    ¿Con cuántos clientes quieres simular?
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder={String(recuperaProy.meta_clientes_recuperacion || recuperaClientesReales || 0)}
+                      value={simClientes}
+                      onChange={(e) => setSimClientes(e.target.value)}
+                      className={inputCls}
+                    />
+                  </label>
+
+                  {recuperaPrecio <= 0 ? (
+                    <p className="mt-4 font-body text-[0.8rem] text-slate-500">
+                      Falta definir el precio mensual por cliente de este producto (botón &quot;Ajustar precio / meta&quot;) para poder calcular la recuperación.
+                    </p>
+                  ) : (
+                    <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="font-body text-[0.66rem] uppercase text-slate-500">Ingreso mensual</p>
+                        <p className="mt-1 font-display text-[1.05rem] font-bold text-slate-900">{fmtMXN(recuperaIngresoMensual)}</p>
+                      </div>
+                      <div>
+                        <p className="font-body text-[0.66rem] uppercase text-slate-500">Meses para recuperar</p>
+                        <p className="mt-1 font-display text-[1.05rem] font-bold text-allitron-blue">
+                          {recuperaMeses !== null ? recuperaMeses.toFixed(1) : "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-body text-[0.66rem] uppercase text-slate-500">Años para recuperar</p>
+                        <p className="mt-1 font-display text-[1.05rem] font-bold text-slate-900">
+                          {recuperaAnos !== null ? recuperaAnos.toFixed(1) : "—"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <p className="mt-4 font-body text-[0.68rem] leading-relaxed text-slate-400">
+                    Cálculo: (invertido) ÷ (precio por cliente × clientes simulados). El precio y la meta de clientes los defines tú
+                    por producto; el número de clientes de la simulación es libre, solo para explorar escenarios.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* ── Proyección de gasto futuro (horizonte) ── */}
+            <div className={card}>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <p className="font-body text-[0.82rem] font-bold text-slate-800">Proyección de gasto futuro</p>
+                <div className="flex gap-1.5">
+                  {HORIZONTES.map((h) => (
+                    <button
+                      key={h}
+                      onClick={() => setHorizonte(h)}
+                      className={`rounded-lg px-3 py-1.5 font-body text-[0.75rem] font-bold ${
+                        horizonte === h ? "bg-allitron-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {h}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {proyecciones.length === 0 ? (
+                <p className="font-body text-[0.8rem] text-slate-500">
+                  Sin proyección definida. Ajusta el &quot;gasto recurrente mensual&quot; de un proyecto desde Catálogo.
+                </p>
+              ) : (
+                <>
+                  <div className="divide-y divide-slate-100">
+                    {proyecciones.map((r) => (
+                      <div key={r.proyecto.id} className="flex items-center justify-between py-2">
+                        <span className="font-body text-[0.8rem] text-slate-700">{r.proyecto.nombre}</span>
+                        <span className="font-body text-[0.85rem] font-bold text-slate-900">{fmtMXN(r.total)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 font-body text-[0.78rem] font-bold text-slate-700">
+                    Total a {horizonte} meses: <span className="text-allitron-blue">{fmtMXN(proyeccionTotal)}</span>
+                  </p>
+                </>
+              )}
             </div>
-            <p className="mt-3 font-body text-[0.78rem] font-bold text-slate-700">
-              Total activos de socios: <span className="text-slate-900">{fmtMXN(summaryActivos.total)}</span>
-            </p>
+          </div>
+        )}
+
+        {/* ═══════════════ SERVICIOS ═══════════════ */}
+        {tab === "servicios" && (
+          <section className={card}>
+            <div className="mb-3 flex items-center justify-between">
+              <p className="font-body text-[0.82rem] font-bold text-slate-800">Servicios activos</p>
+              {isAdmin && (
+                <button onClick={() => setServiciosOpen(true)} className={btnGhost}>
+                  <Plus size={14} /> Gestionar
+                </button>
+              )}
+            </div>
+            {servicios.length === 0 ? (
+              <p className="font-body text-[0.8rem] text-slate-500">Sin servicios cargados todavía.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse font-body text-[0.8rem]">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-left text-[0.68rem] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3">Servicio</th>
+                      <th className="py-2 pr-3">Proyecto</th>
+                      <th className="py-2 pr-3 text-right">Valor</th>
+                      <th className="py-2 pr-3">Periodicidad</th>
+                      <th className="py-2 pr-3 text-right">Clientes activos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {servicios.map((s) => (
+                      <tr key={s.id} className="border-b border-slate-100">
+                        <td className="py-2.5 pr-3">{s.nombre}</td>
+                        <td className="py-2.5 pr-3">{s.proyecto_id ? proyectosById[s.proyecto_id]?.nombre || "—" : "—"}</td>
+                        <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtOriginal(s.valor, s.moneda)}</td>
+                        <td className="py-2.5 pr-3 capitalize">{s.periodicidad}</td>
+                        <td className="py-2.5 pr-3 text-right">{s.clientes_activos}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         )}
 
-        <p className="mt-6 text-center font-body text-[0.7rem] leading-relaxed text-slate-400">
-          Los montos en USD se convierten a MXN con el tipo de cambio configurado arriba (no es histórico mes a mes, es una
-          simplificación deliberada). Sistema interno de Allitron, no enlazado desde el sitio público.
+        {/* ═══════════════ ACTIVOS DE SOCIOS — separado por completo ═══════════════ */}
+        {tab === "socios" && (
+          <section className="rounded-2xl border border-dashed border-slate-300 bg-slate-100/60 p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Archive size={16} className="text-slate-500" />
+              <h2 className="font-display text-[0.9rem] font-bold text-slate-700">Independiente del gasto de productos Allitron</h2>
+            </div>
+            <p className="mb-4 font-body text-[0.75rem] leading-relaxed text-slate-500">
+              Inversión física de cada socio (p. ej. el edificio/hub de Alejandro). No se suma a los totales de productos. El
+              acuerdo entre ambas inversiones queda pendiente entre Lups y Alejandro.
+            </p>
+            <div className="space-y-3">
+              {catalogoActivosSocios.map((p) => (
+                <div key={p.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
+                  <div>
+                    <p className="font-body text-[0.78rem] font-bold text-slate-700">{p.nombre}</p>
+                    <p className="font-body text-[0.68rem] text-slate-400">Inversión de: {p.propietario_inversion}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <p className="font-display text-[1.1rem] font-bold text-slate-900">{fmtMXN(summaryActivos.porActivo[p.id] || 0)}</p>
+                    {isAdmin && (
+                      <button onClick={() => openAddMov(p.id)} className={btnGhost}>
+                        <Plus size={14} /> Agregar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {catalogoActivosSocios.length === 0 && (
+                <p className="font-body text-[0.8rem] text-slate-500">
+                  Sin activos de socios en el catálogo todavía. Agrega uno desde &quot;Catálogo&quot; (tipo: activo de socio).
+                </p>
+              )}
+            </div>
+            {catalogoActivosSocios.length > 0 && (
+              <p className="mt-4 font-body text-[0.78rem] font-bold text-slate-700">
+                Total activos de socios: <span className="text-slate-900">{fmtMXN(summaryActivos.total)}</span>
+              </p>
+            )}
+          </section>
+        )}
+
+        <p className="mt-8 text-center font-body text-[0.68rem] leading-relaxed text-slate-400">
+          Montos en USD convertidos a MXN con el tipo de cambio configurado (no histórico mes a mes). Sistema interno de
+          Allitron, no enlazado desde el sitio público.
         </p>
       </div>
 
@@ -944,9 +1157,17 @@ export default function FinanzasDashboard({
                 Descripción (opcional)
                 <input value={proyForm.descripcion} onChange={(e) => setProyForm({ ...proyForm, descripcion: e.target.value })} className={inputCls} />
               </label>
-              <label className={`col-span-2 ${labelCls}`}>
-                Gasto recurrente mensual estimado (MXN, para proyecciones — 0 si no aplica)
+              <label className={labelCls}>
+                Gasto recurrente mensual (proyección, MXN)
                 <input type="number" step="0.01" min="0" value={proyForm.recurrente_mensual_mxn} onChange={(e) => setProyForm({ ...proyForm, recurrente_mensual_mxn: e.target.value })} className={inputCls} />
+              </label>
+              <label className={labelCls}>
+                Precio por cliente/mes (recuperación, MXN)
+                <input type="number" step="0.01" min="0" value={proyForm.precio_recuperacion_mensual} onChange={(e) => setProyForm({ ...proyForm, precio_recuperacion_mensual: e.target.value })} className={inputCls} />
+              </label>
+              <label className={`col-span-2 ${labelCls}`}>
+                Meta de clientes (para el cálculo de recuperación por defecto)
+                <input type="number" min="0" value={proyForm.meta_clientes_recuperacion} onChange={(e) => setProyForm({ ...proyForm, meta_clientes_recuperacion: e.target.value })} className={inputCls} />
               </label>
               <div className="col-span-2 flex justify-end gap-2">
                 {proyForm.id && (
@@ -1026,6 +1247,27 @@ export default function FinanzasDashboard({
                 <button type="submit" disabled={busy} className="rounded-lg bg-allitron-blue px-4 py-2 font-display text-[0.78rem] font-bold text-white disabled:opacity-60">Agregar</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal ajuste rápido de recuperación ── */}
+      {recuperaEditOpen && isAdmin && recuperaProy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-6" onClick={(e) => e.target === e.currentTarget && setRecuperaEditOpen(false)}>
+          <div className="w-full max-w-[360px] rounded-[24px] bg-white p-6 shadow-xl">
+            <h3 className="mb-3 font-display text-[1rem] font-bold text-slate-900">{recuperaProy.nombre} — supuestos de recuperación</h3>
+            <label className={labelCls}>
+              Precio por cliente al mes (MXN)
+              <input type="number" step="0.01" min="0" value={recuperaDraft.precio} onChange={(e) => setRecuperaDraft({ ...recuperaDraft, precio: e.target.value })} className={inputCls} />
+            </label>
+            <label className={`mt-3 block ${labelCls}`}>
+              Meta de clientes por defecto
+              <input type="number" min="0" value={recuperaDraft.meta} onChange={(e) => setRecuperaDraft({ ...recuperaDraft, meta: e.target.value })} className={inputCls} />
+            </label>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setRecuperaEditOpen(false)} className="rounded-lg border border-slate-200 px-4 py-2 font-body text-[0.78rem] text-slate-700 hover:bg-slate-50">Cancelar</button>
+              <button onClick={handleSaveRecupera} disabled={busy} className="rounded-lg bg-allitron-blue px-4 py-2 font-display text-[0.78rem] font-bold text-white">Guardar</button>
+            </div>
           </div>
         </div>
       )}

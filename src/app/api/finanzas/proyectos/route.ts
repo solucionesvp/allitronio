@@ -48,9 +48,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const { nombre, tipo, propietario_inversion, descripcion, recurrente_mensual_mxn } = body as {
+  const { nombre, tipo, propietario_inversion, descripcion, recurrente_mensual_mxn, precio_recuperacion_mensual, meta_clientes_recuperacion } = body as {
     nombre?: string; tipo?: string; propietario_inversion?: string;
     descripcion?: string; recurrente_mensual_mxn?: number;
+    precio_recuperacion_mensual?: number; meta_clientes_recuperacion?: number;
   };
 
   if (!nombre || !tipo || !propietario_inversion) {
@@ -77,6 +78,8 @@ export async function POST(req: NextRequest) {
       propietario_inversion,
       descripcion: descripcion || "",
       recurrente_mensual_mxn: recurrente_mensual_mxn || 0,
+      precio_recuperacion_mensual: precio_recuperacion_mensual || 0,
+      meta_clientes_recuperacion: meta_clientes_recuperacion || 0,
       orden: nextOrden,
     })
     .select()
