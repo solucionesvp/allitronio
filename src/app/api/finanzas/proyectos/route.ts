@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFinanzasSupabase } from "@/lib/supabaseFinanzas";
 
-// ── /api/finanzas/movimientos — listar (GET) y crear (POST) ────────────────
-// GET: admin o viewer. POST: solo admin (Lups / Alejandro). Miki consulta,
-// no carga — si reporta un gasto, alguno de los dos lo registra por él.
-// `proyecto` es FK a finanzas_proyectos (catálogo dinámico), no texto libre.
+// ── /api/finanzas/proyectos — catálogo dinámico de productos, eventos y ────
+// activos de socios. GET: admin o viewer. POST: solo admin.
 
 function getRole(req: NextRequest): "admin" | "viewer" | null {
   const v = req.cookies.get("finanzas_session")?.value;
   return v === "admin" || v === "viewer" ? v : null;
+}
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 export async function GET(req: NextRequest) {
@@ -19,12 +26,12 @@ export async function GET(req: NextRequest) {
   if (!supabase) return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503 });
 
   const { data, error } = await supabase
-    .from("finanzas_movimientos")
+    .from("finanzas_proyectos")
     .select("*")
     .order("orden", { ascending: true });
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, movimientos: data });
+  return NextResponse.json({ ok: true, proyectos: data });
 }
 
 export async function POST(req: NextRequest) {
@@ -41,17 +48,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const { proyecto_id, concepto, fecha, monto, moneda, quien_pago, estado, notas } = body as {
-    proyecto_id?: string; concepto?: string; fecha?: string; monto?: number;
-    moneda?: string; quien_pago?: string; estado?: string; notas?: string;
+  const { nombre, tipo, propietario_inversion, descripcion, recurrente_mensual_mxn } = body as {
+    nombre?: string; tipo?: string; propietario_inversion?: string;
+    descripcion?: string; recurrente_mensual_mxn?: number;
   };
 
-  if (!proyecto_id || !concepto || !fecha || typeof monto !== "number" || !moneda || !quien_pago || !estado) {
+  if (!nombre || !tipo || !propietario_inversion) {
     return NextResponse.json({ ok: false, error: "missing_fields" }, { status: 400 });
+  }
+  if (!["producto", "evento", "activo_socio"].includes(tipo)) {
+    return NextResponse.json({ ok: false, error: "bad_tipo" }, { status: 400 });
   }
 
   const { data: maxRow } = await supabase
-    .from("finanzas_movimientos")
+    .from("finanzas_proyectos")
     .select("orden")
     .order("orden", { ascending: false })
     .limit(1)
@@ -59,11 +69,19 @@ export async function POST(req: NextRequest) {
   const nextOrden = (maxRow?.orden ?? 0) + 1;
 
   const { data, error } = await supabase
-    .from("finanzas_movimientos")
-    .insert({ proyecto_id, concepto, fecha, monto, moneda, quien_pago, estado, notas: notas || "", orden: nextOrden })
+    .from("finanzas_proyectos")
+    .insert({
+      slug: slugify(nombre) + "-" + Date.now().toString(36),
+      nombre,
+      tipo,
+      propietario_inversion,
+      descripcion: descripcion || "",
+      recurrente_mensual_mxn: recurrente_mensual_mxn || 0,
+      orden: nextOrden,
+    })
     .select()
     .single();
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, movimiento: data });
+  return NextResponse.json({ ok: true, proyecto: data });
 }

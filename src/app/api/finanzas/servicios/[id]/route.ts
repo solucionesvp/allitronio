@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFinanzasSupabase } from "@/lib/supabaseFinanzas";
 
-// ── /api/finanzas/movimientos/[id] — editar (PATCH) y borrar (DELETE) ─────
-// Solo admin (Lups / Alejandro). Miki no puede modificar ni borrar nada.
-
+// ── /api/finanzas/servicios/[id] — editar / borrar. Solo admin. ────────────
 function getRole(req: NextRequest): "admin" | "viewer" | null {
   const v = req.cookies.get("finanzas_session")?.value;
   return v === "admin" || v === "viewer" ? v : null;
@@ -24,7 +22,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const allowed = ["proyecto_id", "concepto", "fecha", "monto", "moneda", "quien_pago", "estado", "notas"];
+  const allowed = ["proyecto_id", "nombre", "valor", "moneda", "periodicidad", "clientes_activos", "notas"];
   const update: Record<string, unknown> = {};
   for (const k of allowed) if (k in body) update[k] = body[k];
 
@@ -33,14 +31,14 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   }
 
   const { data, error } = await supabase
-    .from("finanzas_movimientos")
+    .from("finanzas_servicios")
     .update(update)
     .eq("id", id)
     .select()
     .single();
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, movimiento: data });
+  return NextResponse.json({ ok: true, servicio: data });
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -51,7 +49,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
   if (!supabase) return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503 });
 
   const { id } = await ctx.params;
-  const { error } = await supabase.from("finanzas_movimientos").delete().eq("id", id);
+  const { error } = await supabase.from("finanzas_servicios").delete().eq("id", id);
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
