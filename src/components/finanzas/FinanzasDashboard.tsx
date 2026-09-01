@@ -159,6 +159,7 @@ export default function FinanzasDashboard({
   const [fEstado, setFEstado] = useState("");
 
   const [movModalOpen, setMovModalOpen] = useState(false);
+  const [movModalLocked, setMovModalLocked] = useState(false);
   const [catalogoOpen, setCatalogoOpen] = useState(false);
   const [serviciosOpen, setServiciosOpen] = useState(false);
   const [fxOpen, setFxOpen] = useState(false);
@@ -306,7 +307,23 @@ export default function FinanzasDashboard({
   const recuperaAnos = recuperaMeses !== null ? recuperaMeses / 12 : null;
 
   // ── Movimientos: CRUD ─────────────────────────────────────────────────
+  // defaultProyectoId: si viene de "Activos de socios", se fija ese
+  // proyecto y no se puede cambiar (para que Alejandro no tenga que
+  // buscarlo entre los productos).
   function openAddMov(defaultProyectoId?: string) {
+    if (defaultProyectoId) {
+      if (!proyectosById[defaultProyectoId]) {
+        showToast("Ese activo todavía no existe en el catálogo — créalo primero desde Catálogo.");
+        return;
+      }
+      setMovModalLocked(true);
+    } else {
+      if (catalogoProductos.length === 0) {
+        showToast("No hay productos en el catálogo todavía. Agrega uno primero desde Catálogo (o corre las migraciones pendientes en Supabase si esperabas verlos aquí).");
+        return;
+      }
+      setMovModalLocked(false);
+    }
     setMovForm({
       proyecto_id: defaultProyectoId || catalogoProductos[0]?.id || "",
       concepto: "",
@@ -320,6 +337,7 @@ export default function FinanzasDashboard({
     setMovModalOpen(true);
   }
   function openEditMov(m: Movimiento) {
+    setMovModalLocked(false);
     setMovForm({
       id: m.id,
       proyecto_id: m.proyecto_id,
@@ -336,7 +354,22 @@ export default function FinanzasDashboard({
 
   async function handleSubmitMov(e: React.FormEvent) {
     e.preventDefault();
-    if (!movForm.proyecto_id || !movForm.concepto.trim() || !movForm.fecha.trim() || isNaN(parseFloat(movForm.monto))) return;
+    if (!movForm.proyecto_id) {
+      showToast("Falta elegir a qué proyecto/activo pertenece.");
+      return;
+    }
+    if (!movForm.concepto.trim()) {
+      showToast("Falta el concepto (en qué se gastó/invirtió).");
+      return;
+    }
+    if (!movForm.fecha.trim()) {
+      showToast("Falta la fecha aproximada.");
+      return;
+    }
+    if (isNaN(parseFloat(movForm.monto)) || parseFloat(movForm.monto) <= 0) {
+      showToast("El monto debe ser un número mayor a 0.");
+      return;
+    }
     setBusy(true);
     const payload = {
       proyecto_id: movForm.proyecto_id,
@@ -697,6 +730,14 @@ export default function FinanzasDashboard({
           ))}
         </nav>
 
+        {isAdmin && catalogoProductos.length === 0 && (
+          <div className="mb-5 rounded-xl border border-allitron-orange/30 bg-orange-50 px-4 py-3 font-body text-[0.8rem] text-slate-700">
+            Todavía no hay productos en el catálogo{!configurado && " (y Supabase no está configurado en este entorno)"} — por eso
+            no se puede agregar un movimiento. Ábrelo desde &quot;Catálogo&quot; arriba y agrega o revisa las entradas; si esto es
+            inesperado, probablemente falta correr las migraciones SQL en Supabase.
+          </div>
+        )}
+
         {/* ═══════════════ RESUMEN ═══════════════ */}
         {tab === "resumen" && (
           <div className="space-y-5">
@@ -952,7 +993,7 @@ export default function FinanzasDashboard({
         {/* ═══════════════ SERVICIOS ═══════════════ */}
         {tab === "servicios" && (
           <section className={card}>
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-1 flex items-center justify-between">
               <p className="font-body text-[0.82rem] font-bold text-slate-800">Servicios activos</p>
               {isAdmin && (
                 <button onClick={() => setServiciosOpen(true)} className={btnGhost}>
@@ -960,6 +1001,10 @@ export default function FinanzasDashboard({
                 </button>
               )}
             </div>
+            <p className="mb-3 font-body text-[0.7rem] text-slate-400">
+              Esto es lo que vendes al mercado (precio, cuántos clientes lo tienen activo) — distinto del catálogo de Proyectos,
+              que es dónde registras lo que gastas/inviertes.
+            </p>
             {servicios.length === 0 ? (
               <p className="font-body text-[0.8rem] text-slate-500">Sin servicios cargados todavía.</p>
             ) : (
@@ -1044,19 +1089,34 @@ export default function FinanzasDashboard({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-6" onClick={(e) => e.target === e.currentTarget && setMovModalOpen(false)}>
           <div className="w-full max-w-[560px] rounded-t-[24px] bg-white p-6 shadow-xl sm:rounded-[24px]">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-display text-[1.05rem] font-bold text-slate-900">{movForm.id ? "Editar movimiento" : "Agregar movimiento"}</h3>
+              <h3 className="font-display text-[1.05rem] font-bold text-slate-900">
+                {movForm.id
+                  ? "Editar movimiento"
+                  : movModalLocked
+                  ? `Agregar inversión — ${proyectosById[movForm.proyecto_id]?.nombre || ""}`
+                  : "Agregar movimiento"}
+              </h3>
               <button onClick={() => setMovModalOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmitMov} className="grid grid-cols-2 gap-3">
-              <label className={`col-span-2 ${labelCls}`}>
-                Proyecto
-                <select value={movForm.proyecto_id} onChange={(e) => setMovForm({ ...movForm, proyecto_id: e.target.value })} className={inputCls}>
-                  {proyectos.map((p) => <option key={p.id} value={p.id}>{p.nombre}{p.tipo === "activo_socio" ? " (activo de socio)" : ""}</option>)}
-                </select>
-              </label>
+              {movModalLocked ? (
+                <p className={`col-span-2 ${labelCls}`}>
+                  Proyecto / activo
+                  <span className="mt-1 block rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 font-body text-[0.85rem] font-bold text-slate-700">
+                    {proyectosById[movForm.proyecto_id]?.nombre}
+                  </span>
+                </p>
+              ) : (
+                <label className={`col-span-2 ${labelCls}`}>
+                  Proyecto
+                  <select value={movForm.proyecto_id} onChange={(e) => setMovForm({ ...movForm, proyecto_id: e.target.value })} className={inputCls}>
+                    {proyectos.map((p) => <option key={p.id} value={p.id}>{p.nombre}{p.tipo === "activo_socio" ? " (activo de socio)" : ""}</option>)}
+                  </select>
+                </label>
+              )}
               <label className={`col-span-2 ${labelCls}`}>
                 Concepto
-                <input required value={movForm.concepto} onChange={(e) => setMovForm({ ...movForm, concepto: e.target.value })} placeholder="Ej. Pago mensual programador Colombia" className={inputCls} />
+                <input required value={movForm.concepto} onChange={(e) => setMovForm({ ...movForm, concepto: e.target.value })} placeholder={movModalLocked ? "Ej. Renta de septiembre, pintura, remodelación" : "Ej. Pago mensual programador Colombia"} className={inputCls} />
               </label>
               <label className={labelCls}>
                 Fecha (aprox.)
@@ -1115,6 +1175,10 @@ export default function FinanzasDashboard({
               <h3 className="font-display text-[1.05rem] font-bold text-slate-900">Catálogo de proyectos / productos / activos</h3>
               <button onClick={() => { setCatalogoOpen(false); resetProyForm(); }} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
             </div>
+            <p className="mb-4 font-body text-[0.72rem] text-slate-400">
+              Cada entrada aquí es un lugar donde registrar gasto/inversión (un producto, un evento, o un activo de socio como el
+              edificio). No es tu oferta comercial — eso va en &quot;Servicios&quot;.
+            </p>
 
             <div className="mb-5 space-y-2">
               {proyectos.map((p) => (
