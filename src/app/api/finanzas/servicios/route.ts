@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFinanzasSupabase } from "@/lib/supabaseFinanzas";
+import { getFinanzasRole, getFinanzasPersona, getClientIp } from "@/lib/finanzasAuth";
+import { registrarAuditoria } from "@/lib/finanzasAudit";
 
 // ── /api/finanzas/servicios — catálogo de servicios activos ────────────────
 // (valor, periodicidad, clientes activos en bruto — sin nombres). GET:
 // admin o viewer. POST: solo admin.
 
-function getRole(req: NextRequest): "admin" | "viewer" | null {
-  const v = req.cookies.get("finanzas_session")?.value;
-  return v === "admin" || v === "viewer" ? v : null;
-}
-
 export async function GET(req: NextRequest) {
-  const role = getRole(req);
+  const role = getFinanzasRole(req);
   if (!role) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 
   const supabase = getFinanzasSupabase();
@@ -27,7 +24,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const role = getRole(req);
+  const role = getFinanzasRole(req);
   if (role !== "admin") return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
 
   const supabase = getFinanzasSupabase();
@@ -64,5 +61,15 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+
+  await registrarAuditoria(supabase, {
+    persona: getFinanzasPersona(req),
+    accion: "crear",
+    entidad: "servicio",
+    entidad_id: data.id,
+    detalle: `${nombre} — ${valor} ${moneda}/${periodicidad}`,
+    ip: getClientIp(req),
+  });
+
   return NextResponse.json({ ok: true, servicio: data });
 }

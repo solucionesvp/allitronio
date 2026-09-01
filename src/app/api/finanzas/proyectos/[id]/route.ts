@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFinanzasSupabase } from "@/lib/supabaseFinanzas";
+import { getFinanzasRole, getFinanzasPersona, getClientIp } from "@/lib/finanzasAuth";
+import { registrarAuditoria } from "@/lib/finanzasAudit";
 
 // ── /api/finanzas/proyectos/[id] — editar / archivar. Solo admin. ──────────
-function getRole(req: NextRequest): "admin" | "viewer" | null {
-  const v = req.cookies.get("finanzas_session")?.value;
-  return v === "admin" || v === "viewer" ? v : null;
-}
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const role = getRole(req);
+  const role = getFinanzasRole(req);
   if (role !== "admin") return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
 
   const supabase = getFinanzasSupabase();
@@ -38,11 +36,21 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     .single();
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+
+  await registrarAuditoria(supabase, {
+    persona: getFinanzasPersona(req),
+    accion: "editar",
+    entidad: "proyecto",
+    entidad_id: id,
+    detalle: data.nombre,
+    ip: getClientIp(req),
+  });
+
   return NextResponse.json({ ok: true, proyecto: data });
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const role = getRole(req);
+  const role = getFinanzasRole(req);
   if (role !== "admin") return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
 
   const supabase = getFinanzasSupabase();
@@ -56,6 +64,8 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     .select("id", { count: "exact", head: true })
     .eq("proyecto_id", id);
 
+  const { data: proy } = await supabase.from("finanzas_proyectos").select("nombre").eq("id", id).maybeSingle();
+
   if (count && count > 0) {
     const { data, error } = await supabase
       .from("finanzas_proyectos")
@@ -64,10 +74,30 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
       .select()
       .single();
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+
+    await registrarAuditoria(supabase, {
+      persona: getFinanzasPersona(req),
+      accion: "archivar",
+      entidad: "proyecto",
+      entidad_id: id,
+      detalle: proy?.nombre || "",
+      ip: getClientIp(req),
+    });
+
     return NextResponse.json({ ok: true, archivado: true, proyecto: data });
   }
 
   const { error } = await supabase.from("finanzas_proyectos").delete().eq("id", id);
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+
+  await registrarAuditoria(supabase, {
+    persona: getFinanzasPersona(req),
+    accion: "eliminar",
+    entidad: "proyecto",
+    entidad_id: id,
+    detalle: proy?.nombre || "",
+    ip: getClientIp(req),
+  });
+
   return NextResponse.json({ ok: true, archivado: false });
 }

@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFinanzasSupabase } from "@/lib/supabaseFinanzas";
+import { getFinanzasRole, getFinanzasPersona, getClientIp } from "@/lib/finanzasAuth";
+import { registrarAuditoria } from "@/lib/finanzasAudit";
 
 // ── /api/finanzas/servicios/[id] — editar / borrar. Solo admin. ────────────
-function getRole(req: NextRequest): "admin" | "viewer" | null {
-  const v = req.cookies.get("finanzas_session")?.value;
-  return v === "admin" || v === "viewer" ? v : null;
-}
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const role = getRole(req);
+  const role = getFinanzasRole(req);
   if (role !== "admin") return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
 
   const supabase = getFinanzasSupabase();
@@ -38,19 +36,40 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     .single();
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+
+  await registrarAuditoria(supabase, {
+    persona: getFinanzasPersona(req),
+    accion: "editar",
+    entidad: "servicio",
+    entidad_id: id,
+    detalle: data.nombre,
+    ip: getClientIp(req),
+  });
+
   return NextResponse.json({ ok: true, servicio: data });
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const role = getRole(req);
+  const role = getFinanzasRole(req);
   if (role !== "admin") return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
 
   const supabase = getFinanzasSupabase();
   if (!supabase) return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503 });
 
   const { id } = await ctx.params;
+  const { data: existing } = await supabase.from("finanzas_servicios").select("nombre").eq("id", id).maybeSingle();
   const { error } = await supabase.from("finanzas_servicios").delete().eq("id", id);
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+
+  await registrarAuditoria(supabase, {
+    persona: getFinanzasPersona(req),
+    accion: "eliminar",
+    entidad: "servicio",
+    entidad_id: id,
+    detalle: existing?.nombre || "",
+    ip: getClientIp(req),
+  });
+
   return NextResponse.json({ ok: true });
 }

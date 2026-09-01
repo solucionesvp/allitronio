@@ -15,7 +15,8 @@ export default function FinanzasAccesoPage() {
   const next = params.get("next") || "/interno/finanzas";
 
   const [code, setCode] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "blocked">("idle");
+  const [retryAfter, setRetryAfter] = useState<number | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +33,10 @@ export default function FinanzasAccesoPage() {
           router.push(next);
           router.refresh();
         }, 700);
+      } else if (res.status === 429) {
+        const json = await res.json().catch(() => ({}));
+        setRetryAfter(json.retryAfterSeconds || null);
+        setStatus("blocked");
       } else {
         setStatus("error");
       }
@@ -40,7 +45,7 @@ export default function FinanzasAccesoPage() {
     }
   }
 
-  const busy = status === "loading" || status === "success";
+  const busy = status === "loading" || status === "success" || status === "blocked";
 
   return (
     <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-allitron-base px-6">
@@ -128,6 +133,13 @@ export default function FinanzasAccesoPage() {
         {status === "error" && (
           <p className="mt-4 font-body text-[0.8rem] text-allitron-orange">
             Código incorrecto. Verifica con quien te lo compartió.
+          </p>
+        )}
+
+        {status === "blocked" && (
+          <p className="mt-4 font-body text-[0.8rem] text-allitron-orange">
+            Demasiados intentos fallidos. Espera {retryAfter ? `${Math.ceil(retryAfter / 60)} min` : "unos minutos"} antes
+            de volver a intentar.
           </p>
         )}
 

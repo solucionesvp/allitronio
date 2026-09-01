@@ -29,6 +29,16 @@ export interface Servicio {
   notas: string | null;
 }
 
+export interface AuditoriaEntry {
+  id: string;
+  momento: string;
+  persona: string;
+  accion: "crear" | "editar" | "eliminar" | "archivar" | "cambiar_fx";
+  entidad: "movimiento" | "proyecto" | "servicio" | "config";
+  entidad_id: string | null;
+  detalle: string | null;
+}
+
 export interface Movimiento {
   id: string;
   orden: number;
@@ -53,6 +63,7 @@ const TABS = [
   { id: "recuperacion", label: "Recuperación" },
   { id: "servicios", label: "Servicios" },
   { id: "socios", label: "Activos de socios" },
+  { id: "actividad", label: "Actividad" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -137,6 +148,7 @@ export default function FinanzasDashboard({
   initialMovimientos,
   initialProyectos,
   initialServicios,
+  initialAuditoria,
   initialTipoCambio,
   configurado,
 }: {
@@ -144,12 +156,14 @@ export default function FinanzasDashboard({
   initialMovimientos: Movimiento[];
   initialProyectos: Proyecto[];
   initialServicios: Servicio[];
+  initialAuditoria: AuditoriaEntry[];
   initialTipoCambio: number;
   configurado: boolean;
 }) {
   const [movimientos, setMovimientos] = useState<Movimiento[]>(initialMovimientos);
   const [proyectos, setProyectos] = useState<Proyecto[]>(initialProyectos);
   const [servicios, setServicios] = useState<Servicio[]>(initialServicios);
+  const [auditoria] = useState<AuditoriaEntry[]>(initialAuditoria);
   const [tipoCambio, setTipoCambio] = useState(initialTipoCambio);
 
   const [tab, setTab] = useState<TabId>("resumen");
@@ -717,7 +731,7 @@ export default function FinanzasDashboard({
 
         {/* ── Navegación por pestañas ── */}
         <nav className="mb-6 flex flex-wrap gap-1.5 border-b border-slate-200 pb-2">
-          {TABS.map((t) => (
+          {TABS.filter((t) => t.id !== "actividad" || isAdmin).map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
@@ -1074,6 +1088,46 @@ export default function FinanzasDashboard({
               <p className="mt-4 font-body text-[0.78rem] font-bold text-slate-700">
                 Total activos de socios: <span className="text-slate-900">{fmtMXN(summaryActivos.total)}</span>
               </p>
+            )}
+          </section>
+        )}
+
+        {/* ═══════════════ ACTIVIDAD (auditoría, solo admin) ═══════════════ */}
+        {tab === "actividad" && isAdmin && (
+          <section className={card}>
+            <p className="mb-1 font-body text-[0.82rem] font-bold text-slate-800">Registro de actividad</p>
+            <p className="mb-3 font-body text-[0.7rem] text-slate-400">
+              Quién agregó, editó o eliminó cada cosa — últimos 200 movimientos del registro.
+            </p>
+            {auditoria.length === 0 ? (
+              <p className="font-body text-[0.8rem] text-slate-500">Sin actividad registrada todavía.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse font-body text-[0.78rem]">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-left text-[0.66rem] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3">Cuándo</th>
+                      <th className="py-2 pr-3">Quién</th>
+                      <th className="py-2 pr-3">Acción</th>
+                      <th className="py-2 pr-3">En</th>
+                      <th className="py-2 pr-3">Detalle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditoria.map((a) => (
+                      <tr key={a.id} className="border-b border-slate-100">
+                        <td className="py-2 pr-3 whitespace-nowrap text-slate-500">
+                          {new Date(a.momento).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" })}
+                        </td>
+                        <td className="py-2 pr-3 font-semibold text-slate-700">{a.persona}</td>
+                        <td className="py-2 pr-3 capitalize">{a.accion.replace("_", " ")}</td>
+                        <td className="py-2 pr-3 capitalize">{a.entidad}</td>
+                        <td className="py-2 pr-3 max-w-[280px] text-slate-500">{a.detalle}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         )}
