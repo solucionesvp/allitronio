@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // de apoyo, no la fuente de verdad de los datos.
 
 type Accion = "crear" | "editar" | "eliminar" | "archivar" | "cambiar_fx";
-type Entidad = "movimiento" | "proyecto" | "servicio" | "config";
+type Entidad = "movimiento" | "proyecto" | "servicio" | "config" | "nota";
 
 export async function registrarAuditoria(
   supabase: SupabaseClient,

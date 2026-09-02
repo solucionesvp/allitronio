@@ -5,6 +5,7 @@ import FinanzasDashboard, {
   type Proyecto,
   type Servicio,
   type AuditoriaEntry,
+  type Nota,
 } from "@/components/finanzas/FinanzasDashboard";
 
 export default async function FinanzasPage() {
@@ -19,15 +20,17 @@ export default async function FinanzasPage() {
   let proyectos: Proyecto[] = [];
   let servicios: Servicio[] = [];
   let auditoria: AuditoriaEntry[] = [];
+  let notas: Nota[] = [];
   let tipoCambio = 16.95;
   const configurado = Boolean(supabase);
 
   if (supabase) {
-    const [{ data: movs }, { data: cfg }, { data: proys }, { data: servs }, auditRes] = await Promise.all([
+    const [{ data: movs }, { data: cfg }, { data: proys }, { data: servs }, { data: notasData }, auditRes] = await Promise.all([
       supabase.from("finanzas_movimientos").select("*").order("orden", { ascending: true }),
       supabase.from("finanzas_config").select("*").eq("id", 1).maybeSingle(),
       supabase.from("finanzas_proyectos").select("*").order("orden", { ascending: true }),
       supabase.from("finanzas_servicios").select("*").order("created_at", { ascending: true }),
+      supabase.from("finanzas_notas").select("*").order("created_at", { ascending: false }),
       role === "admin"
         ? supabase.from("finanzas_auditoria").select("*").order("momento", { ascending: false }).limit(200)
         : Promise.resolve({ data: [] as AuditoriaEntry[] }),
@@ -35,6 +38,7 @@ export default async function FinanzasPage() {
     movimientos = (movs as Movimiento[]) || [];
     proyectos = (proys as Proyecto[]) || [];
     servicios = (servs as Servicio[]) || [];
+    notas = (notasData as Nota[]) || [];
     auditoria = (auditRes.data as AuditoriaEntry[]) || [];
     if (cfg?.tipo_cambio) tipoCambio = cfg.tipo_cambio;
   }
@@ -46,6 +50,7 @@ export default async function FinanzasPage() {
       initialProyectos={proyectos}
       initialServicios={servicios}
       initialAuditoria={auditoria}
+      initialNotas={notas}
       initialTipoCambio={tipoCambio}
       configurado={configurado}
     />

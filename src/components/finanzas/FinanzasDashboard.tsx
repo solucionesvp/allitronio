@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Plus, RefreshCcw, X, Trash2, Settings, Archive, Calculator } from "lucide-react";
+import { Download, Plus, RefreshCcw, X, Trash2, Settings, Archive, Calculator, ClipboardList } from "lucide-react";
+import { Reveal, Eyebrow } from "@/components/entregas/ui";
 
 // ── Tipos ────────────────────────────────────────────────────────────────
 export interface Proyecto {
@@ -39,6 +40,16 @@ export interface AuditoriaEntry {
   detalle: string | null;
 }
 
+export interface Nota {
+  id: string;
+  categoria: "fiscal" | "legal" | "operativo" | "producto" | "otro";
+  titulo: string;
+  detalle: string | null;
+  estado: "pendiente" | "en_proceso" | "resuelto";
+  creado_por: string | null;
+  created_at: string;
+}
+
 export interface Movimiento {
   id: string;
   orden: number;
@@ -57,15 +68,31 @@ const ESTADOS = ["Pagado", "Recurrente activo", "Proyectado"] as const;
 const TIPOS = ["producto", "evento", "activo_socio"] as const;
 const PROPIETARIOS = ["Lups", "Alejandro", "Allitron", "Miki", "Mixto"] as const;
 const HORIZONTES = [3, 6, 12] as const;
+const NOTA_CATEGORIAS = ["fiscal", "legal", "operativo", "producto", "otro"] as const;
+const NOTA_ESTADOS = ["pendiente", "en_proceso", "resuelto"] as const;
 const TABS = [
   { id: "resumen", label: "Resumen" },
   { id: "movimientos", label: "Movimientos" },
-  { id: "recuperacion", label: "Recuperación" },
+  { id: "proyecciones", label: "Proyecciones" },
   { id: "servicios", label: "Servicios" },
   { id: "socios", label: "Activos de socios" },
+  { id: "pendientes", label: "Pendientes" },
   { id: "actividad", label: "Actividad" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
+
+function notaCategoriaLabel(c: string) {
+  if (c === "fiscal") return "Fiscal";
+  if (c === "legal") return "Legal";
+  if (c === "operativo") return "Operativo";
+  if (c === "producto") return "Producto";
+  return "Otro";
+}
+function notaEstadoLabel(e: string) {
+  if (e === "pendiente") return "Pendiente";
+  if (e === "en_proceso") return "En proceso";
+  return "Resuelto";
+}
 
 function fmtMXN(n: number) {
   return "$" + Math.round(n).toLocaleString("es-MX") + " MXN";
@@ -133,13 +160,14 @@ const EMPTY_SERV_FORM: ServForm = {
   notas: "",
 };
 
-// ── Estilos base (tema claro) ───────────────────────────────────────────
-const card = "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm";
+// ── Estilos base — mismo sistema visual claro de /entregas (`.neu`,
+// `--color-light`, `#101820` / `text-secondary`) en vez de un tema propio. ──
+const card = "neu rounded-[20px] p-5";
 const inputCls =
-  "mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-body text-[0.85rem] text-slate-900 focus:border-allitron-blue focus:bg-white focus:outline-none";
-const labelCls = "font-body text-[0.72rem] font-bold text-slate-500";
+  "mt-1 w-full rounded-lg border border-[#101820]/10 bg-[var(--color-light)] px-3 py-2 font-body text-[0.85rem] text-[#101820] focus:border-allitron-blue focus:outline-none";
+const labelCls = "font-body text-[0.72rem] font-bold text-secondary";
 const btnGhost =
-  "flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 font-body text-[0.78rem] text-slate-700 hover:bg-slate-50";
+  "flex items-center gap-1.5 rounded-xl border border-[#101820]/10 bg-[var(--color-light)] px-3 py-2 font-body text-[0.78rem] text-[#101820] hover:bg-[#101820]/[0.05]";
 const btnPrimary =
   "flex items-center gap-1.5 rounded-xl bg-allitron-blue px-3.5 py-2 font-display text-[0.78rem] font-bold text-white hover:brightness-95";
 
@@ -149,6 +177,7 @@ export default function FinanzasDashboard({
   initialProyectos,
   initialServicios,
   initialAuditoria,
+  initialNotas,
   initialTipoCambio,
   configurado,
 }: {
@@ -157,6 +186,7 @@ export default function FinanzasDashboard({
   initialProyectos: Proyecto[];
   initialServicios: Servicio[];
   initialAuditoria: AuditoriaEntry[];
+  initialNotas: Nota[];
   initialTipoCambio: number;
   configurado: boolean;
 }) {
@@ -164,6 +194,8 @@ export default function FinanzasDashboard({
   const [proyectos, setProyectos] = useState<Proyecto[]>(initialProyectos);
   const [servicios, setServicios] = useState<Servicio[]>(initialServicios);
   const [auditoria] = useState<AuditoriaEntry[]>(initialAuditoria);
+  const [notas, setNotas] = useState<Nota[]>(initialNotas);
+  const [notaForm, setNotaForm] = useState({ categoria: "fiscal" as (typeof NOTA_CATEGORIAS)[number], titulo: "", detalle: "" });
   const [tipoCambio, setTipoCambio] = useState(initialTipoCambio);
 
   const [tab, setTab] = useState<TabId>("resumen");
@@ -319,6 +351,16 @@ export default function FinanzasDashboard({
   const recuperaIngresoMensual = recuperaPrecio * recuperaClientesSim;
   const recuperaMeses = recuperaIngresoMensual > 0 ? recuperaTotalInvertido / recuperaIngresoMensual : null;
   const recuperaAnos = recuperaMeses !== null ? recuperaMeses / 12 : null;
+
+  // ── Espejo: lo invertido vs. la meta que buscamos alcanzar, al horizonte
+  // elegido (3/6/12 meses). Meta = precio × meta de clientes (lo que TÚ
+  // definiste como objetivo), no el simulador libre de arriba.
+  const metaIngresoMensual = recuperaProy ? (recuperaProy.precio_recuperacion_mensual || 0) * (recuperaProy.meta_clientes_recuperacion || 0) : 0;
+  const costoMensualProyectado = recuperaProy?.recurrente_mensual_mxn || 0;
+  const espejoCosto = costoMensualProyectado * horizonte;
+  const espejoIngreso = metaIngresoMensual * horizonte;
+  const espejoNeto = espejoIngreso - espejoCosto;
+  const espejoPctCubierto = recuperaTotalInvertido > 0 ? (espejoIngreso / recuperaTotalInvertido) * 100 : null;
 
   // ── Movimientos: CRUD ─────────────────────────────────────────────────
   // defaultProyectoId: si viene de "Activos de socios", se fija ese
@@ -636,6 +678,66 @@ export default function FinanzasDashboard({
     }
   }
 
+  // ── Notas / pendientes: CRUD ──────────────────────────────────────────
+  async function handleSubmitNota(e: React.FormEvent) {
+    e.preventDefault();
+    if (!notaForm.titulo.trim()) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/finanzas/notas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoria: notaForm.categoria, titulo: notaForm.titulo.trim(), detalle: notaForm.detalle.trim() }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setNotas((prev) => [json.nota, ...prev]);
+        setNotaForm({ categoria: "fiscal", titulo: "", detalle: "" });
+        showToast("Pendiente agregado.");
+      } else {
+        showToast("No se pudo guardar (" + json.error + ").");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleCambiarEstadoNota(n: Nota, estado: (typeof NOTA_ESTADOS)[number]) {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/finanzas/notas/${n.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setNotas((prev) => prev.map((x) => (x.id === n.id ? json.nota : x)));
+      } else {
+        showToast("No se pudo actualizar.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteNota(id: string) {
+    if (!window.confirm("¿Eliminar este pendiente?")) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/finanzas/notas/${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (json.ok) {
+        setNotas((prev) => prev.filter((n) => n.id !== id));
+        showToast("Pendiente eliminado.");
+      } else {
+        showToast("No se pudo eliminar.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSaveFx() {
     const v = parseFloat(fxDraft);
     if (isNaN(v) || v <= 0) return;
@@ -695,12 +797,14 @@ export default function FinanzasDashboard({
   }
 
   return (
-    <main className="min-h-svh bg-slate-50 px-4 pb-24 pt-8 text-slate-900 sm:px-8 lg:px-12">
+    <main className="min-h-svh bg-[var(--color-light)] px-4 pb-16 pt-8 text-[#101820] sm:px-8 lg:px-12">
       <div className="mx-auto max-w-[1100px]">
+        <Reveal>
         <header className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-[1.3rem] font-bold text-slate-900">Allitron — Control Financiero</h1>
-            <p className="font-body text-[0.78rem] text-slate-500">
+            <Eyebrow>CONTROL FINANCIERO INTERNO</Eyebrow>
+            <h1 className="font-display text-[1.3rem] font-bold text-[#101820]">Allitron — Control Financiero</h1>
+            <p className="mt-1 font-body text-[0.78rem] text-secondary">
               Sesión: <span className="font-semibold text-allitron-blue">{isAdmin ? "administrador" : "solo consulta"}</span>
               {!configurado && (
                 <span className="ml-2 font-semibold text-allitron-orange">· Supabase no configurado todavía</span>
@@ -730,22 +834,23 @@ export default function FinanzasDashboard({
         </header>
 
         {/* ── Navegación por pestañas ── */}
-        <nav className="mb-6 flex flex-wrap gap-1.5 border-b border-slate-200 pb-2">
+        <nav className="mb-6 flex flex-wrap gap-1.5 border-b border-[#101820]/10 pb-2">
           {TABS.filter((t) => t.id !== "actividad" || isAdmin).map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`rounded-lg px-3.5 py-1.5 font-body text-[0.8rem] font-bold transition ${
-                tab === t.id ? "bg-allitron-blue text-white" : "text-slate-500 hover:bg-white hover:text-slate-800"
+                tab === t.id ? "bg-allitron-blue text-white" : "text-secondary hover:bg-[#101820]/[0.05] hover:text-[#101820]"
               }`}
             >
               {t.label}
             </button>
           ))}
         </nav>
+        </Reveal>
 
         {isAdmin && catalogoProductos.length === 0 && (
-          <div className="mb-5 rounded-xl border border-allitron-orange/30 bg-orange-50 px-4 py-3 font-body text-[0.8rem] text-slate-700">
+          <div className="mb-5 rounded-xl border border-allitron-orange/30 bg-allitron-orange/[0.06] px-4 py-3 font-body text-[0.8rem] text-[#101820]">
             Todavía no hay productos en el catálogo{!configurado && " (y Supabase no está configurado en este entorno)"} — por eso
             no se puede agregar un movimiento. Ábrelo desde &quot;Catálogo&quot; arriba y agrega o revisa las entradas; si esto es
             inesperado, probablemente falta correr las migraciones SQL en Supabase.
@@ -757,36 +862,36 @@ export default function FinanzasDashboard({
           <div className="space-y-5">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className={card}>
-                <p className="font-body text-[0.68rem] uppercase tracking-wider text-slate-500">Total gastado / comprometido</p>
-                <p className="mt-2 font-display text-[1.5rem] font-bold text-slate-900">{fmtMXN(summary.gastado)}</p>
-                <p className="mt-1 font-body text-[0.7rem] text-slate-400">Productos, servicios y eventos — no incluye activos de socios</p>
+                <p className="font-body text-[0.68rem] uppercase tracking-wider text-secondary">Total gastado / comprometido</p>
+                <p className="mt-2 font-display text-[1.5rem] font-bold text-[#101820]">{fmtMXN(summary.gastado)}</p>
+                <p className="mt-1 font-body text-[0.7rem] text-secondary/70">Productos, servicios y eventos — no incluye activos de socios</p>
               </div>
               <div className={card}>
-                <p className="font-body text-[0.68rem] uppercase tracking-wider text-slate-500">Proyectado (no gastado aún)</p>
+                <p className="font-body text-[0.68rem] uppercase tracking-wider text-secondary">Proyectado (no gastado aún)</p>
                 <p className="mt-2 font-display text-[1.5rem] font-bold text-allitron-orange">{fmtMXN(summary.proyectado)}</p>
               </div>
             </div>
 
             <div className={card}>
-              <p className="mb-2.5 font-body text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">Aportado por</p>
+              <p className="mb-2.5 font-body text-[0.68rem] font-bold uppercase tracking-wider text-secondary">Aportado por</p>
               <div className="flex flex-wrap gap-4">
                 {PERSONAS.map((p) => (
                   <div key={p}>
-                    <p className="font-body text-[0.7rem] text-slate-500">{p}</p>
-                    <p className="font-display text-[1rem] font-bold text-slate-900">{fmtMXN(summary.porPersona[p] || 0)}</p>
+                    <p className="font-body text-[0.7rem] text-secondary">{p}</p>
+                    <p className="font-display text-[1rem] font-bold text-[#101820]">{fmtMXN(summary.porPersona[p] || 0)}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className={card}>
-              <p className="mb-3 font-body text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">Por proyecto</p>
-              <div className="divide-y divide-slate-100">
+              <p className="mb-3 font-body text-[0.68rem] font-bold uppercase tracking-wider text-secondary">Por proyecto</p>
+              <div className="divide-y divide-[#101820]/[0.06]">
                 {catalogoProductos.map((p) => (
                   <div key={p.id} className="flex items-center justify-between py-2.5">
-                    <span className="font-body text-[0.82rem] text-slate-700">{p.nombre}</span>
+                    <span className="font-body text-[0.82rem] text-secondary">{p.nombre}</span>
                     <span className="text-right">
-                      <span className="font-body text-[0.85rem] font-bold text-slate-900">{fmtMXN(summary.porProyecto[p.id]?.gastado || 0)}</span>
+                      <span className="font-body text-[0.85rem] font-bold text-[#101820]">{fmtMXN(summary.porProyecto[p.id]?.gastado || 0)}</span>
                       {(summary.porProyecto[p.id]?.proyectado || 0) > 0 && (
                         <span className="ml-2 font-body text-[0.7rem] font-semibold text-allitron-orange">
                           +{fmtMXN(summary.porProyecto[p.id].proyectado)}
@@ -804,15 +909,15 @@ export default function FinanzasDashboard({
         {tab === "movimientos" && (
           <section className={card}>
             <div className="mb-4 flex flex-wrap gap-2">
-              <select value={fProyecto} onChange={(e) => setFProyecto(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
+              <select value={fProyecto} onChange={(e) => setFProyecto(e.target.value)} className="rounded-lg border border-[#101820]/10 bg-[#101820]/[0.03] px-3 py-1.5 font-body text-[0.78rem] text-[#101820]">
                 <option value="">Todos los proyectos</option>
                 {catalogoProductos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
               </select>
-              <select value={fQuien} onChange={(e) => setFQuien(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
+              <select value={fQuien} onChange={(e) => setFQuien(e.target.value)} className="rounded-lg border border-[#101820]/10 bg-[#101820]/[0.03] px-3 py-1.5 font-body text-[0.78rem] text-[#101820]">
                 <option value="">Todos (Lups / Alejandro / Miki)</option>
                 {PERSONAS.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
-              <select value={fEstado} onChange={(e) => setFEstado(e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-body text-[0.78rem] text-slate-900">
+              <select value={fEstado} onChange={(e) => setFEstado(e.target.value)} className="rounded-lg border border-[#101820]/10 bg-[#101820]/[0.03] px-3 py-1.5 font-body text-[0.78rem] text-[#101820]">
                 <option value="">Todos los estados</option>
                 {ESTADOS.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
@@ -821,7 +926,7 @@ export default function FinanzasDashboard({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] border-collapse font-body text-[0.8rem]">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-[0.68rem] uppercase tracking-wide text-slate-500">
+                  <tr className="border-b border-[#101820]/10 text-left text-[0.68rem] uppercase tracking-wide text-secondary">
                     <th className="py-2 pr-3">Fecha</th>
                     <th className="py-2 pr-3">Proyecto</th>
                     <th className="py-2 pr-3">Concepto</th>
@@ -834,7 +939,7 @@ export default function FinanzasDashboard({
                 </thead>
                 <tbody>
                   {filtered.map((m) => (
-                    <tr key={m.id} className="border-b border-slate-100 hover:bg-slate-50">
+                    <tr key={m.id} className="border-b border-[#101820]/[0.06] hover:bg-[#101820]/[0.05]">
                       <td className="py-2.5 pr-3 whitespace-nowrap">{m.fecha}</td>
                       <td className="py-2.5 pr-3">{proyectosById[m.proyecto_id]?.nombre || "—"}</td>
                       <td className="py-2.5 pr-3">{m.concepto}</td>
@@ -856,7 +961,7 @@ export default function FinanzasDashboard({
                       </td>
                       {isAdmin && (
                         <td className="py-2.5 pr-3">
-                          <button onClick={() => openEditMov(m)} className="rounded-lg border border-slate-200 px-2.5 py-1 text-[0.72rem] text-slate-700 hover:bg-slate-100">
+                          <button onClick={() => openEditMov(m)} className="rounded-lg border border-[#101820]/10 px-2.5 py-1 text-[0.72rem] text-secondary hover:bg-[#101820]/[0.08]">
                             Editar
                           </button>
                         </td>
@@ -865,7 +970,7 @@ export default function FinanzasDashboard({
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={isAdmin ? 8 : 7} className="py-8 text-center text-slate-400">
+                      <td colSpan={isAdmin ? 8 : 7} className="py-8 text-center text-secondary/70">
                         No hay movimientos con este filtro todavía.
                       </td>
                     </tr>
@@ -876,8 +981,8 @@ export default function FinanzasDashboard({
           </section>
         )}
 
-        {/* ═══════════════ RECUPERACIÓN (interconectado por producto) ═══════════════ */}
-        {tab === "recuperacion" && (
+        {/* ═══════════════ PROYECCIONES (interconectado por producto) ═══════════════ */}
+        {tab === "proyecciones" && (
           <div className="space-y-4">
             <div className={card}>
               <label className={labelCls}>
@@ -894,21 +999,75 @@ export default function FinanzasDashboard({
 
             {recuperaProy && (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {/* ── Espejo: invertido vs. meta a alcanzar, mismo horizonte ── */}
+                <div className={card}>
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-body text-[0.82rem] font-bold text-[#101820]">Invertido vs. meta a alcanzar — {recuperaProy.nombre}</p>
+                    <div className="flex gap-1.5">
+                      {HORIZONTES.map((h) => (
+                        <button
+                          key={h}
+                          onClick={() => setHorizonte(h)}
+                          className={`rounded-lg px-3 py-1.5 font-body text-[0.75rem] font-bold ${
+                            horizonte === h ? "bg-allitron-blue text-white" : "border border-[#101820]/10 text-secondary hover:bg-[#101820]/[0.05]"
+                          }`}
+                        >
+                          {h}m
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="rounded-[16px] bg-[#101820]/[0.04] p-3.5 text-center">
+                      <p className="font-body text-[0.62rem] uppercase tracking-wide text-secondary">Invertido a la fecha</p>
+                      <p className="mt-1 font-display text-[1.05rem] font-bold text-[#101820]">{fmtMXN(recuperaTotalInvertido)}</p>
+                    </div>
+                    <div className="rounded-[16px] bg-[#101820]/[0.04] p-3.5 text-center">
+                      <p className="font-body text-[0.62rem] uppercase tracking-wide text-secondary">Costo proyectado ({horizonte}m)</p>
+                      <p className="mt-1 font-display text-[1.05rem] font-bold text-[#101820]">{fmtMXN(espejoCosto)}</p>
+                    </div>
+                    <div className="rounded-[16px] bg-[#101820]/[0.04] p-3.5 text-center">
+                      <p className="font-body text-[0.62rem] uppercase tracking-wide text-secondary">Ingreso objetivo ({horizonte}m)</p>
+                      <p className="mt-1 font-display text-[1.05rem] font-bold text-allitron-blue">
+                        {metaIngresoMensual > 0 ? fmtMXN(espejoIngreso) : "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-[16px] bg-[#101820]/[0.04] p-3.5 text-center">
+                      <p className="font-body text-[0.62rem] uppercase tracking-wide text-secondary">Neto proyectado ({horizonte}m)</p>
+                      <p className={`mt-1 font-display text-[1.05rem] font-bold ${espejoNeto >= 0 ? "text-emerald-600" : "text-allitron-orange"}`}>
+                        {metaIngresoMensual > 0 ? fmtMXN(espejoNeto) : "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {metaIngresoMensual <= 0 ? (
+                    <p className="mt-4 font-body text-[0.78rem] text-secondary">
+                      Falta definir la meta objetivo (precio por cliente × meta de clientes, botón &quot;Ajustar precio / meta&quot;
+                      abajo) para poder mostrar el espejo completo.
+                    </p>
+                  ) : (
+                    espejoPctCubierto !== null && (
+                      <p className="mt-4 font-body text-[0.8rem] text-secondary">
+                        Si se cumple la meta, el ingreso proyectado a {horizonte} meses cubriría{" "}
+                        <span className="font-bold text-[#101820]">{espejoPctCubierto.toFixed(0)}%</span> de lo ya invertido en{" "}
+                        {recuperaProy.nombre}.
+                      </p>
+                    )
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   <div className={card}>
-                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-slate-500">Invertido</p>
-                    <p className="mt-1 font-display text-[1.1rem] font-bold text-slate-900">{fmtMXN(recuperaTotalInvertido)}</p>
+                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-secondary">Precio / cliente / mes</p>
+                    <p className="mt-1 font-display text-[1.1rem] font-bold text-[#101820]">{fmtMXN(recuperaPrecio)}</p>
                   </div>
                   <div className={card}>
-                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-slate-500">Precio / cliente / mes</p>
-                    <p className="mt-1 font-display text-[1.1rem] font-bold text-slate-900">{fmtMXN(recuperaPrecio)}</p>
-                  </div>
-                  <div className={card}>
-                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-slate-500">Clientes activos hoy</p>
-                    <p className="mt-1 font-display text-[1.1rem] font-bold text-slate-900">{recuperaClientesReales}</p>
+                    <p className="font-body text-[0.66rem] uppercase tracking-wide text-secondary">Clientes activos hoy</p>
+                    <p className="mt-1 font-display text-[1.1rem] font-bold text-[#101820]">{recuperaClientesReales}</p>
                   </div>
                   {isAdmin && (
-                    <button onClick={openRecuperaEdit} className={`${btnGhost} h-full justify-center`}>
+                    <button onClick={openRecuperaEdit} className={`${btnGhost} justify-center`}>
                       <Settings size={14} /> Ajustar precio / meta
                     </button>
                   )}
@@ -917,7 +1076,7 @@ export default function FinanzasDashboard({
                 <div className={card}>
                   <div className="mb-3 flex items-center gap-2">
                     <Calculator size={16} className="text-allitron-blue" />
-                    <p className="font-body text-[0.82rem] font-bold text-slate-800">Simulador de recuperación</p>
+                    <p className="font-body text-[0.82rem] font-bold text-[#101820]">Simulador — juega con otros escenarios</p>
                   </div>
                   <label className={labelCls}>
                     ¿Con cuántos clientes quieres simular?
@@ -932,30 +1091,30 @@ export default function FinanzasDashboard({
                   </label>
 
                   {recuperaPrecio <= 0 ? (
-                    <p className="mt-4 font-body text-[0.8rem] text-slate-500">
-                      Falta definir el precio mensual por cliente de este producto (botón &quot;Ajustar precio / meta&quot;) para poder calcular la recuperación.
+                    <p className="mt-4 font-body text-[0.8rem] text-secondary">
+                      Falta definir el precio mensual por cliente de este producto para poder calcular la recuperación.
                     </p>
                   ) : (
                     <div className="mt-4 grid grid-cols-3 gap-3 text-center">
                       <div>
-                        <p className="font-body text-[0.66rem] uppercase text-slate-500">Ingreso mensual</p>
-                        <p className="mt-1 font-display text-[1.05rem] font-bold text-slate-900">{fmtMXN(recuperaIngresoMensual)}</p>
+                        <p className="font-body text-[0.66rem] uppercase text-secondary">Ingreso mensual</p>
+                        <p className="mt-1 font-display text-[1.05rem] font-bold text-[#101820]">{fmtMXN(recuperaIngresoMensual)}</p>
                       </div>
                       <div>
-                        <p className="font-body text-[0.66rem] uppercase text-slate-500">Meses para recuperar</p>
+                        <p className="font-body text-[0.66rem] uppercase text-secondary">Meses para recuperar</p>
                         <p className="mt-1 font-display text-[1.05rem] font-bold text-allitron-blue">
                           {recuperaMeses !== null ? recuperaMeses.toFixed(1) : "—"}
                         </p>
                       </div>
                       <div>
-                        <p className="font-body text-[0.66rem] uppercase text-slate-500">Años para recuperar</p>
-                        <p className="mt-1 font-display text-[1.05rem] font-bold text-slate-900">
+                        <p className="font-body text-[0.66rem] uppercase text-secondary">Años para recuperar</p>
+                        <p className="mt-1 font-display text-[1.05rem] font-bold text-[#101820]">
                           {recuperaAnos !== null ? recuperaAnos.toFixed(1) : "—"}
                         </p>
                       </div>
                     </div>
                   )}
-                  <p className="mt-4 font-body text-[0.68rem] leading-relaxed text-slate-400">
+                  <p className="mt-4 font-body text-[0.68rem] leading-relaxed text-secondary/70">
                     Cálculo: (invertido) ÷ (precio por cliente × clientes simulados). El precio y la meta de clientes los defines tú
                     por producto; el número de clientes de la simulación es libre, solo para explorar escenarios.
                   </p>
@@ -963,39 +1122,24 @@ export default function FinanzasDashboard({
               </>
             )}
 
-            {/* ── Proyección de gasto futuro (horizonte) ── */}
+            {/* ── Gasto proyectado — todos los productos ── */}
             <div className={card}>
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                <p className="font-body text-[0.82rem] font-bold text-slate-800">Proyección de gasto futuro</p>
-                <div className="flex gap-1.5">
-                  {HORIZONTES.map((h) => (
-                    <button
-                      key={h}
-                      onClick={() => setHorizonte(h)}
-                      className={`rounded-lg px-3 py-1.5 font-body text-[0.75rem] font-bold ${
-                        horizonte === h ? "bg-allitron-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {h}m
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <p className="mb-3 font-body text-[0.82rem] font-bold text-[#101820]">Gasto proyectado — todos los productos ({horizonte}m)</p>
               {proyecciones.length === 0 ? (
-                <p className="font-body text-[0.8rem] text-slate-500">
+                <p className="font-body text-[0.8rem] text-secondary">
                   Sin proyección definida. Ajusta el &quot;gasto recurrente mensual&quot; de un proyecto desde Catálogo.
                 </p>
               ) : (
                 <>
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-[#101820]/[0.06]">
                     {proyecciones.map((r) => (
                       <div key={r.proyecto.id} className="flex items-center justify-between py-2">
-                        <span className="font-body text-[0.8rem] text-slate-700">{r.proyecto.nombre}</span>
-                        <span className="font-body text-[0.85rem] font-bold text-slate-900">{fmtMXN(r.total)}</span>
+                        <span className="font-body text-[0.8rem] text-secondary">{r.proyecto.nombre}</span>
+                        <span className="font-body text-[0.85rem] font-bold text-[#101820]">{fmtMXN(r.total)}</span>
                       </div>
                     ))}
                   </div>
-                  <p className="mt-2 font-body text-[0.78rem] font-bold text-slate-700">
+                  <p className="mt-2 font-body text-[0.78rem] font-bold text-secondary">
                     Total a {horizonte} meses: <span className="text-allitron-blue">{fmtMXN(proyeccionTotal)}</span>
                   </p>
                 </>
@@ -1008,24 +1152,24 @@ export default function FinanzasDashboard({
         {tab === "servicios" && (
           <section className={card}>
             <div className="mb-1 flex items-center justify-between">
-              <p className="font-body text-[0.82rem] font-bold text-slate-800">Servicios activos</p>
+              <p className="font-body text-[0.82rem] font-bold text-[#101820]">Servicios activos</p>
               {isAdmin && (
                 <button onClick={() => setServiciosOpen(true)} className={btnGhost}>
                   <Plus size={14} /> Gestionar
                 </button>
               )}
             </div>
-            <p className="mb-3 font-body text-[0.7rem] text-slate-400">
+            <p className="mb-3 font-body text-[0.7rem] text-secondary/70">
               Esto es lo que vendes al mercado (precio, cuántos clientes lo tienen activo) — distinto del catálogo de Proyectos,
               que es dónde registras lo que gastas/inviertes.
             </p>
             {servicios.length === 0 ? (
-              <p className="font-body text-[0.8rem] text-slate-500">Sin servicios cargados todavía.</p>
+              <p className="font-body text-[0.8rem] text-secondary">Sin servicios cargados todavía.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] border-collapse font-body text-[0.8rem]">
                   <thead>
-                    <tr className="border-b border-slate-200 text-left text-[0.68rem] uppercase tracking-wide text-slate-500">
+                    <tr className="border-b border-[#101820]/10 text-left text-[0.68rem] uppercase tracking-wide text-secondary">
                       <th className="py-2 pr-3">Servicio</th>
                       <th className="py-2 pr-3">Proyecto</th>
                       <th className="py-2 pr-3 text-right">Valor</th>
@@ -1035,7 +1179,7 @@ export default function FinanzasDashboard({
                   </thead>
                   <tbody>
                     {servicios.map((s) => (
-                      <tr key={s.id} className="border-b border-slate-100">
+                      <tr key={s.id} className="border-b border-[#101820]/[0.06]">
                         <td className="py-2.5 pr-3">{s.nombre}</td>
                         <td className="py-2.5 pr-3">{s.proyecto_id ? proyectosById[s.proyecto_id]?.nombre || "—" : "—"}</td>
                         <td className="py-2.5 pr-3 text-right whitespace-nowrap">{fmtOriginal(s.valor, s.moneda)}</td>
@@ -1052,24 +1196,24 @@ export default function FinanzasDashboard({
 
         {/* ═══════════════ ACTIVOS DE SOCIOS — separado por completo ═══════════════ */}
         {tab === "socios" && (
-          <section className="rounded-2xl border border-dashed border-slate-300 bg-slate-100/60 p-5">
+          <section className="rounded-2xl border border-dashed border-[#101820]/20 bg-[#101820]/[0.04] p-5">
             <div className="mb-3 flex items-center gap-2">
-              <Archive size={16} className="text-slate-500" />
-              <h2 className="font-display text-[0.9rem] font-bold text-slate-700">Independiente del gasto de productos Allitron</h2>
+              <Archive size={16} className="text-secondary" />
+              <h2 className="font-display text-[0.9rem] font-bold text-secondary">Independiente del gasto de productos Allitron</h2>
             </div>
-            <p className="mb-4 font-body text-[0.75rem] leading-relaxed text-slate-500">
+            <p className="mb-4 font-body text-[0.75rem] leading-relaxed text-secondary">
               Inversión física de cada socio (p. ej. el edificio/hub de Alejandro). No se suma a los totales de productos. El
               acuerdo entre ambas inversiones queda pendiente entre Lups y Alejandro.
             </p>
             <div className="space-y-3">
               {catalogoActivosSocios.map((p) => (
-                <div key={p.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
+                <div key={p.id} className="flex items-center justify-between rounded-xl border border-[#101820]/10 bg-[var(--color-light)] p-4">
                   <div>
-                    <p className="font-body text-[0.78rem] font-bold text-slate-700">{p.nombre}</p>
-                    <p className="font-body text-[0.68rem] text-slate-400">Inversión de: {p.propietario_inversion}</p>
+                    <p className="font-body text-[0.78rem] font-bold text-secondary">{p.nombre}</p>
+                    <p className="font-body text-[0.68rem] text-secondary/70">Inversión de: {p.propietario_inversion}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <p className="font-display text-[1.1rem] font-bold text-slate-900">{fmtMXN(summaryActivos.porActivo[p.id] || 0)}</p>
+                    <p className="font-display text-[1.1rem] font-bold text-[#101820]">{fmtMXN(summaryActivos.porActivo[p.id] || 0)}</p>
                     {isAdmin && (
                       <button onClick={() => openAddMov(p.id)} className={btnGhost}>
                         <Plus size={14} /> Agregar
@@ -1079,33 +1223,130 @@ export default function FinanzasDashboard({
                 </div>
               ))}
               {catalogoActivosSocios.length === 0 && (
-                <p className="font-body text-[0.8rem] text-slate-500">
+                <p className="font-body text-[0.8rem] text-secondary">
                   Sin activos de socios en el catálogo todavía. Agrega uno desde &quot;Catálogo&quot; (tipo: activo de socio).
                 </p>
               )}
             </div>
             {catalogoActivosSocios.length > 0 && (
-              <p className="mt-4 font-body text-[0.78rem] font-bold text-slate-700">
-                Total activos de socios: <span className="text-slate-900">{fmtMXN(summaryActivos.total)}</span>
+              <p className="mt-4 font-body text-[0.78rem] font-bold text-secondary">
+                Total activos de socios: <span className="text-[#101820]">{fmtMXN(summaryActivos.total)}</span>
               </p>
             )}
           </section>
         )}
 
+        {/* ═══════════════ PENDIENTES (fiscal, legal, operativo, otros temas) ═══════════════ */}
+        {tab === "pendientes" && (
+          <div className="space-y-4">
+            <div className={card}>
+              <p className="mb-1 font-body text-[0.82rem] font-bold text-[#101820]">Temas abiertos</p>
+              <p className="mb-4 font-body text-[0.72rem] leading-relaxed text-secondary">
+                Cajón para todo lo que falta ordenar y no encaja en un movimiento: fiscal (facturación, régimen, provisiones),
+                legal (acuerdos pendientes con Alejandro/Miki), operativo, o de producto. No es asesoría — es una lista para
+                resolver con quien corresponda (tu contador, tu abogado, etc.) y no perderla de vista.
+              </p>
+
+              {notas.length === 0 ? (
+                <p className="font-body text-[0.8rem] text-secondary">Sin pendientes registrados todavía.</p>
+              ) : (
+                <div className="space-y-2">
+                  {notas.map((n) => (
+                    <div key={n.id} className="rounded-[14px] bg-[#101820]/[0.03] p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <span className="rounded-full bg-[#101820]/[0.07] px-2 py-0.5 font-display text-[0.6rem] font-bold uppercase tracking-wide text-secondary">
+                            {notaCategoriaLabel(n.categoria)}
+                          </span>
+                          <p className="mt-1.5 font-body text-[0.85rem] font-bold text-[#101820]">{n.titulo}</p>
+                          {n.detalle && <p className="mt-0.5 font-body text-[0.8rem] text-secondary">{n.detalle}</p>}
+                          <p className="mt-1 font-body text-[0.66rem] text-secondary/60">
+                            {n.creado_por && `${n.creado_por} · `}
+                            {new Date(n.created_at).toLocaleDateString("es-MX", { dateStyle: "medium" })}
+                          </p>
+                        </div>
+                        {isAdmin ? (
+                          <div className="flex shrink-0 items-center gap-2">
+                            <select
+                              value={n.estado}
+                              onChange={(e) => handleCambiarEstadoNota(n, e.target.value as (typeof NOTA_ESTADOS)[number])}
+                              className={`rounded-lg border px-2 py-1 font-body text-[0.72rem] font-bold ${
+                                n.estado === "resuelto"
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                                  : n.estado === "en_proceso"
+                                  ? "border-amber-200 bg-amber-50 text-amber-600"
+                                  : "border-[#101820]/10 bg-[var(--color-light)] text-secondary"
+                              }`}
+                            >
+                              {NOTA_ESTADOS.map((e) => <option key={e} value={e}>{notaEstadoLabel(e)}</option>)}
+                            </select>
+                            <button onClick={() => handleDeleteNota(n.id)} className="rounded-lg border border-red-200 px-2 py-1 text-[0.68rem] text-red-500 hover:bg-red-50">
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <span
+                            className={`shrink-0 rounded-full px-2.5 py-0.5 font-body text-[0.68rem] font-bold ${
+                              n.estado === "resuelto"
+                                ? "bg-emerald-50 text-emerald-600"
+                                : n.estado === "en_proceso"
+                                ? "bg-amber-50 text-amber-600"
+                                : "bg-[#101820]/[0.06] text-secondary"
+                            }`}
+                          >
+                            {notaEstadoLabel(n.estado)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {isAdmin && (
+              <form onSubmit={handleSubmitNota} className={`${card} grid grid-cols-2 gap-3`}>
+                <h4 className="col-span-2 flex items-center gap-2 font-body text-[0.78rem] font-bold text-[#101820]">
+                  <ClipboardList size={15} className="text-allitron-blue" /> Agregar pendiente
+                </h4>
+                <label className={labelCls}>
+                  Categoría
+                  <select value={notaForm.categoria} onChange={(e) => setNotaForm({ ...notaForm, categoria: e.target.value as (typeof NOTA_CATEGORIAS)[number] })} className={inputCls}>
+                    {NOTA_CATEGORIAS.map((c) => <option key={c} value={c}>{notaCategoriaLabel(c)}</option>)}
+                  </select>
+                </label>
+                <label className={labelCls}>
+                  Título
+                  <input required value={notaForm.titulo} onChange={(e) => setNotaForm({ ...notaForm, titulo: e.target.value })} placeholder="Ej. Definir régimen fiscal para facturar Lazup CRM" className={inputCls} />
+                </label>
+                <label className={`col-span-2 ${labelCls}`}>
+                  Detalle (opcional)
+                  <textarea value={notaForm.detalle} onChange={(e) => setNotaForm({ ...notaForm, detalle: e.target.value })} className={`${inputCls} min-h-[60px]`} />
+                </label>
+                <div className="col-span-2 flex justify-end">
+                  <button type="submit" disabled={busy} className={btnPrimary}>
+                    <Plus size={14} /> Agregar
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
         {/* ═══════════════ ACTIVIDAD (auditoría, solo admin) ═══════════════ */}
         {tab === "actividad" && isAdmin && (
           <section className={card}>
-            <p className="mb-1 font-body text-[0.82rem] font-bold text-slate-800">Registro de actividad</p>
-            <p className="mb-3 font-body text-[0.7rem] text-slate-400">
+            <p className="mb-1 font-body text-[0.82rem] font-bold text-[#101820]">Registro de actividad</p>
+            <p className="mb-3 font-body text-[0.7rem] text-secondary/70">
               Quién agregó, editó o eliminó cada cosa — últimos 200 movimientos del registro.
             </p>
             {auditoria.length === 0 ? (
-              <p className="font-body text-[0.8rem] text-slate-500">Sin actividad registrada todavía.</p>
+              <p className="font-body text-[0.8rem] text-secondary">Sin actividad registrada todavía.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] border-collapse font-body text-[0.78rem]">
                   <thead>
-                    <tr className="border-b border-slate-200 text-left text-[0.66rem] uppercase tracking-wide text-slate-500">
+                    <tr className="border-b border-[#101820]/10 text-left text-[0.66rem] uppercase tracking-wide text-secondary">
                       <th className="py-2 pr-3">Cuándo</th>
                       <th className="py-2 pr-3">Quién</th>
                       <th className="py-2 pr-3">Acción</th>
@@ -1115,14 +1356,14 @@ export default function FinanzasDashboard({
                   </thead>
                   <tbody>
                     {auditoria.map((a) => (
-                      <tr key={a.id} className="border-b border-slate-100">
-                        <td className="py-2 pr-3 whitespace-nowrap text-slate-500">
+                      <tr key={a.id} className="border-b border-[#101820]/[0.06]">
+                        <td className="py-2 pr-3 whitespace-nowrap text-secondary">
                           {new Date(a.momento).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" })}
                         </td>
-                        <td className="py-2 pr-3 font-semibold text-slate-700">{a.persona}</td>
+                        <td className="py-2 pr-3 font-semibold text-secondary">{a.persona}</td>
                         <td className="py-2 pr-3 capitalize">{a.accion.replace("_", " ")}</td>
                         <td className="py-2 pr-3 capitalize">{a.entidad}</td>
-                        <td className="py-2 pr-3 max-w-[280px] text-slate-500">{a.detalle}</td>
+                        <td className="py-2 pr-3 max-w-[280px] text-secondary">{a.detalle}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1132,31 +1373,42 @@ export default function FinanzasDashboard({
           </section>
         )}
 
-        <p className="mt-8 text-center font-body text-[0.68rem] leading-relaxed text-slate-400">
+        <p className="mt-8 text-center font-body text-[0.68rem] leading-relaxed text-secondary/70">
           Montos en USD convertidos a MXN con el tipo de cambio configurado (no histórico mes a mes). Sistema interno de
           Allitron, no enlazado desde el sitio público.
         </p>
+
+        <div className="mt-6 flex justify-center border-t border-[#101820]/[0.07] pt-6">
+          <a
+            href="https://somoslazaro.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-body text-[0.72rem] text-secondary/70 transition-colors hover:text-[#101820]"
+          >
+            Desarrollado por <span className="font-display font-bold tracking-[0.02em]">SomosLázaro</span>
+          </a>
+        </div>
       </div>
 
       {/* ── Modal agregar/editar movimiento ── */}
       {movModalOpen && isAdmin && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-6" onClick={(e) => e.target === e.currentTarget && setMovModalOpen(false)}>
-          <div className="w-full max-w-[560px] rounded-t-[24px] bg-white p-6 shadow-xl sm:rounded-[24px]">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#101820]/40 p-0 sm:items-center sm:p-6" onClick={(e) => e.target === e.currentTarget && setMovModalOpen(false)}>
+          <div className="w-full max-w-[560px] rounded-t-[24px] bg-[var(--color-light)] p-6 shadow-xl sm:rounded-[24px]">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-display text-[1.05rem] font-bold text-slate-900">
+              <h3 className="font-display text-[1.05rem] font-bold text-[#101820]">
                 {movForm.id
                   ? "Editar movimiento"
                   : movModalLocked
                   ? `Agregar inversión — ${proyectosById[movForm.proyecto_id]?.nombre || ""}`
                   : "Agregar movimiento"}
               </h3>
-              <button onClick={() => setMovModalOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
+              <button onClick={() => setMovModalOpen(false)} className="text-secondary/70 hover:text-[#101820]"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmitMov} className="grid grid-cols-2 gap-3">
               {movModalLocked ? (
                 <p className={`col-span-2 ${labelCls}`}>
                   Proyecto / activo
-                  <span className="mt-1 block rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 font-body text-[0.85rem] font-bold text-slate-700">
+                  <span className="mt-1 block rounded-lg border border-[#101820]/10 bg-[#101820]/[0.06] px-3 py-2 font-body text-[0.85rem] font-bold text-secondary">
                     {proyectosById[movForm.proyecto_id]?.nombre}
                   </span>
                 </p>
@@ -1209,7 +1461,7 @@ export default function FinanzasDashboard({
                     <Trash2 size={13} /> Eliminar
                   </button>
                 )}
-                <button type="button" onClick={() => setMovModalOpen(false)} className="rounded-lg border border-slate-200 px-4 py-2 font-body text-[0.78rem] text-slate-700 hover:bg-slate-50">
+                <button type="button" onClick={() => setMovModalOpen(false)} className="rounded-lg border border-[#101820]/10 px-4 py-2 font-body text-[0.78rem] text-secondary hover:bg-[#101820]/[0.05]">
                   Cancelar
                 </button>
                 <button type="submit" disabled={busy} className="rounded-lg bg-allitron-blue px-4 py-2 font-display text-[0.78rem] font-bold text-white disabled:opacity-60">
@@ -1223,28 +1475,28 @@ export default function FinanzasDashboard({
 
       {/* ── Modal catálogo de proyectos ── */}
       {catalogoOpen && isAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={(e) => e.target === e.currentTarget && (setCatalogoOpen(false), resetProyForm())}>
-          <div className="max-h-[85vh] w-full max-w-[680px] overflow-y-auto rounded-[24px] bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101820]/40 p-4" onClick={(e) => e.target === e.currentTarget && (setCatalogoOpen(false), resetProyForm())}>
+          <div className="max-h-[85vh] w-full max-w-[680px] overflow-y-auto rounded-[24px] bg-[var(--color-light)] p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-display text-[1.05rem] font-bold text-slate-900">Catálogo de proyectos / productos / activos</h3>
-              <button onClick={() => { setCatalogoOpen(false); resetProyForm(); }} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
+              <h3 className="font-display text-[1.05rem] font-bold text-[#101820]">Catálogo de proyectos / productos / activos</h3>
+              <button onClick={() => { setCatalogoOpen(false); resetProyForm(); }} className="text-secondary/70 hover:text-[#101820]"><X size={18} /></button>
             </div>
-            <p className="mb-4 font-body text-[0.72rem] text-slate-400">
+            <p className="mb-4 font-body text-[0.72rem] text-secondary/70">
               Cada entrada aquí es un lugar donde registrar gasto/inversión (un producto, un evento, o un activo de socio como el
               edificio). No es tu oferta comercial — eso va en &quot;Servicios&quot;.
             </p>
 
             <div className="mb-5 space-y-2">
               {proyectos.map((p) => (
-                <div key={p.id} className={`flex items-center justify-between rounded-xl border p-3 ${p.activo ? "border-slate-200" : "border-slate-100 bg-slate-50 opacity-60"}`}>
+                <div key={p.id} className={`flex items-center justify-between rounded-xl border p-3 ${p.activo ? "border-[#101820]/10" : "border-[#101820]/[0.06] bg-[#101820]/[0.03] opacity-60"}`}>
                   <div>
-                    <p className="font-body text-[0.8rem] font-bold text-slate-800">
-                      {p.nombre} <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-[0.62rem] font-bold uppercase text-slate-500">{tipoLabel(p.tipo)}</span>
+                    <p className="font-body text-[0.8rem] font-bold text-[#101820]">
+                      {p.nombre} <span className="ml-1 rounded-full bg-[#101820]/[0.06] px-2 py-0.5 text-[0.62rem] font-bold uppercase text-secondary">{tipoLabel(p.tipo)}</span>
                     </p>
-                    <p className="font-body text-[0.68rem] text-slate-400">Inversión de: {p.propietario_inversion}{!p.activo && " · archivado"}</p>
+                    <p className="font-body text-[0.68rem] text-secondary/70">Inversión de: {p.propietario_inversion}{!p.activo && " · archivado"}</p>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => openEditProy(p)} className="rounded-lg border border-slate-200 px-2.5 py-1 text-[0.72rem] text-slate-700 hover:bg-slate-100">Editar</button>
+                    <button onClick={() => openEditProy(p)} className="rounded-lg border border-[#101820]/10 px-2.5 py-1 text-[0.72rem] text-secondary hover:bg-[#101820]/[0.08]">Editar</button>
                     {p.activo && (
                       <button onClick={() => handleArchiveProy(p)} className="rounded-lg border border-red-200 px-2.5 py-1 text-[0.72rem] text-red-500 hover:bg-red-50">Archivar</button>
                     )}
@@ -1253,8 +1505,8 @@ export default function FinanzasDashboard({
               ))}
             </div>
 
-            <form onSubmit={handleSubmitProy} className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
-              <h4 className="col-span-2 font-body text-[0.78rem] font-bold text-slate-700">{proyForm.id ? "Editar entrada" : "Agregar nueva entrada al catálogo"}</h4>
+            <form onSubmit={handleSubmitProy} className="grid grid-cols-2 gap-3 border-t border-[#101820]/[0.06] pt-4">
+              <h4 className="col-span-2 font-body text-[0.78rem] font-bold text-secondary">{proyForm.id ? "Editar entrada" : "Agregar nueva entrada al catálogo"}</h4>
               <label className={`col-span-2 ${labelCls}`}>
                 Nombre
                 <input required value={proyForm.nombre} onChange={(e) => setProyForm({ ...proyForm, nombre: e.target.value })} className={inputCls} />
@@ -1289,7 +1541,7 @@ export default function FinanzasDashboard({
               </label>
               <div className="col-span-2 flex justify-end gap-2">
                 {proyForm.id && (
-                  <button type="button" onClick={resetProyForm} className="rounded-lg border border-slate-200 px-4 py-2 font-body text-[0.78rem] text-slate-700 hover:bg-slate-50">Cancelar edición</button>
+                  <button type="button" onClick={resetProyForm} className="rounded-lg border border-[#101820]/10 px-4 py-2 font-body text-[0.78rem] text-secondary hover:bg-[#101820]/[0.05]">Cancelar edición</button>
                 )}
                 <button type="submit" disabled={busy} className="rounded-lg bg-allitron-blue px-4 py-2 font-display text-[0.78rem] font-bold text-white disabled:opacity-60">
                   {proyForm.id ? "Guardar cambios" : "Agregar"}
@@ -1302,19 +1554,19 @@ export default function FinanzasDashboard({
 
       {/* ── Modal catálogo de servicios ── */}
       {serviciosOpen && isAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={(e) => e.target === e.currentTarget && setServiciosOpen(false)}>
-          <div className="max-h-[85vh] w-full max-w-[680px] overflow-y-auto rounded-[24px] bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101820]/40 p-4" onClick={(e) => e.target === e.currentTarget && setServiciosOpen(false)}>
+          <div className="max-h-[85vh] w-full max-w-[680px] overflow-y-auto rounded-[24px] bg-[var(--color-light)] p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-display text-[1.05rem] font-bold text-slate-900">Catálogo de servicios activos</h3>
-              <button onClick={() => setServiciosOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
+              <h3 className="font-display text-[1.05rem] font-bold text-[#101820]">Catálogo de servicios activos</h3>
+              <button onClick={() => setServiciosOpen(false)} className="text-secondary/70 hover:text-[#101820]"><X size={18} /></button>
             </div>
 
             <div className="mb-5 space-y-2">
               {servicios.map((s) => (
-                <div key={s.id} className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
+                <div key={s.id} className="flex items-center justify-between rounded-xl border border-[#101820]/10 p-3">
                   <div>
-                    <p className="font-body text-[0.8rem] font-bold text-slate-800">{s.nombre}</p>
-                    <p className="font-body text-[0.68rem] text-slate-400">
+                    <p className="font-body text-[0.8rem] font-bold text-[#101820]">{s.nombre}</p>
+                    <p className="font-body text-[0.68rem] text-secondary/70">
                       {fmtOriginal(s.valor, s.moneda)} / {s.periodicidad} · {s.clientes_activos} clientes activos
                       {s.proyecto_id && ` · ${proyectosById[s.proyecto_id]?.nombre || ""}`}
                     </p>
@@ -1322,11 +1574,11 @@ export default function FinanzasDashboard({
                   <button onClick={() => handleDeleteServ(s.id)} className="rounded-lg border border-red-200 px-2.5 py-1 text-[0.72rem] text-red-500 hover:bg-red-50">Eliminar</button>
                 </div>
               ))}
-              {servicios.length === 0 && <p className="font-body text-[0.78rem] text-slate-400">Sin servicios cargados todavía.</p>}
+              {servicios.length === 0 && <p className="font-body text-[0.78rem] text-secondary/70">Sin servicios cargados todavía.</p>}
             </div>
 
-            <form onSubmit={handleSubmitServ} className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
-              <h4 className="col-span-2 font-body text-[0.78rem] font-bold text-slate-700">Agregar servicio</h4>
+            <form onSubmit={handleSubmitServ} className="grid grid-cols-2 gap-3 border-t border-[#101820]/[0.06] pt-4">
+              <h4 className="col-span-2 font-body text-[0.78rem] font-bold text-secondary">Agregar servicio</h4>
               <label className={`col-span-2 ${labelCls}`}>
                 Nombre
                 <input required value={servForm.nombre} onChange={(e) => setServForm({ ...servForm, nombre: e.target.value })} className={inputCls} />
@@ -1371,9 +1623,9 @@ export default function FinanzasDashboard({
 
       {/* ── Modal ajuste rápido de recuperación ── */}
       {recuperaEditOpen && isAdmin && recuperaProy && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-6" onClick={(e) => e.target === e.currentTarget && setRecuperaEditOpen(false)}>
-          <div className="w-full max-w-[360px] rounded-[24px] bg-white p-6 shadow-xl">
-            <h3 className="mb-3 font-display text-[1rem] font-bold text-slate-900">{recuperaProy.nombre} — supuestos de recuperación</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101820]/40 p-6" onClick={(e) => e.target === e.currentTarget && setRecuperaEditOpen(false)}>
+          <div className="w-full max-w-[360px] rounded-[24px] bg-[var(--color-light)] p-6 shadow-xl">
+            <h3 className="mb-3 font-display text-[1rem] font-bold text-[#101820]">{recuperaProy.nombre} — supuestos de recuperación</h3>
             <label className={labelCls}>
               Precio por cliente al mes (MXN)
               <input type="number" step="0.01" min="0" value={recuperaDraft.precio} onChange={(e) => setRecuperaDraft({ ...recuperaDraft, precio: e.target.value })} className={inputCls} />
@@ -1383,7 +1635,7 @@ export default function FinanzasDashboard({
               <input type="number" min="0" value={recuperaDraft.meta} onChange={(e) => setRecuperaDraft({ ...recuperaDraft, meta: e.target.value })} className={inputCls} />
             </label>
             <div className="mt-4 flex justify-end gap-2">
-              <button onClick={() => setRecuperaEditOpen(false)} className="rounded-lg border border-slate-200 px-4 py-2 font-body text-[0.78rem] text-slate-700 hover:bg-slate-50">Cancelar</button>
+              <button onClick={() => setRecuperaEditOpen(false)} className="rounded-lg border border-[#101820]/10 px-4 py-2 font-body text-[0.78rem] text-secondary hover:bg-[#101820]/[0.05]">Cancelar</button>
               <button onClick={handleSaveRecupera} disabled={busy} className="rounded-lg bg-allitron-blue px-4 py-2 font-display text-[0.78rem] font-bold text-white">Guardar</button>
             </div>
           </div>
@@ -1392,12 +1644,12 @@ export default function FinanzasDashboard({
 
       {/* ── Modal tipo de cambio ── */}
       {fxOpen && isAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-6" onClick={(e) => e.target === e.currentTarget && setFxOpen(false)}>
-          <div className="w-full max-w-[340px] rounded-[24px] bg-white p-6 shadow-xl">
-            <h3 className="mb-3 font-display text-[1rem] font-bold text-slate-900">Tipo de cambio USD → MXN</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101820]/40 p-6" onClick={(e) => e.target === e.currentTarget && setFxOpen(false)}>
+          <div className="w-full max-w-[340px] rounded-[24px] bg-[var(--color-light)] p-6 shadow-xl">
+            <h3 className="mb-3 font-display text-[1rem] font-bold text-[#101820]">Tipo de cambio USD → MXN</h3>
             <input type="number" step="0.01" min="0" value={fxDraft} onChange={(e) => setFxDraft(e.target.value)} className={inputCls} />
             <div className="mt-4 flex justify-end gap-2">
-              <button onClick={() => setFxOpen(false)} className="rounded-lg border border-slate-200 px-4 py-2 font-body text-[0.78rem] text-slate-700 hover:bg-slate-50">Cancelar</button>
+              <button onClick={() => setFxOpen(false)} className="rounded-lg border border-[#101820]/10 px-4 py-2 font-body text-[0.78rem] text-secondary hover:bg-[#101820]/[0.05]">Cancelar</button>
               <button onClick={handleSaveFx} disabled={busy} className="rounded-lg bg-allitron-blue px-4 py-2 font-display text-[0.78rem] font-bold text-white">Guardar</button>
             </div>
           </div>
@@ -1405,7 +1657,7 @@ export default function FinanzasDashboard({
       )}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2.5 font-body text-[0.8rem] text-white shadow-lg">
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl bg-[#101820] px-4 py-2.5 font-body text-[0.8rem] text-white shadow-lg">
           {toast}
         </div>
       )}
