@@ -40,6 +40,12 @@ export const HERO = {
    * home. Puede ser una persona (Lups, Alejandro, equipo) o un visual de
    * marca — decisión abierta, no asumida por el código. */
   portrait: `${B}/hero/hero-portrait.png`,
+  /** Still de Alli generado (Higgsfield) — poster del visual del hero
+   * mientras carga el video, y fallback si el video no existe. */
+  visualPoster: `${B}/hero/hero-visual.png`,
+  /** Clip corto en loop (Higgsfield) — reemplaza al NodeGraph placeholder
+   * cuando el archivo existe; NodeGraph queda como fallback (ver Hero.tsx). */
+  visualVideo: `${B}/hero/hero-visual.mp4`,
 } as const;
 
 // ── Products ─────────────────────────────────────────────────────
@@ -47,6 +53,10 @@ export const PRODUCT_ALLITRON90 = {
   hero: `${B}/products/allitron-90/hero.webp`,
   diagnostic: `${B}/products/allitron-90/diagnostic.webp`,
   roadmap: `${B}/products/allitron-90/roadmap.webp`,
+  /** Video de "ensamblaje" (Higgsfield) — particulas naranja convirtiendose
+   * en el emblema del producto. Home, seccion Soluciones. */
+  assemblyVideo: `${B}/products/allitron-90/assembly.mp4`,
+  assemblyPoster: `${B}/products/allitron-90/assembly-poster.png`,
 } as const;
 
 export const PRODUCT_LOCAL = {
@@ -54,12 +64,20 @@ export const PRODUCT_LOCAL = {
   analysis: `${B}/products/local/local-analysis.webp`,
   build: `${B}/products/local/local-build.webp`,
   result: `${B}/products/local/local-result.webp`,
+  /** Video de "ensamblaje" (Higgsfield) — particulas rojas formando el
+   * icono de posicionamiento/mapa. Home, seccion Soluciones. */
+  assemblyVideo: `${B}/products/local/assembly.mp4`,
+  assemblyPoster: `${B}/products/local/assembly-poster.png`,
 } as const;
 
 export const PRODUCT_SECOND_BRAIN = {
   hero: `${B}/products/second-brain/hero.webp`,
   telegram: `${B}/products/second-brain/telegram.webp`,
   vault: `${B}/products/second-brain/vault.webp`,
+  /** Video de "ensamblaje" (Higgsfield) — particulas moradas formando el
+   * nodo-cerebro. Home, seccion Soluciones. */
+  assemblyVideo: `${B}/products/second-brain/assembly.mp4`,
+  assemblyPoster: `${B}/products/second-brain/assembly-poster.png`,
 } as const;
 
 export const PRODUCT_LAZUP = {
@@ -67,6 +85,18 @@ export const PRODUCT_LAZUP = {
   conversations: `${B}/products/lazup/conversations.webp`,
   crm: `${B}/products/lazup/crm.webp`,
   appointments: `${B}/products/lazup/appointments.webp`,
+  /** Video de "ensamblaje" (Higgsfield) — particulas rosa formando el
+   * icono de engranaje/dashboard. Home, seccion Soluciones. */
+  assemblyVideo: `${B}/products/lazup/assembly.mp4`,
+  assemblyPoster: `${B}/products/lazup/assembly-poster.png`,
+} as const;
+
+export const PRODUCT_AURORA = {
+  /** Video de presentacion de Aurora (Higgsfield, avatar Soul entrenado) —
+   * la inteligencia que coordina diagnostico, ejecucion y seguimiento en
+   * toda la suite Allitron. Home, seccion Soluciones (5ta pieza). */
+  assemblyVideo: `${B}/products/aurora/assembly.mp4`,
+  assemblyPoster: `${B}/products/aurora/assembly-poster.png`,
 } as const;
 
 // ── Hub ──────────────────────────────────────────────────────────

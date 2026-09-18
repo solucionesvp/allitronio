@@ -40,13 +40,20 @@ html {
      alcanza a evitar el rebote lateral al hacer scroll si algún elemento
      (blobs decorativos, Alli posicionado absoluto, etc.) empuja el ancho
      del documento más allá del viewport. Hay que ponerlo también en
-     `html`, que es el elemento que realmente hace scroll en mobile. */
-  overflow-x: hidden;
+     `html`, que es el elemento que realmente hace scroll en mobile.
+     Actualizado (17 sep 2026): `overflow-x: hidden` fuerza a los navegadores
+     a tratar `overflow-y` como `auto` (regla de la spec: si un eje no es
+     "visible", el otro deja de serlo también), lo que convierte a html/body
+     en "scroll containers" propios y rompe `position: sticky` en cualquier
+     parte del sitio (el elemento sticky deja de fijarse al viewport real).
+     `overflow-x: clip` logra el mismo recorte horizontal sin arrastrar
+     overflow-y — mantiene el fix de iOS y no rompe sticky. */
+  overflow-x: clip;
 }
 
 body {
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Debe ir en @layer base: el CSS sin capa gana sobre TODAS las capas,
@@ -311,4 +318,19 @@ body {
   .marquee-right {
     animation: none;
   }
+}
+
+/* ——— Scroll interno sin barra visible ———────────────────────────────────
+   Usado donde un bloque de texto puede desbordar dentro de un contenedor
+   visual (p.ej. el overlay de texto sobre el video en Solutions.tsx, o la
+   metodología expandible de LOCAL/11): el overflow-y:auto se conserva
+   (nunca se pierde contenido ni se corta la interacción), pero la barra de
+   scroll nativa del navegador no se dibuja encima de la escena. Estándar
+   cross-browser, sin JS ni dependencias. */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge viejo */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge Chromium */
 }

@@ -2,7 +2,7 @@
 // OptionalAsset: usa <img> nativo para tener onError real. next/image no lo expone para assets opcionales.
 "use client";
 
-import { useCallback, useState } from "react";
+import { forwardRef, useCallback, useState } from "react";
 
 // ── OptionalImage ────────────────────────────────────────────────
 // Muestra una imagen si existe; si falla, cae a `placeholder` (foto real
@@ -115,26 +115,44 @@ interface OptionalVideoProps {
   poster?: string;
 }
 
-export function OptionalVideo({
-  src,
-  className,
-  fallback = null,
-  poster,
-}: OptionalVideoProps) {
-  const [failed, setFailed] = useState(false);
+export const OptionalVideo = forwardRef<HTMLVideoElement, OptionalVideoProps>(
+  function OptionalVideo({ src, className, fallback = null, poster }, ref) {
+    const [failed, setFailed] = useState(false);
 
-  if (failed) return <>{fallback}</>;
+    if (failed) return <>{fallback}</>;
 
-  return (
-    <video
-      src={src}
-      poster={poster}
-      className={className}
-      autoPlay
-      loop
-      muted
-      playsInline
-      onError={() => setFailed(true)}
-    />
-  );
-}
+    // Empieza siempre silenciado -- requisito de los navegadores para
+    // autoplay. Cuando se necesita sonido, el padre recibe el ref y
+    // alterna `.muted` en el primer gesto del usuario (ver
+    // useSoundUnlocked).
+    //
+    // autoPlay + muted: es el mecanismo nativo del navegador para arrancar
+    // el primer play, más confiable que disparar `.play()` a mano desde un
+    // efecto de React (que puede perderse por timing en el primer render).
+    // En Solutions.tsx los 5 productos están siempre montados a la vez
+    // (nunca se desmontan al cambiar de producto) — el padre se encarga de
+    // pausar el que no está activo y de reiniciar+reproducir el que sí
+    // (ver el useEffect de `active` en ProductPanel), así que sólo el
+    // producto visible reproduce, y siempre arranca desde cero al
+    // activarse, aunque el navegador haya intentado auto-reproducir los 5
+    // al cargar la página.
+    //
+    // Sin `loop`: el clip de ensamblaje no está pensado para repetirse en
+    // seco. Al terminar, el navegador lo deja quieto en su último cuadro
+    // (el producto ya armado) de forma nativa — sin JS extra, sin cortar
+    // el audio antes de tiempo.
+    return (
+      <video
+        ref={ref}
+        src={src}
+        poster={poster}
+        className={className}
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        onError={() => setFailed(true)}
+      />
+    );
+  },
+);

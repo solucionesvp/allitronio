@@ -12,7 +12,8 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import HeroAlli from "@/components/brand/HeroAlli";
+import { OptionalVideo } from "@/components/media/OptionalAsset";
+import { HERO } from "@/config/assets";
 
 // ── Animation helpers ────────────────────────────────────────────
 // ── Node graph data ──────────────────────────────────────────────
@@ -71,6 +72,9 @@ const PULSE_SPEEDS = [2.4, 3.1, 2.7]; // segundos por recorrido
 const PULSE_PHASES = [0, 0.34, 0.68]; // desfase inicial [0–1]
 
 // ── NodeGraph ────────────────────────────────────────────────────
+// Fallback del visual del hero — se muestra si HERO.visualVideo (Higgsfield)
+// todavía no existe en public/ (ver bloque "Hero visual" más abajo). No se
+// elimina: es el estado seguro mientras el asset generado no está en el repo.
 interface NodeGraphProps {
   rawMouseX: MotionValue<number>;
   rawMouseY: MotionValue<number>;
@@ -291,6 +295,19 @@ export default function Hero() {
     [rawMouseX, rawMouseY],
   );
 
+  // ── Ritmo del video del hero ─────────────────────────────────────
+  // El clip generado en Higgsfield se sentía "apresurado" contra el resto
+  // del sitio (todo lo demás se mueve lento y deliberado). No podemos
+  // recortar/reeditar el archivo desde aquí, así que bajamos el playbackRate
+  // en el propio <video> — mismo asset, movimiento más pausado y consistente
+  // con el resto del home.
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = heroVideoRef.current;
+    if (!v) return;
+    v.playbackRate = 0.55;
+  }, []);
+
   return (
     <section
       ref={heroRef}
@@ -337,31 +354,43 @@ export default function Hero() {
         />
       </motion.div>
 
-      {/* ── Node graph — right zone, desktop only ───────────────── */}
-      {/*
-          Asset placeholder:
-          To replace with a visual asset, swap <NodeGraph> for:
-          <Image src="/assets/hero/hero-visual.webp" fill alt="" className="object-cover object-right" />
-          Recommended path: public/assets/hero/hero-visual.webp
-      */}
+      {/* ── Hero visual — Alli generado con Higgsfield (HERO.visualVideo).
+          Antes solo existía en desktop (hidden lg:block) — el home no tenía
+          la misma experiencia en móvil, ahí no había ningún visual. Ahora
+          es un único <video>, responsivo: en móvil vive de fondo completo
+          y atenuado (para no pelear con el texto), en desktop se recorta
+          al panel derecho con máscara — mismo asset, dos tratamientos.
+          Si el archivo aún no existe, OptionalVideo cae al NodeGraph. ────── */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[54%] lg:block"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 18%, black 42%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 18%, black 42%)",
-          ...(reduced ? {} : { y: graphParallaxY, opacity: graphParallaxOpacity }),
-        }}
+        className="pointer-events-none absolute inset-0 opacity-25 lg:inset-y-0 lg:right-0 lg:left-auto lg:w-[54%] lg:opacity-100
+          [mask-image:radial-gradient(ellipse_80%_70%_at_50%_40%,black_0%,transparent_80%)]
+          lg:[mask-image:linear-gradient(to_right,transparent_0%,rgba(0,0,0,0.4)_18%,black_42%)]"
+        style={reduced ? undefined : { y: graphParallaxY, opacity: graphParallaxOpacity }}
       >
-        <NodeGraph rawMouseX={rawMouseX} rawMouseY={rawMouseY} reduced={reduced} />
+        <OptionalVideo
+          ref={heroVideoRef}
+          src={HERO.visualVideo}
+          poster={HERO.visualPoster}
+          className="h-full w-full object-cover object-center lg:object-right"
+          fallback={
+            <NodeGraph rawMouseX={rawMouseX} rawMouseY={rawMouseY} reduced={reduced} />
+          }
+        />
       </motion.div>
+
+      {/* Velo oscuro extra en móvil — el video vive detrás de todo el
+          contenido ahí (no solo a la derecha como en desktop), así que
+          necesita más contraste para que el texto siga siendo legible. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-allitron-base/60 via-allitron-base/75 to-allitron-base lg:hidden"
+      />
 
       {/* ── Main content — desplaza a velocidad distinta del fondo,
           creando la sensación de profundidad al hacer scroll ────── */}
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-[1440px] px-8 pb-16 pt-32 lg:px-16 xl:px-24"
+        className="relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-16 pt-28 sm:px-8 sm:pt-32 lg:px-16 xl:px-24 2xl:px-32"
         style={reduced ? undefined : { y: contentParallaxY }}
       >
         <div className="max-w-[520px] lg:max-w-[600px] xl:max-w-[660px]">
@@ -447,11 +476,13 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      {/* ── Alli — anfitrión del inicio ─────────────────────────────
-          Mismo componente que usan las 4 landings de producto, para que la
-          presencia y el comportamiento responsive sean idénticos en todo
-          el sitio. Va detrás del texto (z-[6] vs z-10 del contenido). */}
-      <HeroAlli left="68%" glow="#09AFF2" />
+      {/* ── Fundido de salida — continúa hacia Soluciones sin corte duro,
+          el gradiente ya cierra en negro (#050708), mismo tono con el que
+          arranca la siguiente sección. ──────────────────────────────── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#050708]"
+      />
     </section>
   );
 }
