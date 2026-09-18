@@ -42,7 +42,7 @@ export const HERO = {
   portrait: `${B}/hero/hero-portrait.png`,
   /** Still de Alli generado (Higgsfield) — poster del visual del hero
    * mientras carga el video, y fallback si el video no existe. */
-  visualPoster: `${B}/hero/hero-visual.png`,
+  visualPoster: `${B}/hero/hero-visual.webp`,
   /** Clip corto en loop (Higgsfield) — reemplaza al NodeGraph placeholder
    * cuando el archivo existe; NodeGraph queda como fallback (ver Hero.tsx). */
   visualVideo: `${B}/hero/hero-visual.mp4`,
