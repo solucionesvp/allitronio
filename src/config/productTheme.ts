@@ -71,13 +71,35 @@ export const SECOND_BRAIN_TOKENS = {
  * públicamente).
  *
  * Actualizado agosto 2026 (decisión de Lups): pasa de esmeralda a una familia
- * roja. Es un rojo *evocativo* del pin de Google Maps y del momento de
- * búsqueda, no la paleta de marca de Google — se usa un tono más profundo y
- * sobrio (#D93025 → #8C1D18) para que se lea elegante sobre el fondo oscuro
- * de Allitron y no como una imitación del logo de Google. */
+ * roja, evocativa del pin de Google Maps y del momento de búsqueda.
+ *
+ * Ajustado 18-sep-2026 (feedback de Lups: "los colores los siento oscuros" —
+ * landing de lanzamiento sentía frío/alarmante, no premium-amigable). Se
+ * mantiene la misma familia roja (la lógica del pin de Maps sigue vigente,
+ * sigue sin ser la paleta de marca de Google) pero se sube temperatura y
+ * luminosidad en los dos extremos: el rojo puro (#E5484D→#8C1D18) leía como
+ * alerta/stop, no como CTA cálido. accentDeep ya no baja a un rojo casi
+ * negro — se queda en un terracota cálido, para que se sienta premium sin
+ * perder el fondo oscuro de Allitron (ese fondo no cambia: es la identidad
+ * del sitio completo, no algo exclusivo de este producto). */
 export const DOMINA_GOOGLE_TOKENS = {
-  accent: "#E5484D",
-  accentDeep: "#8C1D18",
-  accentSoft: "rgba(229,72,77,0.13)",
-  gradient: "linear-gradient(135deg, #F2645F 0%, #D93025 50%, #8C1D18 100%)",
+  accent: "#FF6B4A",
+  accentDeep: "#B23A2E",
+  accentSoft: "rgba(255,107,74,0.14)",
+  gradient: "linear-gradient(135deg, #FF8F6B 0%, #FF6B4A 50%, #B23A2E 100%)",
+} as const;
+
+/** Paleta CLARA de la landing de lanzamiento de Domina Google (18-sep-2026).
+ * Feedback de Lups: "todo muy oscuro". Estas superficies son SOLO de la landing
+ * de campaña: no tocan DOMINA_GOOGLE_TOKENS (compartido con la evergreen y los
+ * paneles del home) ni el fondo oscuro de Allitron. Contraste verificado:
+ * ink/bg ≈ 15:1, muted/bg ≈ 6.5:1, accentText/bg ≈ 5.6:1. */
+export const DOMINA_GOOGLE_LIGHT = {
+  bg: "#F6F1EA",
+  bgAlt: "#EDE6DA",
+  card: "#FFFFFF",
+  ink: "#1A1614",
+  muted: "#5F564E",
+  line: "rgba(26,22,20,0.12)",
+  accentText: "#B23A2E",
 } as const;

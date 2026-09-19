@@ -70,6 +70,28 @@ export const PRODUCT_LOCAL = {
   assemblyPoster: `${B}/products/local/assembly-poster.png`,
 } as const;
 
+/**
+ * Domina Google — landing de LANZAMIENTO (/productos/domina-google/lanzamiento).
+ * Rutas SIN extensión: <LaunchImage> prueba .jpg, .png y .webp (y .svg para
+ * logos). Basta guardar el archivo con este nombre en
+ * public/assets/products/local/lanzamiento/ — aparece solo, sin tocar código.
+ */
+const LAUNCH = `${B}/products/local/lanzamiento` as const;
+export const PRODUCT_LOCAL_LAUNCH = {
+  heroDesktop: `${LAUNCH}/hero-desktop`,
+  heroMovil: `${LAUNCH}/hero-movil`,
+  problemaSin: `${LAUNCH}/problema-sin`,
+  problemaCon: `${LAUNCH}/problema-con`,
+  historia: `${LAUNCH}/historia-lups-alli`,
+  fase1: `${LAUNCH}/fase-1-entender`,
+  fase2: `${LAUNCH}/fase-2-disenar`,
+  fase3: `${LAUNCH}/fase-3-construir`,
+  fase4: `${LAUNCH}/fase-4-activar`,
+  ctaFinal: `${LAUNCH}/cta-final`,
+  /** Carpeta de pruebas: caso-01-antes, caso-01-despues, logos/<nombre>… */
+  proofDir: `${LAUNCH}/prueba`,
+} as const;
+
 export const PRODUCT_SECOND_BRAIN = {
   hero: `${B}/products/second-brain/hero.webp`,
   telegram: `${B}/products/second-brain/telegram.webp`,
@@ -249,6 +271,7 @@ export const ASSETS = {
   products: {
     allitron90: PRODUCT_ALLITRON90,
     local: PRODUCT_LOCAL,
+    localLaunch: PRODUCT_LOCAL_LAUNCH,
     secondBrain: PRODUCT_SECOND_BRAIN,
     lazup: PRODUCT_LAZUP,
   },

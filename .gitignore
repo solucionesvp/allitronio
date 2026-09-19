@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Originales pesados de las imágenes de la landing (PNG 20-38 MB) — no se suben
+/_originales/

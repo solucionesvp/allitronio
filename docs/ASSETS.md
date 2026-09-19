@@ -254,3 +254,23 @@ src/components/media/OptionalAsset.tsx
   → OptionalImage  (imágenes)
   → OptionalVideo  (videos)
 ```
+
+---
+
+## Landing de lanzamiento — Domina Google
+
+Carpeta: `public/assets/products/local/lanzamiento/`
+Componente: `src/components/media/LaunchImage.tsx` (prueba `.jpg`, `.png`, `.webp`; `.svg` para logos). Guardar el archivo con el nombre exacto lo activa solo.
+
+| Archivo (sin extensión) | Dónde aparece | Proporción |
+|---|---|---|
+| `hero-desktop` | Hero, fondo (escritorio) | 3:2 |
+| `hero-movil` | Hero, fondo (móvil; si falta usa `hero-desktop`) | 4:5 |
+| `problema-sin` / `problema-con` | Problema, tarjetas Sin/Con presencia | 3:2 |
+| `historia-lups-alli` | Sección "Quién está detrás" | 3:2 |
+| `fase-1-entender` … `fase-4-activar` | Cómo trabajamos (mientras no existan, usa las de la evergreen) | 4:3 |
+| `cta-final` | CTA final, fondo | 16:9 |
+| `prueba/caso-01-antes`, `prueba/caso-01-despues` (02, 03, 04) | Casos antes/después | 4:5 |
+| `prueba/logos/<slug>` | Tira de logos | libre, SVG o PNG transparente |
+
+Los casos y logos además se registran en `src/data/dominaGoogleLaunchContent.ts` (`DG_PROOF_CASES`, `DG_PROOF_LOGOS`). Mientras esas listas estén vacías, las secciones de prueba no se muestran.
