@@ -262,19 +262,3 @@ export const DG_PROOF_CASES: readonly LaunchProofCase[] = [
 ];
 export const DG_PROOF_LOGOS: readonly LaunchProofLogo[] = [];
 export const DG_PROOF_LOGO_BASE = `${PRODUCT_LOCAL_LAUNCH.proofDir}/logos`;
-
-// Otros negocios con sitio propio (solo enlace; sin cifras). Dominios verificados
-// que cargan. Agregar aquí solo con permiso del cliente.
-export interface LaunchProofLink {
-  name: string;
-  niche: string;
-  url: string;
-  domain: string;
-}
-
-export const DG_PROOF_LINKS: readonly LaunchProofLink[] = [
-  { name: "UC Universidad Continental", niche: "Educación superior · Tepic", url: "https://univercidadcontinetal.com/", domain: "univercidadcontinetal.com" },
-  { name: "Soluciones Prontas en Electricidad", niche: "Instalaciones eléctricas · Tepic", url: "https://www.solucionesprontas.com/", domain: "solucionesprontas.com" },
-  { name: "Soluciones VP", niche: "Bombas y equipo · Nayarit", url: "https://www.solucionesvp.com/", domain: "solucionesvp.com" },
-  { name: "Lockers JGA México", niche: "Fabricante de lockers", url: "https://lockersjgamexico.com/", domain: "lockersjgamexico.com" },
-];

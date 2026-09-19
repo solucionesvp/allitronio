@@ -169,33 +169,23 @@ export const DG_FAQ: readonly { q: string; a: string }[] = [
 // ── PRUEBA (casos antes/después y logos) — HOY VACÍO A PROPÓSITO ────────────
 // La landing solo pinta estas secciones cuando hay datos reales. No inventar
 // resultados. Para agregar un caso:
-//   1. Guardar en public/assets/products/local/lanzamiento/prueba/:
-//      <id>-web.webp (captura de su web) y <id>-google.webp (ficha/panel).
-//   2. Agregar el objeto abajo con cifras copiadas TAL CUAL de la captura y su periodo.
-//   3. `approved: true` SOLO con permiso escrito del cliente (ver `permiso_prueba`
-//      en su ficha de Obsidian). Con `approved: false` no se pinta nada.
-//   4. `url` es opcional: solo si el cliente autoriza el enlace y es dominio oficial.
+//   1. Guardar public/assets/products/local/lanzamiento/prueba/caso-01-antes.png
+//      y caso-01-despues.png (jpg/png/webp).
+//   2. Agregar el objeto abajo. `business: null` = se muestra sin nombre
+//      (cliente sin permiso), p. ej. "Clínica dental · Tepic".
+//   3. `url` es opcional: solo si el cliente autoriza el enlace.
 // Logos: guardar prueba/logos/<slug>.svg (o png) y agregar {slug, name}.
-export interface LaunchProofMetric {
-  value: string;
-  label: string;
-}
-
 export interface LaunchProofCase {
   id: string;
   business: string | null;
   niche: string;
   city: string;
-  /** Rutas SIN extensión, ej. `${PRODUCT_LOCAL_LAUNCH.proofDir}/daxit-web` */
-  web: string;
-  google: string;
-  /** Cifras verificables de la captura. Nada estimado. */
-  metrics: readonly LaunchProofMetric[];
-  /** Periodo y fuente de las cifras, tal como aparece en la captura. */
-  period: string;
+  /** Ruta SIN extensión, ej. `${PRODUCT_LOCAL_LAUNCH.proofDir}/caso-01-antes` */
+  before: string;
+  after: string;
+  /** Una línea de lo que cambió. Solo hechos verificables. */
   caption?: string;
   url?: string;
-  approved: boolean;
 }
 
 export interface LaunchProofLogo {
@@ -203,78 +193,6 @@ export interface LaunchProofLogo {
   name: string;
 }
 
-export const DG_PROOF_CASES: readonly LaunchProofCase[] = [
-  {
-    id: "daxit",
-    business: "Daxit Nails",
-    niche: "Salón de belleza",
-    city: "Tepic",
-    web: `${PRODUCT_LOCAL_LAUNCH.proofDir}/daxit-web`,
-    google: `${PRODUCT_LOCAL_LAUNCH.proofDir}/daxit-google`,
-    metrics: [
-      { value: "122", label: "llamadas desde su ficha" },
-      { value: "345", label: "solicitudes de cómo llegar" },
-      { value: "4.8 ★", label: "76 reseñas en Google" },
-    ],
-    period: "Ficha de Google · may–sept 2026",
-    approved: true,
-  },
-  {
-    id: "adal",
-    business: "ADAL Electronics",
-    niche: "Reparación de celulares",
-    city: "Tepic",
-    web: `${PRODUCT_LOCAL_LAUNCH.proofDir}/adal-web`,
-    google: `${PRODUCT_LOCAL_LAUNCH.proofDir}/adal-google`,
-    metrics: [{ value: "413", label: "interacciones con su ficha de Google" }],
-    period: "Ficha de Google · abr–sept 2026",
-    url: "https://www.adalelectronics.mx",
-    approved: true,
-  },
-  {
-    id: "odontic",
-    business: "Odontic Tepic Clinic",
-    niche: "Clínica dental",
-    city: "Tepic",
-    web: `${PRODUCT_LOCAL_LAUNCH.proofDir}/odontic-web`,
-    google: `${PRODUCT_LOCAL_LAUNCH.proofDir}/odontic-google`,
-    metrics: [
-      { value: "310", label: "interacciones con su ficha de Google" },
-      { value: "3.77 mil", label: "apariciones en búsquedas de Google" },
-    ],
-    period: "Ficha: abr–sept 2026 · Búsquedas (Search Console): últimos 3 meses",
-    url: "https://odontictepic.com",
-    approved: true,
-  },
-  // En pausa hasta vincular su web a la ficha (la captura muestra "Agregar sitio web")
-  // y recapturar. Sin cifras de panel todavía.
-  {
-    id: "zamora",
-    business: "Dra. Cinthya Nava",
-    niche: "Ginecología y obstetricia",
-    city: "Zamora",
-    web: `${PRODUCT_LOCAL_LAUNCH.proofDir}/zamora-web`,
-    google: `${PRODUCT_LOCAL_LAUNCH.proofDir}/zamora-google`,
-    metrics: [{ value: "4.8 ★", label: "17 reseñas en Google" }],
-    period: "Google Maps · sept 2026",
-    approved: false,
-  },
-];
+export const DG_PROOF_CASES: readonly LaunchProofCase[] = [];
 export const DG_PROOF_LOGOS: readonly LaunchProofLogo[] = [];
 export const DG_PROOF_LOGO_BASE = `${PRODUCT_LOCAL_LAUNCH.proofDir}/logos`;
-
-// Otros negocios con sitio propio (solo enlace; sin cifras). Dominios verificados
-// que cargan. Agregar aquí solo con permiso del cliente.
-export interface LaunchProofLink {
-  name: string;
-  niche: string;
-  url: string;
-  domain: string;
-}
-
-export const DG_PROOF_LINKS: readonly LaunchProofLink[] = [
-  { name: "UC Universidad Continental", niche: "Educación superior · Tepic", url: "https://univercidadcontinetal.com/", domain: "univercidadcontinetal.com" },
-  { name: "Soluciones Prontas en Electricidad", niche: "Instalaciones eléctricas · Tepic", url: "https://www.solucionesprontas.com/", domain: "solucionesprontas.com" },
-  { name: "Soluciones VP", niche: "Bombas y equipo · Nayarit", url: "https://www.solucionesvp.com/", domain: "solucionesvp.com" },
-  { name: "Lockers JGA México", niche: "Fabricante de lockers", url: "https://lockersjgamexico.com/", domain: "lockersjgamexico.com" },
-];
