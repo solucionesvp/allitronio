@@ -61,7 +61,7 @@ import {
 import { ArrowUpRight } from "lucide-react";
 import { SOLUTIONS, type MethodologyPhase } from "@/data/solutions";
 import type { SolutionId } from "@/components/visual/graph/types";
-import { OptionalVideo, OptionalImage } from "@/components/media/OptionalAsset";
+import { OptionalVideo } from "@/components/media/OptionalAsset";
 import {
   PRODUCT_ACCENTS,
   PRODUCT_NAMES,
@@ -113,6 +113,34 @@ function visualVariants(reduced: boolean) {
     hidden: { opacity: 0, scale: 0.92, y: -16 },
     visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
   };
+}
+
+// ── Sonido automático — se activa con el primer gesto del usuario, el que
+// sea (scroll, click, tecla, touch). Los navegadores bloquean audio si no
+// hay gesto; esto evita pedirle al usuario que "prenda" algo a propósito. ──
+
+function useSoundUnlocked() {
+  const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (unlocked) return;
+    const unlock = () => setUnlocked(true);
+    const opts: AddEventListenerOptions = { once: true, passive: true };
+    window.addEventListener("pointerdown", unlock, opts);
+    window.addEventListener("keydown", unlock, opts);
+    window.addEventListener("wheel", unlock, opts);
+    window.addEventListener("touchstart", unlock, opts);
+    window.addEventListener("scroll", unlock, opts);
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("wheel", unlock);
+      window.removeEventListener("touchstart", unlock);
+      window.removeEventListener("scroll", unlock);
+    };
+  }, [unlocked]);
+
+  return unlocked;
 }
 
 // ── Video de ensamblaje por producto — mapeo id → asset ──────────────────────
@@ -390,13 +418,23 @@ function ProductPanel({
   index,
   reduced,
   active,
+  soundUnlocked,
 }: {
   item: GalleryItem;
   index: number;
   reduced: boolean;
   active: boolean;
+  soundUnlocked: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Sonido automático: sólo suena cuando el panel está activo/visible Y ya
+  // hubo un gesto del usuario en la página. Sin botón — nada que "prender".
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !(active && soundUnlocked);
+  }, [active, soundUnlocked]);
 
   // Los 5 productos están siempre montados (ver DesktopStage/MobileGallery
   // FASE 10) — el <video> tiene `autoPlay`, así que el navegador intenta
@@ -550,7 +588,7 @@ function ProductPanel({
 // reacciona al scroll real, sin depender de que un mount alcance a
 // terminar a tiempo.
 
-function DesktopStage() {
+function DesktopStage({ soundUnlocked }: { soundUnlocked: boolean }) {
   const reduced = useReducedMotion() ?? false;
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -581,7 +619,7 @@ function DesktopStage() {
               style={{ pointerEvents: isActive ? "auto" : "none" }}
               aria-hidden={!isActive}
             >
-              <ProductPanel item={item} index={idx} reduced={reduced} active={isActive} />
+              <ProductPanel item={item} index={idx} reduced={reduced} active={isActive} soundUnlocked={soundUnlocked} />
             </motion.div>
           );
         })}
@@ -599,10 +637,12 @@ function MobileGalleryItem({
   item,
   idx,
   reduced,
+  soundUnlocked,
 }: {
   item: GalleryItem;
   idx: number;
   reduced: boolean;
+  soundUnlocked: boolean;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(false);
@@ -627,147 +667,19 @@ function MobileGalleryItem({
       variants={SECTION_VARIANTS}
       className="relative h-[100svh] w-full overflow-hidden bg-[#050708]"
     >
-      <ProductPanel item={item} index={idx} reduced={reduced} active={active} />
+      <ProductPanel item={item} index={idx} reduced={reduced} active={active} soundUnlocked={soundUnlocked} />
     </motion.section>
   );
 }
 
-function MobileGallery() {
+function MobileGallery({ soundUnlocked }: { soundUnlocked: boolean }) {
   const reduced = useReducedMotion() ?? false;
 
   return (
     <div className="lg:hidden">
       {GALLERY_ITEMS.map((item, idx) => (
-        <MobileGalleryItem key={item.id} item={item} idx={idx} reduced={reduced} />
+        <MobileGalleryItem key={item.id} item={item} idx={idx} reduced={reduced} soundUnlocked={soundUnlocked} />
       ))}
-    </div>
-  );
-}
-
-// ── Recap en tarjetas de "cartelera" — después del scroll interactivo,
-// un vistazo fijo a los 5 (4 productos + Aurora), tipo poster de cine.
-// 4 columnas en escritorio, 2 en móvil (pedido explícito de Lups).
-function MovieCard({ item }: { item: GalleryItem }) {
-  const poster = item.video?.poster;
-
-  const content = (
-    <>
-      <div className="absolute inset-0">
-        {poster ? (
-          <OptionalImage
-            src={poster}
-            alt=""
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            fallback={
-              <div
-                className="h-full w-full"
-                style={{ background: `radial-gradient(circle at 30% 20%, ${item.accent}33, #050708 75%)` }}
-              />
-            }
-          />
-        ) : (
-          <div
-            className="h-full w-full"
-            style={{ background: `radial-gradient(circle at 30% 20%, ${item.accent}33, #050708 75%)` }}
-          />
-        )}
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to top, rgba(5,7,8,0.95) 0%, rgba(5,7,8,0.55) 42%, rgba(5,7,8,0.1) 72%)" }}
-        />
-      </div>
-
-      <div className="absolute left-0 top-0 h-[3px] w-full" style={{ background: item.accent }} />
-
-      {/* Brillo diagonal al pasar el cursor — detalle "vivo", puramente CSS */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -translate-x-[130%] skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[130%]"
-      />
-
-      <div className="relative z-10 flex h-full flex-col justify-end p-4 sm:p-5">
-        <span
-          className="mb-2 block font-display text-[0.44rem] font-bold tracking-[0.28em] sm:text-[0.48rem]"
-          style={{ color: item.accent }}
-        >
-          {item.label}
-        </span>
-        <h3 className="font-display text-[0.95rem] font-black leading-[1.05] text-white sm:text-[1.05rem]">
-          {item.title}
-        </h3>
-        {item.ctaHref && (
-          <span
-            className="mt-3 inline-flex items-center gap-1.5 font-display text-[0.52rem] font-bold tracking-[0.18em] text-white/70 transition-colors duration-300 group-hover:text-white"
-          >
-            VER PRODUCTO
-            <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
-          </span>
-        )}
-      </div>
-    </>
-  );
-
-  const className =
-    "group relative block aspect-[2/3] w-full overflow-hidden rounded-sm border border-white/[0.06] transition-transform duration-400 hover:-translate-y-1";
-
-  if (item.ctaHref) {
-    return (
-      <Link href={item.ctaHref} className={className}>
-        {content}
-      </Link>
-    );
-  }
-  return <div className={className}>{content}</div>;
-}
-
-function MovieCardGrid() {
-  const reduced = useReducedMotion() ?? false;
-  return (
-    <div className="relative w-full bg-[var(--color-light)]">
-      {/* Tira tipo filmstrip — marca la entrada a la "cartelera" y da un
-          corte intencional y limpio contra el video oscuro de arriba, en
-          vez de que el bloque claro empiece de golpe. */}
-      <div aria-hidden="true" className="relative h-6 w-full overflow-hidden bg-[#050708] sm:h-8">
-        <div
-          className="absolute inset-x-0 top-0 flex h-full items-center justify-around opacity-70"
-          style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 22px, rgba(255,255,255,0.14) 22px, rgba(255,255,255,0.14) 24px)" }}
-        />
-      </div>
-      <div className="absolute inset-x-0 top-6 h-16 bg-gradient-to-b from-[#050708] to-transparent sm:top-8" aria-hidden="true" />
-
-      <div className="relative mx-auto w-full max-w-[1440px] px-6 pb-28 pt-14 sm:px-8 lg:px-16 xl:px-24 2xl:px-32">
-        <motion.span
-          initial={reduced ? {} : { opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, ease: EASE }}
-          className="mb-5 block font-display text-[0.5rem] font-bold tracking-[0.4em] text-secondary/60"
-        >
-          TODOS LOS PRODUCTOS
-        </motion.span>
-        <motion.h3
-          initial={reduced ? {} : { opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, delay: 0.06, ease: EASE }}
-          className="mb-10 max-w-[520px] font-display text-[1.5rem] font-black leading-[1.1] tracking-tight text-[#101820] sm:text-[1.9rem]"
-        >
-          Cada pieza, de un vistazo.
-        </motion.h3>
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4 lg:gap-6">
-          {GALLERY_ITEMS.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={reduced ? {} : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.55, delay: 0.05 * i, ease: EASE }}
-            >
-              <MovieCard item={item} />
-            </motion.div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -776,6 +688,7 @@ function MovieCardGrid() {
 
 export default function Solutions() {
   const reduced = useReducedMotion() ?? false;
+  const soundUnlocked = useSoundUnlocked();
 
   return (
     <section id="productos" className="relative w-full bg-[#050708]" aria-label="Soluciones Allitron">
@@ -820,9 +733,8 @@ export default function Solutions() {
         </motion.p>
       </div>
 
-      <DesktopStage />
-      <MobileGallery />
-      <MovieCardGrid />
+      <DesktopStage soundUnlocked={soundUnlocked} />
+      <MobileGallery soundUnlocked={soundUnlocked} />
     </section>
   );
 }

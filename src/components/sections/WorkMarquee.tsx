@@ -61,7 +61,7 @@ export default function WorkMarquee() {
             cerrado — antes iba en peso bold y caja normal, y por eso se leía
             como una fuente distinta. */}
         <ScrollRevealText
-          text="CUATRO PRODUCTOS, UN HUB DE TALENTO Y UN EVENTO QUE APENAS EMPIEZA."
+          text="CUATRO PRODUCTOS Y UN HUB DE TALENTO QUE NO PARA DE CRECER."
           className="mx-auto font-display font-black uppercase leading-[1.05] tracking-tight text-foreground text-[clamp(1.6rem,4vw,3rem)]"
         />
 

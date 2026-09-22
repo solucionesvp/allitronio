@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Montserrat, Roboto } from "next/font/google";
 import "./globals.css";
 import { HERO } from "@/config/assets";
-import ChatWidgetGate from "@/components/chat/ChatWidgetGate";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -75,18 +74,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <head>
-        {/* Precarga de la foto del Hero — sin esto, la <img> no empieza a
+        {/* Precarga del video del Hero — sin esto, el <video> no empieza a
             pedirse hasta que React hidrata y monta el componente; con esto,
-            el navegador la pide en paralelo al resto de la pagina, apenas
+            el navegador lo pide en paralelo al resto de la pagina, apenas
             parsea el <head>. Es la primera pieza visual que ve cualquier
             usuario, así que va con la maxima prioridad. */}
-        <link rel="preload" as="image" href={HERO.hero} fetchPriority="high" />
+        <link rel="preload" as="video" href={HERO.visualVideo} type="video/mp4" fetchPriority="high" />
       </head>
       <body
         className={`${montserrat.variable} ${roboto.variable} bg-allitron-base text-foreground font-body antialiased`}
       >
         {children}
-        <ChatWidgetGate />
       </body>
     </html>
   );

@@ -12,10 +12,8 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
+import { OptionalVideo } from "@/components/media/OptionalAsset";
 import { HERO } from "@/config/assets";
-import AlliGuide from "@/components/brand/AlliGuide";
-import FilmGrain from "@/components/effects/FilmGrain";
 
 // ── Animation helpers ────────────────────────────────────────────
 // ── Node graph data ──────────────────────────────────────────────
@@ -297,6 +295,19 @@ export default function Hero() {
     [rawMouseX, rawMouseY],
   );
 
+  // ── Ritmo del video del hero ─────────────────────────────────────
+  // El clip generado en Higgsfield se sentía "apresurado" contra el resto
+  // del sitio (todo lo demás se mueve lento y deliberado). No podemos
+  // recortar/reeditar el archivo desde aquí, así que bajamos el playbackRate
+  // en el propio <video> — mismo asset, movimiento más pausado y consistente
+  // con el resto del home.
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = heroVideoRef.current;
+    if (!v) return;
+    v.playbackRate = 0.55;
+  }, []);
+
   return (
     <section
       ref={heroRef}
@@ -343,46 +354,29 @@ export default function Hero() {
         />
       </motion.div>
 
-      {/* ── Hero visual — foto fija (HERO.hero, foto original sin recortes).
-          23-sep-2026, corrección final de Lups: NO es un panel lateral —
-          es portada completa (pantalla completa), la foto cubre TODA la
-          sección, de fondo, detrás del texto también. Notar que el H1 real
-          de abajo dice literalmente "CONECTANDO EL FUTURO" — las MISMAS
-          palabras que el neón horneado en la foto — así que el neón de la
-          foto funciona como eco/textura detrás del titular real, no como
-          algo que había que esconder (ese nunca fue el pedido; el bug
-          original era la "O" tapando la CARA de Alli, un choque de
-          composición puntual, ya resuelto moviendo el encuadre).
-          object-position 72% (móvil 85%, un encuadre más cerrado porque el
-          contenedor es angosto) dejó a Alli completo y de buen tamaño, con
-          la catedral detrás, en todos los anchos probados (1024 a 2560px).
-          Encima va un degradado LINEAL oscuro→transparente: arranca muy
-          oscuro (0.94) justo en el borde y va aclarando sin pausa (sin
-          tramo plano) hasta transparente ~60% — "vaya aclarándose" en vez
-          de quedarse oscuro parejo y cortar de golpe. Y FilmGrain (23-sep,
-          mismo pedido) le pone grano fino a toda la foto — móvil y desktop
-          — para que no se sienta como un recorte digital "duro". Si el
-          archivo aún no existe, OptionalImage cae al NodeGraph. */}
+      {/* ── Hero visual — Alli generado con Higgsfield (HERO.visualVideo).
+          Antes solo existía en desktop (hidden lg:block) — el home no tenía
+          la misma experiencia en móvil, ahí no había ningún visual. Ahora
+          es un único <video>, responsivo: en móvil vive de fondo completo
+          y atenuado (para no pelear con el texto), en desktop se recorta
+          al panel derecho con máscara — mismo asset, dos tratamientos.
+          Si el archivo aún no existe, OptionalVideo cae al NodeGraph. ────── */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-25 lg:opacity-100"
+        className="pointer-events-none absolute inset-0 opacity-25 lg:inset-y-0 lg:right-0 lg:left-auto lg:w-[54%] lg:opacity-100
+          [mask-image:radial-gradient(ellipse_80%_70%_at_50%_40%,black_0%,transparent_80%)]
+          lg:[mask-image:linear-gradient(to_right,transparent_0%,rgba(0,0,0,0.4)_18%,black_42%)]"
         style={reduced ? undefined : { y: graphParallaxY, opacity: graphParallaxOpacity }}
       >
-        <OptionalImage
-          src={HERO.hero}
-          alt=""
-          loading="eager"
-          className="h-full w-full object-cover object-[85%_center] lg:object-[72%_center]"
+        <OptionalVideo
+          ref={heroVideoRef}
+          src={HERO.visualVideo}
+          poster={HERO.visualPoster}
+          className="h-full w-full object-cover object-center lg:object-right"
           fallback={
             <NodeGraph rawMouseX={rawMouseX} rawMouseY={rawMouseY} reduced={reduced} />
           }
         />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 hidden
-            lg:block lg:bg-[linear-gradient(to_right,rgba(16,24,32,0.94)_0%,rgba(16,24,32,0)_60%)]"
-        />
-        <FilmGrain opacity={0.1} />
       </motion.div>
 
       {/* Velo oscuro extra en móvil — el video vive detrás de todo el
@@ -489,11 +483,6 @@ export default function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#050708]"
       />
-
-      {/* Alli marca la primera transición del recorrido (Hero → resto del
-          home) — completa el patrón que ya existe en Solutions → Hub →
-          Footer (ver AlliGuide), antes solo empezaba a la mitad del scroll. */}
-      <AlliGuide variant="primary" side="right" size={76} className="-bottom-8" />
     </section>
   );
 }

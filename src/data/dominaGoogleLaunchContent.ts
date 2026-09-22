@@ -1,5 +1,6 @@
 import { DG_INCLUDES } from "./dominaGoogleContent";
 import { PRODUCT_LOCAL_LAUNCH } from "@/config/assets";
+import { WHATSAPP_NUMBER, buildWhatsAppLink } from "@/config/contact";
 
 // ── Contenido de la landing de LANZAMIENTO /productos/domina-google/lanzamiento ──
 // Landing de campaña (tráfico pagado), separada de la evergreen /productos/domina-google.
@@ -12,16 +13,9 @@ import { PRODUCT_LOCAL_LAUNCH } from "@/config/assets";
 // en la sesión de estrategia del 17-18 sep 2026 (ver doc "MAPS 2.0 × Allitron —
 // Landing Page y Oferta de Lanzamiento"), meta: 20 clientes en 45 días.
 
-// Número real de WhatsApp de Lups (confirmado 18-sep-2026, usar como
-// definitivo hasta nuevo aviso). Formato E.164 sin "+": 52 (México) + el
-// número a 10 dígitos — wa.me lo requiere así para abrir el chat correcto
-// en todos los dispositivos, no solo a 10 dígitos.
-export const DG_WHATSAPP_NUMBER = "523114831656";
-
-export function buildWhatsAppLink(message: string): string {
-  const encoded = encodeURIComponent(message);
-  return `https://wa.me/${DG_WHATSAPP_NUMBER}?text=${encoded}`;
-}
+// Número de WhatsApp único del sitio: ver src/config/contact.ts (21-sep-2026).
+export const DG_WHATSAPP_NUMBER = WHATSAPP_NUMBER;
+export { buildWhatsAppLink };
 
 export const DG_WHATSAPP_MESSAGE =
   "GOOGLE — vi la landing de Domina Google y quiero mi diagnóstico.";

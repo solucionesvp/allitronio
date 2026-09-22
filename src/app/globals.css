@@ -25,6 +25,15 @@
 /* ——— CSS custom properties for values @theme cannot express ——— */
 :root {
   --color-border: rgba(255, 255, 255, 0.10);
+
+  /* Header / footer — chrome fijo del sitio, mismo patrón claro que la
+     landing de lanzamiento (21-sep-2026): claro por defecto, oscuro solo
+     en momentos de impacto puntuales. */
+  --color-chrome-bg: rgba(248, 249, 248, 0.86);
+  --color-chrome-bg-solid: #F8F9F8;
+  --color-chrome-ink: #101820;
+  --color-chrome-muted: #626D76;
+  --color-chrome-line: rgba(16, 24, 32, 0.09);
 }
 
 /* ——— Base resets ——— */

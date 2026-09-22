@@ -13,7 +13,7 @@
 // campaña — ahí vive el formulario/WhatsApp real, no aquí.
 
 import Link from "next/link";
-import { type CSSProperties } from "react";
+import { type CSSProperties, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -35,8 +35,9 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { LaunchImage } from "@/components/media/LaunchImage";
-import { PRODUCT_LOCAL_LAUNCH as IMG } from "@/config/assets";
+import { PRODUCT_LOCAL, PRODUCT_LOCAL_LAUNCH as IMG } from "@/config/assets";
 import { DOMINA_GOOGLE_LIGHT, DOMINA_GOOGLE_TOKENS } from "@/config/productTheme";
+import { LOCAL_METHODOLOGY } from "@/data/solutions";
 import {
   DG_INCLUDES,
   DG_EXCLUDES,
@@ -66,6 +67,9 @@ const BODY = "font-body text-[0.88rem] leading-[1.8] text-[var(--dg-muted)]";
 const EYEBROW = "mb-5 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-[var(--dg-muted)]";
 
 const INCLUDE_ICONS = [Zap, LayoutTemplate, Search, MapPin, Link2, CheckCircle2, MessageCircle, Upload, ShieldCheck];
+const PHASE_BASES = [IMG.fase1, IMG.fase2, IMG.fase3, IMG.fase4] as const;
+// Mientras no exista la foto nueva de cada fase, se usa la de la evergreen anterior.
+const PHASE_FALLBACKS = [PRODUCT_LOCAL.hero, PRODUCT_LOCAL.analysis, PRODUCT_LOCAL.build, PRODUCT_LOCAL.result] as const;
 
 function reveal(delay = 0) {
   return {
@@ -113,20 +117,23 @@ const BEFORE_SOCIAL_POINTS = [
 ] as const;
 
 export default function DominaGooglePage() {
+  const [heroDesktopOk, setHeroDesktopOk] = useState(false);
+  const [heroMovilOk, setHeroMovilOk] = useState(false);
+  const heroPhoto = heroDesktopOk || heroMovilOk;
+
   return (
     <>
       <Navbar />
       <main style={LIGHT_VARS}>
-        {/* ── 1. Hero (oscuro, cine) — foto intercambiada con el CTA final
-             (21-sep-2026: para que esta página no se sienta igual a la
-             landing de lanzamiento, que usa heroDesktop/heroMovil aquí). ── */}
+        {/* ── 1. Hero (oscuro, cine) ───────────────────────────────────── */}
         <section className="relative flex min-h-[100svh] flex-col justify-start overflow-hidden bg-allitron-base px-6 pb-12 pt-28 md:justify-center md:px-10 md:pb-16 md:pt-28 lg:px-16 xl:px-24">
-          <div aria-hidden="true" className="relative h-[280px] w-full md:hidden">
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 md:hidden" style={{ aspectRatio: "1792 / 2400" }}>
             <LaunchImage
-              bases={[IMG.ctaFinal]}
+              bases={[IMG.heroMovil]}
               priority
               wrapperClassName="h-full w-full"
-              imgClassName="h-full w-full object-cover object-[78%_center]"
+              imgClassName="h-full w-full object-cover"
+              onStatusChange={setHeroMovilOk}
             />
             <div
               className="absolute inset-0"
@@ -139,25 +146,33 @@ export default function DominaGooglePage() {
 
           <div aria-hidden="true" className="absolute inset-0 hidden md:block">
             <LaunchImage
-              bases={[IMG.ctaFinal]}
+              bases={[IMG.heroDesktop]}
               priority
               wrapperClassName="h-full w-full"
-              imgClassName="h-full w-full object-cover object-[center_72%] xl:object-[center_50%]"
-              fallback={
-                <div
-                  className="absolute inset-0"
-                  style={{ background: `radial-gradient(ellipse 55% 60% at 88% 12%, ${DOMINA_GOOGLE_TOKENS.accentSoft} 0%, transparent 62%)` }}
-                />
-              }
+              imgClassName="h-full w-full object-cover object-[68%_90%]"
+              onStatusChange={setHeroDesktopOk}
             />
+          </div>
+
+          {heroDesktopOk && (
             <div
-              className="absolute inset-0"
+              aria-hidden="true"
+              className="absolute inset-0 hidden md:block"
               style={{
                 background:
                   "linear-gradient(90deg, rgba(16,24,32,0.82) 0%, rgba(16,24,32,0.6) 28%, rgba(16,24,32,0.18) 50%, rgba(16,24,32,0) 62%), linear-gradient(180deg, rgba(16,24,32,0.35) 0%, rgba(16,24,32,0) 22%)",
               }}
             />
-          </div>
+          )}
+
+          {!heroPhoto && (
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+              <div
+                className="absolute inset-0"
+                style={{ background: `radial-gradient(ellipse 55% 60% at 88% 12%, ${DOMINA_GOOGLE_TOKENS.accentSoft} 0%, transparent 62%)` }}
+              />
+            </div>
+          )}
 
           <div className="relative z-10 mx-auto w-full max-w-[1440px]">
             <div className="max-w-[620px]">
@@ -187,6 +202,12 @@ export default function DominaGooglePage() {
 
               <motion.div {...reveal(0.28)} className="mt-10 flex flex-wrap gap-4">
                 <CtaLink />
+                <a
+                  href="#proceso"
+                  className="inline-flex items-center border border-white/[0.16] px-6 py-3 font-display text-[0.62rem] font-semibold tracking-[0.2em] text-white/85 transition-all hover:border-white/30 hover:text-white sm:px-7 sm:py-3.5"
+                >
+                  VER CÓMO TRABAJAMOS
+                </a>
               </motion.div>
             </div>
           </div>
@@ -282,6 +303,40 @@ export default function DominaGooglePage() {
           </div>
         </section>
 
+        {/* ── 4. Así te acompañamos — quién hace el trabajo técnico (claro) ── */}
+        <section className="w-full bg-[var(--dg-bg)] px-8 py-24 lg:px-16 xl:px-24">
+          <div className="mx-auto flex max-w-[1100px] flex-col items-center gap-12 lg:flex-row lg:gap-16">
+            <motion.div {...reveal(0)} className="relative w-full lg:w-[46%]">
+              <LaunchImage
+                bases={[IMG.historia]}
+                alt="Lups y Alli trabajando juntos"
+                wrapperClassName="aspect-[3/2] w-full overflow-hidden rounded-sm"
+                imgClassName="h-full w-full object-cover"
+              />
+            </motion.div>
+            <div className="flex-1">
+              <motion.h2 {...reveal(0.06)} className={H2} style={{ fontSize: "clamp(1.8rem, 3.4vw, 2.6rem)" }}>
+                No te dejamos con un manual. Lo instalamos nosotros.
+              </motion.h2>
+              <div className="mt-8 flex flex-col gap-5">
+                <motion.p {...reveal(0.12)} className={BODY}>
+                  Nos compartes la información, fotos y textos de tu negocio.
+                  Nosotros construimos el sitio, dejamos tu ficha de Google
+                  optimizada y la conectamos con Maps y con tu web — no es
+                  una plantilla que llenas tú solo.
+                </motion.p>
+                <motion.p {...reveal(0.18)} className={BODY}>
+                  Antes de entregarte nada, lo validamos técnicamente: que la
+                  ficha esté completa, que el sitio cargue rápido, que el
+                  botón de WhatsApp funcione. Alli te acompaña con dudas en
+                  el camino — la parte técnica queda instalada y probada, no
+                  a medias.
+                </motion.p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── 5. Qué incluye (claro) ───────────────────────────────────── */}
         <section className="w-full bg-[var(--dg-bg-alt)] px-8 py-24 lg:px-16 xl:px-24">
           <div className="mx-auto max-w-[1100px]">
@@ -310,6 +365,53 @@ export default function DominaGooglePage() {
             <motion.div {...reveal(0.1)} className="mt-12">
               <CtaLink />
             </motion.div>
+          </div>
+        </section>
+
+        {/* ── 6. Cómo trabajamos: 4 fases con fotos (claro) ────────────── */}
+        <section id="proceso" className="w-full bg-[var(--dg-bg)] px-8 py-24 lg:px-16 xl:px-24">
+          <div className="mx-auto max-w-[1200px]">
+            <span className={EYEBROW}>CÓMO TRABAJAMOS</span>
+            <motion.h2 {...reveal(0.06)} className={`mb-16 max-w-[600px] ${H2}`} style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)" }}>
+              Método propio. Cuatro fases, once pasos.
+            </motion.h2>
+
+            <div className="relative flex flex-col gap-6">
+              {LOCAL_METHODOLOGY.map((phase, i) => (
+                <motion.div
+                  key={phase.id}
+                  {...reveal(0.06 * i)}
+                  className="grid items-center gap-8 rounded-sm border border-[var(--dg-line)] bg-[var(--dg-card)] p-6 shadow-[0_18px_50px_rgba(26,22,20,0.08)] lg:grid-cols-[0.95fr_1.05fr] lg:gap-14 lg:p-10"
+                >
+                  <div className={i % 2 === 1 ? "lg:order-2" : ""}>
+                    <LaunchImage
+                      bases={[PHASE_BASES[i]]}
+                      fallbackSrc={PHASE_FALLBACKS[i]}
+                      alt={`Domina Google — fase ${phase.label}`}
+                      wrapperClassName="aspect-[4/3] w-full overflow-hidden rounded-sm"
+                      imgClassName="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                    />
+                  </div>
+                  <div className={i % 2 === 1 ? "lg:order-1" : ""}>
+                    <span className="mb-3 block font-display text-[0.5rem] font-bold tracking-[0.3em]" style={{ color: L.accentText }}>
+                      {phase.phase}
+                    </span>
+                    <h3 className="mb-5 font-display text-[1.4rem] font-black text-[var(--dg-ink)]">{phase.label}</h3>
+                    <div className="flex flex-col gap-4">
+                      {phase.steps.map((step) => (
+                        <div key={step.number} className="flex gap-3">
+                          <span className="font-display text-[0.62rem] font-bold tabular-nums text-[var(--dg-muted)]/60">{step.number}</span>
+                          <div>
+                            <span className="font-display text-[0.72rem] font-bold tracking-wide text-[var(--dg-ink)]">{step.label}</span>
+                            <p className="mt-1 font-body text-[0.82rem] leading-[1.65] text-[var(--dg-muted)]">{step.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -411,14 +513,13 @@ export default function DominaGooglePage() {
           </div>
         </section>
 
-        {/* ── 10. CTA final (oscuro, cine) — foto intercambiada con el hero
-             (usa ahora heroDesktop/heroMovil, ver nota en la sección 1) ─── */}
+        {/* ── 10. CTA final (oscuro, cine) ─────────────────────────────── */}
         <section className="relative w-full overflow-hidden bg-allitron-base md:min-h-[560px] lg:min-h-[min(46vw,700px)] xl:min-h-[min(44vw,840px)]">
           <div aria-hidden="true" className="relative h-[280px] w-full md:hidden">
             <LaunchImage
-              bases={[IMG.heroMovil]}
+              bases={[IMG.ctaFinal]}
               wrapperClassName="h-full w-full"
-              imgClassName="h-full w-full object-cover"
+              imgClassName="h-full w-full object-cover object-[78%_center]"
             />
             <div
               className="absolute inset-0"
@@ -428,9 +529,9 @@ export default function DominaGooglePage() {
 
           <div aria-hidden="true" className="absolute inset-0 hidden md:block">
             <LaunchImage
-              bases={[IMG.heroDesktop]}
+              bases={[IMG.ctaFinal]}
               wrapperClassName="h-full w-full"
-              imgClassName="h-full w-full object-cover object-[68%_90%]"
+              imgClassName="h-full w-full object-cover object-[center_72%] xl:object-[center_50%]"
               fallback={
                 <div
                   className="absolute inset-0"

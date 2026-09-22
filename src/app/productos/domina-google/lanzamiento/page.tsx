@@ -146,17 +146,20 @@ function CtaButton({ label, onClick, large = false }: { label: string; onClick: 
 export default function DominaGoogleLanzamientoPage() {
   const [leadOpen, setLeadOpen] = useState(false);
   const [leadTier, setLeadTier] = useState<string | null>(null);
+  const [leadSource, setLeadSource] = useState("landing");
   const [showSticky, setShowSticky] = useState(false);
   const [heroDesktopOk, setHeroDesktopOk] = useState(false);
   const [heroMovilOk, setHeroMovilOk] = useState(false);
   const reduced = useReducedMotion();
   const heroPhoto = heroDesktopOk || heroMovilOk;
-  const openLead = () => {
+  const openLead = (source = "landing") => {
     setLeadTier(null);
+    setLeadSource(source);
     setLeadOpen(true);
   };
   const openLeadForTier = (label: string) => {
     setLeadTier(label);
+    setLeadSource(`precio · nivel ${label}`);
     setLeadOpen(true);
   };
 
@@ -170,7 +173,7 @@ export default function DominaGoogleLanzamientoPage() {
   return (
     <>
       <Modal open={leadOpen} onOpenChange={setLeadOpen} title="Cuéntanos de tu negocio">
-        <WhatsAppLeadForm accent={ACCENT} buildLink={buildWhatsAppLink} baseMessage={leadTier ? `${DG_WHATSAPP_MESSAGE} Me interesa el nivel ${leadTier}.` : DG_WHATSAPP_MESSAGE} />
+        <WhatsAppLeadForm accent={ACCENT} buildLink={buildWhatsAppLink} baseMessage={`${leadTier ? `${DG_WHATSAPP_MESSAGE} Me interesa el nivel ${leadTier}.` : DG_WHATSAPP_MESSAGE}\n\n(Origen: landing lanzamiento · ${leadSource})`} />
       </Modal>
 
       {/* Header mínimo — sin nav completo, esta página tiene un solo camino */}
@@ -180,7 +183,7 @@ export default function DominaGoogleLanzamientoPage() {
         </span>
         <button
           type="button"
-          onClick={openLead}
+          onClick={() => openLead("encabezado")}
           className="inline-flex items-center gap-2 rounded-sm px-4 py-2 font-display text-[0.58rem] font-bold tracking-[0.18em] text-white"
           style={{ background: GRADIENT }}
         >
@@ -268,7 +271,7 @@ export default function DominaGoogleLanzamientoPage() {
               </motion.p>
 
               <motion.div {...reveal(0.24)} className="mt-8">
-                <CtaButton label="QUIERO MI DIAGNÓSTICO" onClick={openLead} />
+                <CtaButton label="QUIERO MI DIAGNÓSTICO" onClick={() => openLead("hero")} />
               </motion.div>
 
               <motion.div {...reveal(0.32)} className="mt-7">
@@ -440,7 +443,7 @@ export default function DominaGoogleLanzamientoPage() {
             </div>
 
             <motion.div {...reveal(0.1)} className="mt-12">
-              <CtaButton label="QUIERO MI DIAGNÓSTICO" onClick={openLead} />
+              <CtaButton label="QUIERO MI DIAGNÓSTICO" onClick={() => openLead("problema")} />
             </motion.div>
           </div>
         </section>
@@ -853,7 +856,7 @@ export default function DominaGoogleLanzamientoPage() {
                 ¿LISTO PARA APARECER CUANDO TE BUSCAN?
               </motion.h2>
               <motion.div {...reveal(0.1)}>
-                <CtaButton label="SÍ, QUIERO MI DIAGNÓSTICO" onClick={openLead} large />
+                <CtaButton label="SÍ, QUIERO MI DIAGNÓSTICO" onClick={() => openLead("cta final")} large />
               </motion.div>
               <motion.p {...reveal(0.16)} className="mt-5 font-body text-[0.8rem] text-foreground/75" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}>
                 Quedan <strong className="text-foreground">{getTotalRemaining()}</strong> de {DG_LAUNCH_TOTAL_SLOTS} lugares de lanzamiento. El precio sube al agotarse cada nivel.
@@ -873,7 +876,7 @@ export default function DominaGoogleLanzamientoPage() {
       >
         <button
           type="button"
-          onClick={openLead}
+          onClick={() => openLead("botón fijo móvil")}
           tabIndex={showSticky ? 0 : -1}
           className="w-full rounded-sm px-6 py-4 font-display text-[0.66rem] font-bold tracking-[0.2em] text-white"
           style={{ background: GRADIENT }}

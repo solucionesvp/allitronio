@@ -40,27 +40,11 @@ export const HERO = {
    * home. Puede ser una persona (Lups, Alejandro, equipo) o un visual de
    * marca — decisión abierta, no asumida por el código. */
   portrait: `${B}/hero/hero-portrait.png`,
-  /** Foto fija del hero del home (21-sep-2026, decisión de Lups: fuera el
-   * video/poster generado, esta foto queda como el visual principal). Alli
-   * frente a la catedral de Tepic, con "CONECTANDO EL FUTURO" ya integrado
-   * en la imagen (franja izquierda, ~0-65% del ancho). Es la imagen ORIGINAL
-   * sin recortes — Lups pidió explícitamente (22-sep-2026) no usar un
-   * derivado recortado: Hero.tsx usa object-position hacia la derecha
-   * (Alli/catedral) más un degradado lineal oscuro→tenue encima para cubrir
-   * cualquier resto de texto que se asome por el borde del recorte. Misma
-   * imagen y mismo tratamiento se reutilizan en el hero de Hub. */
-  hero: `${B}/hero/hero.png`,
-  /** Recorte de `hero` sin el texto "CONECTANDO EL FUTURO" (creado 22-sep-2026,
-   * descartado el mismo día — Lups pidió usar la foto original con un
-   * degradado en vez de un recorte físico). Se deja el archivo sin borrar
-   * por si se retoma, pero NINGÚN componente debe referenciarlo — usar
-   * `hero` de arriba. */
-  heroAlli: `${B}/hero/hero-alli.png`,
-  /** Still de Alli generado (Higgsfield) — ya no se usa en el Hero del home
-   * (ver `hero` arriba); se deja sin borrar por si se reutiliza. */
+  /** Still de Alli generado (Higgsfield) — poster del visual del hero
+   * mientras carga el video, y fallback si el video no existe. */
   visualPoster: `${B}/hero/hero-visual.webp`,
-  /** Clip corto en loop (Higgsfield) — retirado del Hero del home el
-   * 21-sep-2026 (decisión de Lups). Se deja sin borrar por si se reutiliza. */
+  /** Clip corto en loop (Higgsfield) — reemplaza al NodeGraph placeholder
+   * cuando el archivo existe; NodeGraph queda como fallback (ver Hero.tsx). */
   visualVideo: `${B}/hero/hero-visual.mp4`,
 } as const;
 
