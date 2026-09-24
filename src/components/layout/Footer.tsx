@@ -14,6 +14,7 @@ import { waLink } from "@/config/contact";
 const FOOTER_LINKS = [
   { label: "Productos", href: "/#productos" },
   { label: "Hub", href: "/hub" },
+  { label: "Aviso de Privacidad", href: "/aviso-de-privacidad" },
 ] as const;
 
 const INK = "text-[var(--color-chrome-ink)]";
