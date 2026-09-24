@@ -154,7 +154,7 @@ export const SOLUTIONS: SolutionData[] = [
     description:
       "Construimos la infraestructura digital que conecta tu negocio, tu sitio web, Google y tus canales de contacto para aumentar tu capacidad de ser encontrado cuando alguien busca lo que vendes en tu ciudad.",
     ctaText: "MEJORAR MI PRESENCIA",
-    ctaAnchor: "/productos/domina-google#contacto",
+    ctaAnchor: "/productos/domina-google/lanzamiento",
     features: [
       "Arquitectura web Next.js",
       "Alta velocidad",

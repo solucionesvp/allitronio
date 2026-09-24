@@ -1,5 +1,5 @@
 // ── Contenido de la landing /productos/domina-google ─────────────
-// Basado en "MAPS 2.0 — Ficha Comercial" (Obsidian, fuente única de precio).
+// Basado en "MAPS 2.0 — Ficha Comercial" (Obsidian, fuente única de precio y alcance).
 // Nombre público: "Domina Google. Atrae Clientes." — nunca mostrar el nombre
 // interno del servicio de cara al usuario.
 
@@ -43,10 +43,11 @@ export const DG_REQUIREMENTS = [
   "Fotos reales del negocio disponibles",
 ] as const;
 
-export const DG_PRICING = {
-  price: "$13,000 MXN",
-  deposit: "$6,500 MXN de anticipo para arrancar",
-  balance: "$6,500 MXN contra entrega",
+// Plazo y condición de entrega — único lugar donde viven en el código.
+// El PRECIO no vive aquí: solo en los niveles de lanzamiento
+// (DG_LAUNCH_TIERS en dominaGoogleLaunchContent.ts), espejo de la
+// "MAPS 2.0 — Ficha Comercial" de Obsidian. No agregar precios en otro archivo.
+export const DG_DELIVERY = {
   delivery: "7 días hábiles",
   deliveryNote:
     "El reloj arranca cuando nos compartes el 100% de tu información, fotos y textos. Sin material completo, no corre el tiempo.",

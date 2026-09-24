@@ -3,6 +3,7 @@ import { Montserrat, Roboto } from "next/font/google";
 import "./globals.css";
 import { HERO } from "@/config/assets";
 import ChatWidgetGate from "@/components/chat/ChatWidgetGate";
+import MetaPixel from "@/components/analytics/MetaPixel";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -40,9 +41,8 @@ export const metadata: Metadata = {
     "hub tecnológico Nayarit",
   ],
   authors: [{ name: "Allitron" }],
-  alternates: {
-    canonical: "/",
-  },
+  // Sin canonical global: si se hereda "/" a todas las rutas, Google lee cada
+  // página como duplicado del home. Cada página que lo necesite declara el suyo.
   robots: {
     index: true,
     follow: true,
@@ -87,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         {children}
         <ChatWidgetGate />
+        <MetaPixel />
       </body>
     </html>
   );

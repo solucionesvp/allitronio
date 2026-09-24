@@ -16,7 +16,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Check, ExternalLink, MapPin, MessageCircle, Search, ShieldCheck, X } from "lucide-react";
-import Footer from "@/components/layout/Footer";
+import LegalFooter from "@/components/layout/LegalFooter";
 import AllitronGraph from "@/components/visual/AllitronGraph";
 import HeroAlli from "@/components/brand/HeroAlli";
 import StackingCard from "@/components/effects/StackingCard";
@@ -42,7 +42,7 @@ import {
   DG_PROOF_LINKS,
   DG_PROOF_LOGOS,
   DG_PROOF_LOGO_BASE,
-  DG_REGULAR_PRICE,
+  DG_CTA_LABEL,
   DG_LAUNCH_TOTAL_SLOTS,
   DG_WHATSAPP_MESSAGE,
   buildWhatsAppLink,
@@ -125,7 +125,6 @@ function reveal(delay = 0) {
 }
 
 const activeTier = getActiveTier();
-const fmt = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 function CtaButton({ label, onClick, large = false }: { label: string; onClick: () => void; large?: boolean }) {
   return (
@@ -184,10 +183,10 @@ export default function DominaGoogleLanzamientoPage() {
         <button
           type="button"
           onClick={() => openLead("encabezado")}
-          className="inline-flex items-center gap-2 rounded-sm px-4 py-2 font-display text-[0.58rem] font-bold tracking-[0.18em] text-white"
+          className="hidden items-center gap-2 rounded-sm px-4 py-2 font-display text-[0.58rem] font-bold tracking-[0.18em] text-white sm:inline-flex"
           style={{ background: GRADIENT }}
         >
-          QUIERO MI DIAGNÓSTICO
+          {DG_CTA_LABEL}
         </button>
       </header>
 
@@ -271,7 +270,7 @@ export default function DominaGoogleLanzamientoPage() {
               </motion.p>
 
               <motion.div {...reveal(0.24)} className="mt-8">
-                <CtaButton label="QUIERO MI DIAGNÓSTICO" onClick={() => openLead("hero")} />
+                <CtaButton label={DG_CTA_LABEL} onClick={() => openLead("hero")} />
               </motion.div>
 
               <motion.div {...reveal(0.32)} className="mt-7">
@@ -443,7 +442,7 @@ export default function DominaGoogleLanzamientoPage() {
             </div>
 
             <motion.div {...reveal(0.1)} className="mt-12">
-              <CtaButton label="QUIERO MI DIAGNÓSTICO" onClick={() => openLead("problema")} />
+              <CtaButton label={DG_CTA_LABEL} onClick={() => openLead("problema")} />
             </motion.div>
           </div>
         </section>
@@ -657,7 +656,6 @@ export default function DominaGoogleLanzamientoPage() {
                 const remaining = Math.max(0, tier.slots - sold);
                 const soldOut = remaining === 0;
                 const isActive = tier.id === activeTier.id && !soldOut;
-                const saving = DG_REGULAR_PRICE - tier.price;
                 const prev = DG_LAUNCH_TIERS[i - 1];
                 const next = DG_LAUNCH_TIERS[i + 1];
                 const pct = Math.min(100, (sold / tier.slots) * 100);
@@ -697,15 +695,9 @@ export default function DominaGoogleLanzamientoPage() {
                       {tier.priceLabel}
                     </p>
 
-                    {saving > 0 ? (
-                      <p className="mt-2.5 font-body text-[0.8rem] text-[var(--dg-muted)]">
-                        <span className="line-through">${fmt(DG_REGULAR_PRICE)} MXN</span>
-                        <span className="mx-1.5">·</span>
-                        <strong style={{ color: L.accentText }}>ahorras ${fmt(saving)}</strong>
-                      </p>
-                    ) : (
-                      <p className="mt-2.5 font-body text-[0.8rem] text-[var(--dg-muted)]">Último nivel de lanzamiento</p>
-                    )}
+                    <p className="mt-2.5 font-body text-[0.8rem] text-[var(--dg-muted)]">
+                      Pago único · sin mensualidad
+                    </p>
 
                     <div className="mt-6">
                       <div className="h-1.5 overflow-hidden rounded-full bg-black/10">
@@ -739,7 +731,7 @@ export default function DominaGoogleLanzamientoPage() {
                         className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-sm px-5 py-3.5 font-display text-[0.64rem] font-bold tracking-[0.18em] text-white transition-transform duration-300 hover:scale-[1.02]"
                         style={{ background: GRADIENT }}
                       >
-                        APARTAR MI LUGAR
+                        {DG_CTA_LABEL}
                         <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
                       </button>
                     ) : (
@@ -856,7 +848,7 @@ export default function DominaGoogleLanzamientoPage() {
                 ¿LISTO PARA APARECER CUANDO TE BUSCAN?
               </motion.h2>
               <motion.div {...reveal(0.1)}>
-                <CtaButton label="SÍ, QUIERO MI DIAGNÓSTICO" onClick={() => openLead("cta final")} large />
+                <CtaButton label={DG_CTA_LABEL} onClick={() => openLead("cta final")} large />
               </motion.div>
               <motion.p {...reveal(0.16)} className="mt-5 font-body text-[0.8rem] text-foreground/75" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}>
                 Quedan <strong className="text-foreground">{getTotalRemaining()}</strong> de {DG_LAUNCH_TOTAL_SLOTS} lugares de lanzamiento. El precio sube al agotarse cada nivel.
@@ -865,7 +857,12 @@ export default function DominaGoogleLanzamientoPage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <LegalFooter
+        links={[
+          { label: "Aviso de privacidad", href: "/aviso-de-privacidad" },
+          { label: "Política de reembolso", href: "/productos/domina-google/politica-de-reembolso" },
+        ]}
+      />
 
       {/* CTA fijo, solo móvil, después del hero */}
       <div
@@ -881,7 +878,7 @@ export default function DominaGoogleLanzamientoPage() {
           className="w-full rounded-sm px-6 py-4 font-display text-[0.66rem] font-bold tracking-[0.2em] text-white"
           style={{ background: GRADIENT }}
         >
-          QUIERO MI DIAGNÓSTICO
+          {DG_CTA_LABEL}
         </button>
       </div>
     </>

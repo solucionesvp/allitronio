@@ -11,17 +11,16 @@
 // Allitron. Si el responsable legal correcto es otro, actualizar aquí y en
 // los contratos por igual — deben coincidir.
 //
-// No se afirma el uso de cookies de rastreo, pixeles o analítica: al
-// 23-sep-2026 no existen en el código de este sitio (revisado). Si se agrega
-// Meta Pixel, Google Analytics u otro rastreo, esta página debe actualizarse
-// ese mismo día.
+// Sección 6 (cookies) cambia sola según NEXT_PUBLIC_META_PIXEL_ID: sin ID no
+// hay pixel y el aviso lo dice; con ID aparece el texto del pixel de Meta.
+// Si se agrega otro rastreo (Google Analytics, etc.), actualizar aquí ese día.
 //
 // Este documento es una base operativa, no asesoría jurídica. Antes de
 // depender de él frente a una autoridad o una disputa, debe revisarlo un
 // abogado especializado en protección de datos (LFPDPPP).
 
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import MinimalHeader from "@/components/layout/MinimalHeader";
+import { META_PIXEL_ENABLED } from "@/lib/metaPixel";
 import { WHATSAPP_DISPLAY, waLink } from "@/config/contact";
 
 const LAST_UPDATED = "23 de septiembre de 2026";
@@ -47,7 +46,7 @@ export default function AvisoDePrivacidadPage() {
 
   return (
     <>
-      <Navbar />
+      <MinimalHeader />
       <main style={LIGHT_VARS as React.CSSProperties} className="bg-[var(--pv-bg)]">
         <div className="mx-auto max-w-[720px] px-8 pb-28 pt-36 lg:px-0">
           <span className="mb-4 block font-display text-[0.52rem] font-bold tracking-[0.44em] text-[var(--pv-muted)]">
@@ -111,11 +110,22 @@ export default function AvisoDePrivacidadPage() {
           </p>
 
           <h2 className={H2}>6. Cookies y tecnologías de rastreo</h2>
-          <p className={BODY}>
-            Al día de esta actualización, este sitio no utiliza cookies de rastreo, píxeles
-            publicitarios ni herramientas de analítica de terceros. Si eso cambia, actualizaremos
-            este aviso antes de activarlas.
-          </p>
+          {META_PIXEL_ENABLED ? (
+            <p className={BODY}>
+              Este sitio utiliza el píxel de Meta (Facebook e Instagram), que usa cookies para medir
+              las visitas y las solicitudes de contacto que llegan desde nuestros anuncios, y para
+              mostrar anuncios de Allitron a personas que ya visitaron el sitio. No usamos el píxel
+              para recabar datos sensibles. Puedes bloquear estas cookies desde la configuración de
+              tu navegador y administrar tus preferencias de anuncios en tu cuenta de Facebook o
+              Instagram.
+            </p>
+          ) : (
+            <p className={BODY}>
+              Al día de esta actualización, este sitio no utiliza cookies de rastreo, píxeles
+              publicitarios ni herramientas de analítica de terceros. Si eso cambia, actualizaremos
+              este aviso antes de activarlas.
+            </p>
+          )}
 
           <h2 className={H2}>7. Tus derechos ARCO</h2>
           <p className={BODY}>
@@ -133,7 +143,6 @@ export default function AvisoDePrivacidadPage() {
           </p>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

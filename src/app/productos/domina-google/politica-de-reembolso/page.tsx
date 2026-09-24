@@ -10,10 +10,9 @@
 // Contrato_Domina_Google_PLANTILLA.docx — deben coincidir siempre; si uno
 // cambia, cambia el otro.
 
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import MinimalHeader from "@/components/layout/MinimalHeader";
 import { DOMINA_GOOGLE_LIGHT, DOMINA_GOOGLE_TOKENS } from "@/config/productTheme";
-import { DG_PRICING } from "@/data/dominaGoogleContent";
+import { DG_DELIVERY } from "@/data/dominaGoogleContent";
 import { WHATSAPP_DISPLAY, waLink } from "@/config/contact";
 
 const ACCENT = DOMINA_GOOGLE_TOKENS.accent;
@@ -39,7 +38,7 @@ export default function DominaGoogleReembolsoPage() {
 
   return (
     <>
-      <Navbar />
+      <MinimalHeader />
       <main style={LIGHT_VARS as React.CSSProperties} className="bg-[var(--dg-bg)]">
         <div className="mx-auto max-w-[720px] px-8 pb-28 pt-36 lg:px-0">
           <span
@@ -84,7 +83,7 @@ export default function DominaGoogleReembolsoPage() {
 
           <h2 className={H2}>Plazo de entrega</h2>
           <p className={BODY}>
-            El plazo de entrega es de {DG_PRICING.delivery}. {DG_PRICING.deliveryNote}
+            El plazo de entrega es de {DG_DELIVERY.delivery}. {DG_DELIVERY.deliveryNote}
           </p>
 
           <h2 className={H2}>Dudas</h2>
@@ -96,7 +95,6 @@ export default function DominaGoogleReembolsoPage() {
           </p>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

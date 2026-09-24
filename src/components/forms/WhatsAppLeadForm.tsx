@@ -12,6 +12,7 @@
 
 import { useState, type CSSProperties, type FormEvent } from "react";
 import { MessageCircle } from "lucide-react";
+import { trackMetaEvent } from "@/lib/metaPixel";
 
 interface WhatsAppLeadFormProps {
   accent: string;
@@ -36,6 +37,7 @@ export default function WhatsAppLeadForm({ accent, buildLink, baseMessage }: Wha
     e.preventDefault();
     if (!canSubmit) return;
     const message = `Soy ${nombre.trim()}, tengo ${negocio.trim()} en ${ciudad.trim()}. ${baseMessage}`;
+    trackMetaEvent("Lead");
     window.open(buildLink(message), "_blank", "noopener,noreferrer");
   };
 

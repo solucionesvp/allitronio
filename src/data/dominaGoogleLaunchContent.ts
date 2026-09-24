@@ -1,4 +1,4 @@
-import { DG_INCLUDES } from "./dominaGoogleContent";
+import { DG_DELIVERY, DG_INCLUDES } from "./dominaGoogleContent";
 import { PRODUCT_LOCAL_LAUNCH } from "@/config/assets";
 import { WHATSAPP_NUMBER, buildWhatsAppLink } from "@/config/contact";
 
@@ -8,14 +8,20 @@ import { WHATSAPP_NUMBER, buildWhatsAppLink } from "@/config/contact";
 // Obsidian ("MAPS 2.0 — Ficha Comercial" — nombre público sigue siendo
 // "Domina Google", nunca mostrar el nombre interno).
 //
-// Precio real vigente en producción (evergreen): $13,000 MXN flat.
-// Esta landing ofrece tiers de lanzamiento por tiempo/cupo limitado, definidos
+// ÚNICA fuente de precio en el código: DG_LAUNCH_TIERS (abajo). No existe
+// "precio regular" ni precio tachado (decisión de Lups, 23-sep-2026).
+// Durante el lanzamiento /productos/domina-google redirige aquí (next.config.ts).
+// Tiers de lanzamiento por cupo limitado, definidos
 // en la sesión de estrategia del 17-18 sep 2026 (ver doc "MAPS 2.0 × Allitron —
 // Landing Page y Oferta de Lanzamiento"), meta: 20 clientes en 45 días.
 
 // Número de WhatsApp único del sitio: ver src/config/contact.ts (21-sep-2026).
 export const DG_WHATSAPP_NUMBER = WHATSAPP_NUMBER;
 export { buildWhatsAppLink };
+
+// CTA único de toda la landing (decisión de Lups, 23-sep-2026). El siguiente
+// paso real es la revisión gratis por WhatsApp; precio y anticipo vienen después.
+export const DG_CTA_LABEL = "QUIERO MI DIAGNÓSTICO GRATIS";
 
 export const DG_WHATSAPP_MESSAGE =
   "GOOGLE — vi la landing de Domina Google y quiero mi diagnóstico.";
@@ -44,10 +50,6 @@ export const DG_LAUNCH_TIERS: LaunchTier[] = [
 export const DG_LAUNCH_SOLD_TOTAL = 3;
 
 export const DG_LAUNCH_TOTAL_SLOTS = DG_LAUNCH_TIERS.reduce((acc, tier) => acc + tier.slots, 0);
-
-// Precio regular vigente de la evergreen (Ficha Comercial, $13,000 MXN flat).
-// Se usa solo como ancla de comparación en los niveles que cuestan menos.
-export const DG_REGULAR_PRICE = 13000;
 
 export const DG_LAUNCH_SOLD: Record<string, number> = (() => {
   let left = Math.max(0, Math.min(DG_LAUNCH_SOLD_TOTAL, DG_LAUNCH_TOTAL_SLOTS));
@@ -89,11 +91,8 @@ export const DG_LAUNCH_ADDONS = [
   "Seguimiento de posición y visibilidad por 90 días (automatizado)",
 ] as const;
 
-export const DG_LAUNCH_DELIVERY = {
-  delivery: "7 días hábiles",
-  deliveryNote:
-    "El reloj arranca cuando nos compartes el 100% de tu información, fotos y textos. Sin material completo, no corre el tiempo.",
-} as const;
+// Plazo de entrega: misma fuente que el resto del sitio.
+export const DG_LAUNCH_DELIVERY = DG_DELIVERY;
 
 // Diferenciador vs. agencias de SEO local que cobran mensualidad — benchmark
 // real, ver doc de estrategia sección "Benchmark competitivo".

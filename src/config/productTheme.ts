@@ -36,7 +36,7 @@ export const PRODUCT_NAMES: Record<"allitron-90" | "local" | "second-brain" | "l
 /** Ruta de la landing de cada producto — fuente única. */
 export const PRODUCT_ROUTES: Record<"allitron-90" | "local" | "second-brain" | "lazup", string> = {
   "allitron-90": "/productos/allitron-90",
-  local: "/productos/domina-google",
+  local: "/productos/domina-google/lanzamiento",
   "second-brain": "/productos/segundo-cerebro",
   lazup: "/productos/lazup",
 };

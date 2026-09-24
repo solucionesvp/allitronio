@@ -10,16 +10,15 @@
 // Form real (ver especificación de campos entregada aparte a Lups).
 //
 // Precio y plazo de entrega NO se repiten a mano aquí: se importan de
-// DG_PRICING (dominaGoogleContent.ts), fuente única ya usada en el resto del
+// DG_DELIVERY (dominaGoogleContent.ts), fuente única ya usada en el resto del
 // sitio, para que esta página nunca quede desincronizada si cambian.
 
 import { type CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { Check, ArrowUpRight, ShieldCheck, MessageCircle } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import MinimalHeader from "@/components/layout/MinimalHeader";
 import { DOMINA_GOOGLE_LIGHT, DOMINA_GOOGLE_TOKENS } from "@/config/productTheme";
-import { DG_PRICING } from "@/data/dominaGoogleContent";
+import { DG_DELIVERY } from "@/data/dominaGoogleContent";
 import { WHATSAPP_DISPLAY } from "@/config/contact";
 
 const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
@@ -60,8 +59,8 @@ const STEPS = [
   },
   {
     n: "2",
-    title: `Tu plazo de entrega — ${DG_PRICING.delivery}`,
-    text: DG_PRICING.deliveryNote,
+    title: `Tu plazo de entrega — ${DG_DELIVERY.delivery}`,
+    text: DG_DELIVERY.deliveryNote,
   },
   {
     n: "3",
@@ -80,7 +79,7 @@ const PREP_ITEMS = [
 export default function DominaGoogleRecepcionPage() {
   return (
     <>
-      <Navbar />
+      <MinimalHeader />
       <main style={LIGHT_VARS}>
         <section className="w-full bg-[var(--dg-bg)] px-8 pb-24 pt-40 lg:px-16 xl:px-24">
           <div className="mx-auto max-w-[760px]">
@@ -161,7 +160,6 @@ export default function DominaGoogleRecepcionPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }
