@@ -6,7 +6,7 @@ import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_LOGO, BRAND_ALLI } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
 import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/isuzu/IsuzuUI";
+import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 // ── Números de la cotización — único lugar donde se editan ──────────────
 // Fuente y lógica: vault → 06 Isuzu — Cotización (borrador).
@@ -36,7 +36,7 @@ const OP2_TOTAL = BLOQUES.reduce((s, b) => s + b.pago * (b.meses ?? 1), 0);
 
 export default function CotizacionIsuzuPage() {
   return (
-    <main className="bg-allitron-base">
+    <main className="overflow-x-clip bg-allitron-base">
       <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Cuánto cuesta" />
 
       <DocHero
@@ -71,12 +71,12 @@ export default function CotizacionIsuzuPage() {
       <SectionShell className="bg-[var(--color-light)]">
         <Reveal>
           <div className="overflow-hidden rounded-[28px] shadow-[0_24px_60px_rgba(16,24,32,0.12)]">
-            <div className="flex items-center justify-between gap-4 bg-allitron-blue px-7 py-5 sm:px-10">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-allitron-blue px-7 py-5 sm:px-10">
               <div className="flex items-center gap-3">
-                <Wallet size={30} className="text-white" />
+                <Wallet size={30} className="shrink-0 text-white" />
                 <p className="font-display text-[1.4rem] font-black text-white sm:text-[1.6rem]">Opción 1 · Todo junto</p>
               </div>
-              <span className="flex items-center gap-2 rounded-full bg-white px-4 py-1.5 font-display text-[0.85rem] font-bold text-allitron-navy">
+              <span className="flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-1.5 font-display text-[0.85rem] font-bold text-allitron-navy">
                 <ThumbsUp size={16} /> Recomendada
               </span>
             </div>

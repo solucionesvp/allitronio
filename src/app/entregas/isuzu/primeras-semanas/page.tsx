@@ -5,7 +5,7 @@ import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
 import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, Highlight, BigPageNav } from "@/components/entregas/isuzu/IsuzuUI";
+import { DocHero, BigText, SectionTitle, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 // Supuesto: firma y anticipo a más tardar el viernes 2 de octubre de 2026.
 const SEMANAS = [
@@ -79,7 +79,7 @@ const SEMANAS = [
 
 export default function PrimerasSemanasIsuzuPage() {
   return (
-    <main className="bg-allitron-base">
+    <main className="overflow-x-clip bg-allitron-base">
       <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Las primeras 6 semanas" />
 
       <DocHero

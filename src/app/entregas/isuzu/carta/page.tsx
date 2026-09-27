@@ -4,7 +4,7 @@ import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_LOGO, BRAND_ALLI } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
 import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigPageNav } from "@/components/entregas/isuzu/IsuzuUI";
+import { DocHero, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const PARRAFOS = [
   "Gracias por abrirnos la puerta de Isuzu y por la confianza de recibir esta propuesta.",
@@ -22,7 +22,7 @@ const DATOS = [
 
 export default function CartaIsuzuPage() {
   return (
-    <main className="bg-allitron-base">
+    <main className="overflow-x-clip bg-allitron-base">
       <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Una carta para usted" />
 
       <DocHero

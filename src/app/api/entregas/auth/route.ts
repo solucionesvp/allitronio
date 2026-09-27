@@ -12,6 +12,7 @@ const CODE_BY_SCOPE: Record<string, string | undefined> = {
   entregas_nayarit: process.env.ENTREGAS_CODE_NAYARIT,
   entregas_allitron_shineray: process.env.ENTREGAS_CODE_ALLITRON_SHINERAY,
   entregas_isuzu: process.env.ENTREGAS_CODE_ISUZU,
+  entregas_nutrimontse: process.env.ENTREGAS_CODE_NUTRIMONTSE,
 };
 
 const VALID_SCOPES = new Set(Object.keys(CODE_BY_SCOPE));

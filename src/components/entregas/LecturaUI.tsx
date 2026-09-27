@@ -1,6 +1,6 @@
 "use client";
 
-// ── Piezas de lectura para la propuesta Isuzu (Ecocamiones del Noroeste) ──
+// ── LecturaUI — piezas de lectura grande para propuestas a cliente ──
 // Pensadas para un lector de 80 años que abre el link desde WhatsApp:
 // letra grande, frases cortas, un ícono por idea, alto contraste y nada que
 // dependa solo del color. Todo sobre `--color-light` (sistema `.neu`), igual

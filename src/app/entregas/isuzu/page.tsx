@@ -15,7 +15,7 @@ import { BentoTile } from "@/components/entregas/BentoTile";
 
 export default function HubIsuzuPage() {
   return (
-    <main className="relative bg-[var(--color-light)]">
+    <main className="relative overflow-x-clip bg-[var(--color-light)]">
       <section className="relative flex min-h-[56svh] flex-col justify-center overflow-hidden px-6 pb-12 pt-24 sm:px-10 lg:px-16 xl:px-24">
         <div
           aria-hidden="true"

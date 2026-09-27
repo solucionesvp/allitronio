@@ -13,7 +13,7 @@ import {
   Highlight,
   CityCard,
   BigPageNav,
-} from "@/components/entregas/isuzu/IsuzuUI";
+} from "@/components/entregas/LecturaUI";
 
 const RECORRIDO = [
   { icon: Search, title: "Busca en Google", text: "Encuentra direcciones y teléfonos distintos para la misma agencia." },
@@ -91,7 +91,7 @@ const REDES = [
 
 export default function LoQueVimosIsuzuPage() {
   return (
-    <main className="bg-allitron-base">
+    <main className="overflow-x-clip bg-allitron-base">
       <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Lo que vimos" />
 
       <DocHero

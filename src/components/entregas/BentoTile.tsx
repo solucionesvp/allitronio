@@ -48,13 +48,13 @@ export function BentoTile({
       viewport={{ once: true, margin: "-40px" }}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.55, delay, ease: EASE }}
-      className={`neu neu-hover group relative flex h-full min-h-[176px] cursor-pointer flex-col justify-between overflow-hidden rounded-[26px] p-6 ${
+      className={`neu neu-hover group relative isolate flex h-full min-h-[176px] cursor-pointer flex-col justify-between overflow-hidden rounded-[26px] p-6 ${
         size === "protagonist" ? "min-h-[240px] p-8" : ""
       }`}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+        className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
         style={{ background: "radial-gradient(circle, rgba(9,175,242,0.16), transparent 70%)" }}
       />
 

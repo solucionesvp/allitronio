@@ -21,7 +21,7 @@ import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
 import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/isuzu/IsuzuUI";
+import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const LINEA = [
   { cuando: "Octubre", que: "Arranque", texto: "Llaves, fichas de Google, web base y campaña lista.", tone: "bg-allitron-navy" },
@@ -67,7 +67,7 @@ const NECESITAMOS = [
 
 export default function PlanIsuzuPage() {
   return (
-    <main className="bg-allitron-base">
+    <main className="overflow-x-clip bg-allitron-base">
       <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="El plan" />
 
       <DocHero

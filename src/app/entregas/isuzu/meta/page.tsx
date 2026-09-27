@@ -5,7 +5,7 @@ import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
 import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, GrowthChart, BigPageNav } from "@/components/entregas/isuzu/IsuzuUI";
+import { DocHero, BigText, SectionTitle, IconPoint, Highlight, GrowthChart, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const HOY = [
   "Datos distintos en cada sitio de internet.",
@@ -23,7 +23,7 @@ const MEDIMOS = [
 
 export default function MetaIsuzuPage() {
   return (
-    <main className="bg-allitron-base">
+    <main className="overflow-x-clip bg-allitron-base">
       <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="A dónde queremos llegar" />
 
       <DocHero
