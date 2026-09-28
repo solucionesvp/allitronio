@@ -108,6 +108,29 @@ export const PRODUCT_LOCAL_LAUNCH = {
   proofDir: `${LAUNCH}/prueba`,
 } as const;
 
+/**
+ * Toma tu Mercado (interno: Motor de Captación) — landing /productos/toma-tu-mercado.
+ * Rutas SIN extensión, igual que Domina Google: basta guardar el archivo con
+ * este nombre en public/assets/products/mercado/ y aparece solo. Mientras no
+ * exista, la página usa su visual por defecto (no hay imágenes inventadas).
+ */
+const MERCADO = `${B}/products/mercado` as const;
+export const PRODUCT_MARKET = {
+  heroDesktop: `${MERCADO}/hero-desktop`,
+  heroMovil: `${MERCADO}/hero-movil`,
+  problemaSin: `${MERCADO}/problema-sin`,
+  problemaCon: `${MERCADO}/problema-con`,
+  fase1: `${MERCADO}/fase-1-diagnosticar`,
+  fase2: `${MERCADO}/fase-2-investigar`,
+  fase3: `${MERCADO}/fase-3-estrategia`,
+  fase4: `${MERCADO}/fase-4-construir`,
+  fase5: `${MERCADO}/fase-5-lanzar`,
+  fase6: `${MERCADO}/fase-6-medir`,
+  equipo: `${MERCADO}/equipo`,
+  impresos: `${MERCADO}/impresos`,
+  ctaFinal: `${MERCADO}/cta-final`,
+} as const;
+
 export const PRODUCT_SECOND_BRAIN = {
   hero: `${B}/products/second-brain/hero.webp`,
   telegram: `${B}/products/second-brain/telegram.webp`,

@@ -27,6 +27,7 @@ export function waLink(keyword: string, text: string, origin: string): string {
 /** Palabra clave y nombre legible según la página donde está el usuario. */
 export function contextFromPath(pathname: string): { keyword: string; label: string } {
   if (pathname.startsWith("/productos/domina-google")) return { keyword: "GOOGLE", label: "Domina Google" };
+  if (pathname.startsWith("/productos/toma-tu-mercado")) return { keyword: "MERCADO", label: "Toma tu Mercado" };
   if (pathname.startsWith("/productos/lazup")) return { keyword: "LAZUP", label: "LAZUP" };
   if (pathname.startsWith("/productos/segundo-cerebro")) return { keyword: "CEREBRO", label: "Segundo Cerebro" };
   if (pathname.startsWith("/productos/allitron-90")) return { keyword: "ALLITRON90", label: "Allitron 90" };
@@ -41,6 +42,7 @@ export function keywordForProduct(product: string): string {
   if (p.includes("google")) return "GOOGLE";
   if (p.includes("lazup")) return "LAZUP";
   if (p.includes("cerebro")) return "CEREBRO";
+  if (p.includes("mercado")) return "MERCADO";
   if (p.includes("allitron 90") || p.includes("diagn")) return "ALLITRON90";
   return "WEB";
 }

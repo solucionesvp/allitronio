@@ -103,3 +103,25 @@ export const DOMINA_GOOGLE_LIGHT = {
   line: "rgba(26,22,20,0.12)",
   accentText: "#B23A2E",
 } as const;
+
+/** "Toma tu Mercado" (interno: Motor de Captación) — 28-sep-2026.
+ * Acento verde-territorio: distinto del coral de Domina Google y del naranja
+ * de Allitron 90, asociado a "ganar terreno". Paleta clara aislada, misma
+ * estructura que DOMINA_GOOGLE_LIGHT. Contraste aprox.: ink/bg 15:1,
+ * muted/bg 6.8:1, accentText/bg 6:1. */
+export const TOMA_TU_MERCADO_TOKENS = {
+  accent: "#1FBF8F",
+  accentDeep: "#0B6B4F",
+  accentSoft: "rgba(31,191,143,0.14)",
+  gradient: "linear-gradient(135deg, #3FD6A6 0%, #1FAF83 50%, #0B6B4F 100%)",
+} as const;
+
+export const TOMA_TU_MERCADO_LIGHT = {
+  bg: "#F3F4EF",
+  bgAlt: "#E7EAE2",
+  card: "#FFFFFF",
+  ink: "#141A17",
+  muted: "#505A54",
+  line: "rgba(20,26,23,0.12)",
+  accentText: "#0B6B4F",
+} as const;
