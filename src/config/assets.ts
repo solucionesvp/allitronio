@@ -27,11 +27,11 @@ export const BRAND_LOGO = {
 
 export const BRAND_ALLI = {
   /** Alli — versión full color, fondo transparente */
-  primary: `${B}/brand/alli/alli-primary.png`,
+  primary: `${B}/brand/alli/alli-primary.webp`,
   /** Alli — versión sobre fondo azul Allitron */
-  blue: `${B}/brand/alli/alli-blue.png`,
+  blue: `${B}/brand/alli/alli-blue.webp`,
   /** Alli — versión monocromática / ghosting */
-  monochrome: `${B}/brand/alli/alli-monochrome.png`,
+  monochrome: `${B}/brand/alli/alli-monochrome.webp`,
 } as const;
 
 // ── Hero ─────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ export const HERO = {
   /** Retrato/visual con efecto magnético (sigue el cursor) en el Hero del
    * home. Puede ser una persona (Lups, Alejandro, equipo) o un visual de
    * marca — decisión abierta, no asumida por el código. */
-  portrait: `${B}/hero/hero-portrait.png`,
+  portrait: `${B}/hero/hero-portrait.webp`,
   /** Foto fija del hero del home (21-sep-2026, decisión de Lups: fuera el
    * video/poster generado, esta foto queda como el visual principal). Alli
    * frente a la catedral de Tepic, con "CONECTANDO EL FUTURO" ya integrado
@@ -49,13 +49,13 @@ export const HERO = {
    * (Alli/catedral) más un degradado lineal oscuro→tenue encima para cubrir
    * cualquier resto de texto que se asome por el borde del recorte. Misma
    * imagen y mismo tratamiento se reutilizan en el hero de Hub. */
-  hero: `${B}/hero/hero.png`,
+  hero: `${B}/hero/hero.webp`,
   /** Recorte de `hero` sin el texto "CONECTANDO EL FUTURO" (creado 22-sep-2026,
    * descartado el mismo día — Lups pidió usar la foto original con un
    * degradado en vez de un recorte físico). Se deja el archivo sin borrar
    * por si se retoma, pero NINGÚN componente debe referenciarlo — usar
    * `hero` de arriba. */
-  heroAlli: `${B}/hero/hero-alli.png`,
+  heroAlli: `${B}/hero/hero-alli.webp`,
   /** Still de Alli generado (Higgsfield) — ya no se usa en el Hero del home
    * (ver `hero` arriba); se deja sin borrar por si se reutiliza. */
   visualPoster: `${B}/hero/hero-visual.webp`,
@@ -72,7 +72,7 @@ export const PRODUCT_ALLITRON90 = {
   /** Video de "ensamblaje" (Higgsfield) — particulas naranja convirtiendose
    * en el emblema del producto. Home, seccion Soluciones. */
   assemblyVideo: `${B}/products/allitron-90/assembly.mp4`,
-  assemblyPoster: `${B}/products/allitron-90/assembly-poster.png`,
+  assemblyPoster: `${B}/products/allitron-90/assembly-poster.webp`,
 } as const;
 
 export const PRODUCT_LOCAL = {
@@ -83,7 +83,7 @@ export const PRODUCT_LOCAL = {
   /** Video de "ensamblaje" (Higgsfield) — particulas rojas formando el
    * icono de posicionamiento/mapa. Home, seccion Soluciones. */
   assemblyVideo: `${B}/products/local/assembly.mp4`,
-  assemblyPoster: `${B}/products/local/assembly-poster.png`,
+  assemblyPoster: `${B}/products/local/assembly-poster.webp`,
 } as const;
 
 /**
@@ -115,7 +115,7 @@ export const PRODUCT_SECOND_BRAIN = {
   /** Video de "ensamblaje" (Higgsfield) — particulas moradas formando el
    * nodo-cerebro. Home, seccion Soluciones. */
   assemblyVideo: `${B}/products/second-brain/assembly.mp4`,
-  assemblyPoster: `${B}/products/second-brain/assembly-poster.png`,
+  assemblyPoster: `${B}/products/second-brain/assembly-poster.webp`,
 } as const;
 
 export const PRODUCT_LAZUP = {
@@ -126,7 +126,7 @@ export const PRODUCT_LAZUP = {
   /** Video de "ensamblaje" (Higgsfield) — particulas rosa formando el
    * icono de engranaje/dashboard. Home, seccion Soluciones. */
   assemblyVideo: `${B}/products/lazup/assembly.mp4`,
-  assemblyPoster: `${B}/products/lazup/assembly-poster.png`,
+  assemblyPoster: `${B}/products/lazup/assembly-poster.webp`,
 } as const;
 
 export const PRODUCT_AURORA = {
@@ -134,7 +134,7 @@ export const PRODUCT_AURORA = {
    * la inteligencia que coordina diagnostico, ejecucion y seguimiento en
    * toda la suite Allitron. Home, seccion Soluciones (5ta pieza). */
   assemblyVideo: `${B}/products/aurora/assembly.mp4`,
-  assemblyPoster: `${B}/products/aurora/assembly-poster.png`,
+  assemblyPoster: `${B}/products/aurora/assembly-poster.webp`,
 } as const;
 
 // ── Hub ──────────────────────────────────────────────────────────

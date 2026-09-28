@@ -6,71 +6,25 @@
 // explícita de cómo leer, y cada documento termina con un botón grande
 // "Siguiente". Nivel de exposición: cliente externo (sin costos internos).
 
-import { motion } from "framer-motion";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO, ICONS_CONTENIDO } from "@/config/assets";
-import AlliGuide from "@/components/brand/AlliGuide";
-import { EASE, SectionShell } from "@/components/entregas/ui";
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaPortada } from "@/components/propuestas/PropuestaTop";
+import { ICONS_CONTENIDO } from "@/config/assets";
+import { SectionShell } from "@/components/entregas/ui";
 import { BentoTile } from "@/components/entregas/BentoTile";
 
 export default function HubIsuzuPage() {
   return (
     <main className="relative overflow-x-clip bg-[var(--color-light)]">
-      <section className="relative flex min-h-[56svh] flex-col justify-center overflow-hidden px-6 pb-12 pt-24 sm:px-10 lg:px-16 xl:px-24">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 55% 55% at 85% 15%, rgba(9,175,242,0.12) 0%, transparent 60%)",
-          }}
-        />
-        <AlliGuide side="right" size={96} className="top-24 hidden sm:block" />
-        <div className="relative z-10 mx-auto w-full max-w-[1120px]">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="mb-8 flex items-center"
-          >
-            <OptionalImage
-              src={BRAND_LOGO.dark}
-              alt="Allitron"
-              style={{ height: 26, width: "auto" }}
-              fallback={<span className="font-display text-xs tracking-[0.35em] text-[#101820]">ALLITRON</span>}
-            />
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-            className="font-display text-[0.78rem] font-semibold tracking-[0.3em] text-allitron-blue"
-          >
-            PROPUESTA · ISUZU TEPIC · CULIACÁN · MAZATLÁN · LA PAZ
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.18, ease: EASE }}
-            className="mt-4 max-w-[820px] font-display font-black leading-[1.15] tracking-tight text-[#101820]"
-            style={{ fontSize: "clamp(2.2rem, 5vw, 3.6rem)" }}
-          >
-            Cuatro agencias.
-            <br />
-            Un solo camino para vender.
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.32, ease: EASE }}
-            className="mt-6 max-w-[640px] font-body text-[1.15rem] leading-[1.8] text-secondary sm:text-[1.25rem]"
-          >
-            Son seis partes cortas. Empiece por la carta. Al terminar cada parte encontrará un botón azul que lo lleva a la siguiente.
-          </motion.p>
-        </div>
-      </section>
+      <PropuestaPortada
+        pasos={PASOS_ISUZU}
+        para="Propuesta para Isuzu · Tepic, Culiacán, Mazatlán y La Paz"
+        titulo=<>Cuatro agencias. <br /> Un solo camino para vender.</>
+        mensaje="Buen día, soy Alli. Son seis partes cortas: empiece por la carta y, al terminar cada una, le llevo a la siguiente."
+        empezar="Empezar por la carta"
+      />
 
       <SectionShell className="!pt-4">
+        <p className="mb-6 font-display text-[1.15rem] font-bold text-[#101820]">O elija directo la parte que quiera ver:</p>
         <div className="grid auto-rows-[minmax(190px,auto)] gap-5 sm:grid-cols-2">
           <BentoTile
             icon={ICONS_CONTENIDO.documento}
@@ -120,6 +74,7 @@ export default function HubIsuzuPage() {
             href="/entregas/isuzu/cotizacion"
             delay={0.25}
           />
+          <BentoTile icon={ICONS_CONTENIDO.link} title="7 · Pregúntele a Alli" subtitle="Las dudas más comunes, respondidas por Alli." kind="documento" href="/entregas/isuzu/cotizacion#preguntas" delay={0.3} />
         </div>
       </SectionShell>
 

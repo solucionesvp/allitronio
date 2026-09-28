@@ -1,11 +1,10 @@
 "use client";
 
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { Eye, MessageCircle, Target, BadgeCheck, CircleAlert } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, GrowthChart, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, Highlight, GrowthChart, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const HOY = [
   "Datos distintos en cada sitio de internet.",
@@ -24,21 +23,8 @@ const MEDIMOS = [
 export default function MetaIsuzuPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="A dónde queremos llegar" />
 
-      <DocHero
-        eyebrow="PARTE 4 DE 6"
-        title={<>A dónde queremos llegar.</>}
-        subtitle="La meta, en una sola gráfica."
-        logo={
-          <OptionalImage
-            src={BRAND_LOGO.light}
-            alt="Allitron"
-            style={{ height: 26, width: "auto" }}
-            fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>}
-          />
-        }
-      />
+      <PropuestaTop pasos={PASOS_ISUZU} paso={4} titulo=<>A dónde queremos llegar.</> escena="meta" mensaje="Esta es la meta. La medimos cada mes, con números claros." />
 
       {/* Hoy */}
       <SectionShell className="bg-[var(--color-light)]">

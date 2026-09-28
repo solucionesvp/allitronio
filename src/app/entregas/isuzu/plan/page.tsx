@@ -1,5 +1,7 @@
 "use client";
 
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import {
   KeyRound,
   MapPin,
@@ -17,11 +19,8 @@ import {
   CircleCheck,
   BadgeCheck,
 } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const LINEA = [
   { cuando: "Octubre", que: "Arranque", texto: "Llaves, fichas de Google, web base y campaña lista.", tone: "bg-allitron-navy" },
@@ -68,21 +67,8 @@ const NECESITAMOS = [
 export default function PlanIsuzuPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="El plan" />
 
-      <DocHero
-        eyebrow="PARTE 3 DE 6"
-        title={<>El plan: Fase 0 y Fase 1.</>}
-        subtitle="Dos trimestres, dos objetivos. Y todo arranca al mismo tiempo."
-        logo={
-          <OptionalImage
-            src={BRAND_LOGO.light}
-            alt="Allitron"
-            style={{ height: 26, width: "auto" }}
-            fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>}
-          />
-        }
-      />
+      <PropuestaTop pasos={PASOS_ISUZU} paso={3} titulo=<>El plan: Fase 0 y Fase 1.</> escena="plan" mensaje="Así vamos a trabajar: primero vender y, al mismo tiempo, ordenar." />
 
       {/* Objetivos */}
       <SectionShell className="bg-[var(--color-light)]">

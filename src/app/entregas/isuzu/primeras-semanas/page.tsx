@@ -1,11 +1,10 @@
 "use client";
 
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { KeyRound, MapPin, Hammer, FlaskConical, Rocket, TrendingUp, Flag } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 // Supuesto: firma y anticipo a más tardar el viernes 2 de octubre de 2026.
 const SEMANAS = [
@@ -80,21 +79,8 @@ const SEMANAS = [
 export default function PrimerasSemanasIsuzuPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Las primeras 6 semanas" />
 
-      <DocHero
-        eyebrow="PARTE 5 DE 6"
-        title={<>Las primeras 6 semanas.</>}
-        subtitle="Semana por semana, lo que va a pasar desde que empezamos hasta el primer reporte."
-        logo={
-          <OptionalImage
-            src={BRAND_LOGO.light}
-            alt="Allitron"
-            style={{ height: 26, width: "auto" }}
-            fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>}
-          />
-        }
-      />
+      <PropuestaTop pasos={PASOS_ISUZU} paso={5} titulo=<>Las primeras 6 semanas.</> escena="calendario" mensaje="Semana por semana, para que sepa qué pasa y cuándo." />
 
       <SectionShell className="bg-[var(--color-light)]">
         <SectionTitle kicker="La meta de este arranque">Anuncios encendidos el 2 de noviembre.</SectionTitle>

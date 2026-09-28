@@ -1,12 +1,10 @@
 "use client";
 
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { Search, MessageCircle, Mail, Sheet, PhoneOff, TrendingUp, TrendingDown, Tag, ShieldAlert, Unplug, Truck } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
 import {
-  DocHero,
   BigText,
   SectionTitle,
   IconPoint,
@@ -92,21 +90,8 @@ const REDES = [
 export default function LoQueVimosIsuzuPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Lo que vimos" />
 
-      <DocHero
-        eyebrow="PARTE 2 DE 6"
-        title={<>Lo que vimos.</>}
-        subtitle="Buscamos a Isuzu como lo haría un cliente, en cada una de sus cuatro ciudades. Esto fue lo que encontramos."
-        logo={
-          <OptionalImage
-            src={BRAND_LOGO.light}
-            alt="Allitron"
-            style={{ height: 26, width: "auto" }}
-            fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>}
-          />
-        }
-      />
+      <PropuestaTop pasos={PASOS_ISUZU} paso={2} titulo=<>Lo que vimos.</> escena="investigacion" mensaje="Buscamos sus agencias como lo haría un cliente. Esto fue lo que encontramos." />
 
       {/* 1. La marca está bien */}
       <SectionShell className="bg-[var(--color-light)]">

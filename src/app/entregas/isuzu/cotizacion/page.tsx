@@ -1,12 +1,15 @@
 "use client";
 
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
+import { FAQ_ISUZU } from "@/content/propuestas/faq";
+import { AlliFAQ } from "@/components/propuestas/AlliFAQ";
 import { Layers, Wallet, Megaphone, CircleX, Receipt, ThumbsUp, CircleCheck, MessageCircleQuestionMark } from "lucide-react";
 import { buildWhatsAppLink, WHATSAPP_DISPLAY } from "@/config/contact";
 import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO, BRAND_ALLI } from "@/config/assets";
+import { BRAND_ALLI } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 // ── Números de la cotización — único lugar donde se editan ──────────────
 // Fuente y lógica: vault → 06 Isuzu — Cotización (borrador).
@@ -37,21 +40,8 @@ const OP2_TOTAL = BLOQUES.reduce((s, b) => s + b.pago * (b.meses ?? 1), 0);
 export default function CotizacionIsuzuPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Cuánto cuesta" />
 
-      <DocHero
-        eyebrow="PARTE 6 DE 6"
-        title={<>Cuánto cuesta.</>}
-        subtitle="Dos formas de trabajar juntos. El mismo trabajo, las mismas cuatro agencias."
-        logo={
-          <OptionalImage
-            src={BRAND_LOGO.light}
-            alt="Allitron"
-            style={{ height: 26, width: "auto" }}
-            fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>}
-          />
-        }
-      />
+      <PropuestaTop pasos={PASOS_ISUZU} paso={6} titulo=<>Cuánto cuesta.</> escena="cierre" mensaje="Dos formas de trabajar juntos. Al final puede preguntarme lo que quiera." />
 
       {/* Precio de primeros clientes */}
       <SectionShell className="bg-[var(--color-light)]">
@@ -187,6 +177,10 @@ export default function CotizacionIsuzuPage() {
         <BigText className="mt-8">
           Precios en pesos. Si requiere factura, se agrega el IVA. Trabajamos con contrato firmado, y todas las cuentas quedan a nombre de la empresa.
         </BigText>
+      </SectionShell>
+
+      <SectionShell className="bg-[var(--color-light)]">
+        <AlliFAQ items={FAQ_ISUZU} titulo="Pregúntele a Alli" subtitulo="Toque una pregunta y le respondo." />
       </SectionShell>
 
       {/* Cierre */}

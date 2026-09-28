@@ -1,11 +1,10 @@
 "use client";
 
+import { PASOS_NUTRIMONTSE } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { ClipboardCheck, MapPin, Camera, Rocket, Flag } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const B = "/entregas/nutrimontse";
 
@@ -48,13 +47,7 @@ const SEMANAS = [
 export default function PrimerasSemanasNutriMontsePage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref={B} hubLabel="Inicio" current="Las primeras 4 semanas" />
-      <DocHero
-        eyebrow="PARTE 5 DE 6"
-        title={<>Las primeras 4 semanas.</>}
-        subtitle="Semana por semana, del primer día a los anuncios encendidos."
-        logo={<OptionalImage src={BRAND_LOGO.light} alt="Allitron" style={{ height: 26, width: "auto" }} fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>} />}
-      />
+      <PropuestaTop pasos={PASOS_NUTRIMONTSE} paso={5} titulo=<>Las primeras 4 semanas.</> escena="calendario" mensaje="Así serán tus primeras cuatro semanas." />
 
       <SectionShell className="bg-[var(--color-light)]">
         <SectionTitle kicker="La meta de este arranque">Anuncios encendidos a finales de octubre, listos para el Buen Fin.</SectionTitle>

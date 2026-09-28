@@ -1,10 +1,11 @@
 "use client";
 
+import { PASOS_ISUZU } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO, BRAND_ALLI } from "@/config/assets";
+import { BRAND_ALLI } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigPageNav } from "@/components/entregas/LecturaUI";
 
 const PARRAFOS = [
   "Gracias por abrirnos la puerta de Isuzu y por la confianza de recibir esta propuesta.",
@@ -23,20 +24,8 @@ const DATOS = [
 export default function CartaIsuzuPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref="/entregas/isuzu" hubLabel="Inicio" current="Una carta para usted" />
 
-      <DocHero
-        eyebrow="PARTE 1 DE 6"
-        title={<>Una carta para usted.</>}
-        logo={
-          <OptionalImage
-            src={BRAND_LOGO.light}
-            alt="Allitron"
-            style={{ height: 26, width: "auto" }}
-            fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>}
-          />
-        }
-      />
+      <PropuestaTop pasos={PASOS_ISUZU} paso={1} titulo=<>Una carta para usted.</> escena="carta" mensaje="Antes de los números, una carta. Empiece aquí." />
 
       <SectionShell className="bg-[var(--color-light)]">
         <Reveal>

@@ -1,11 +1,10 @@
 "use client";
 
+import { PASOS_NUTRIMONTSE } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { Sprout, Heart, PhoneOff, MapPinOff, CalendarX, Tag, Phone, Star, Crown } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const B = "/entregas/nutrimontse";
 
@@ -28,13 +27,7 @@ const COLEGAS = [
 export default function LoQueVimosNutriMontsePage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref={B} hubLabel="Inicio" current="Lo que vimos" />
-      <DocHero
-        eyebrow="PARTE 2 DE 6"
-        title={<>Lo que vimos.</>}
-        subtitle="Te buscamos como lo haría una paciente nueva en Tepic. Esto fue lo que encontramos."
-        logo={<OptionalImage src={BRAND_LOGO.light} alt="Allitron" style={{ height: 26, width: "auto" }} fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>} />}
-      />
+      <PropuestaTop pasos={PASOS_NUTRIMONTSE} paso={2} titulo=<>Lo que vimos.</> escena="investigacion" mensaje="Te buscamos como lo haría una paciente nueva. Mira lo que encontramos." />
 
       {/* Lo bueno */}
       <SectionShell className="bg-[var(--color-light)]">

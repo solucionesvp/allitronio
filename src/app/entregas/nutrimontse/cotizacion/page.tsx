@@ -1,12 +1,15 @@
 "use client";
 
+import { PASOS_NUTRIMONTSE } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
+import { FAQ_NUTRIMONTSE } from "@/content/propuestas/faq";
+import { AlliFAQ } from "@/components/propuestas/AlliFAQ";
 import { CalendarRange, CalendarHeart, Megaphone, CircleX, ThumbsUp, CircleCheck, MessageCircleQuestionMark, Globe } from "lucide-react";
 import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO, BRAND_ALLI } from "@/config/assets";
+import { BRAND_ALLI } from "@/config/assets";
 import { buildWhatsAppLink, WHATSAPP_DISPLAY } from "@/config/contact";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const B = "/entregas/nutrimontse";
 
@@ -44,13 +47,7 @@ function Linea({ concepto, monto, nota }: { concepto: string; monto: string; not
 export default function CotizacionNutriMontsePage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref={B} hubLabel="Inicio" current="Cuánto cuesta" />
-      <DocHero
-        eyebrow="PARTE 6 DE 6"
-        title={<>Cuánto cuesta.</>}
-        subtitle="Dos opciones. La misma campaña; cambia cuánto tiempo trabajamos juntos."
-        logo={<OptionalImage src={BRAND_LOGO.light} alt="Allitron" style={{ height: 26, width: "auto" }} fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>} />}
-      />
+      <PropuestaTop pasos={PASOS_NUTRIMONTSE} paso={6} titulo=<>Cuánto cuesta.</> escena="cierre" mensaje="Dos opciones claras. Y abajo respondo tus dudas." />
 
       {/* Qué incluye siempre */}
       <SectionShell className="bg-[var(--color-light)]">
@@ -162,6 +159,10 @@ export default function CotizacionNutriMontsePage() {
           ))}
         </div>
         <BigText className="mt-8">Precios en pesos. Si requieres factura, se agrega el IVA. Trabajamos con contrato firmado y todas tus cuentas quedan a tu nombre.</BigText>
+      </SectionShell>
+
+      <SectionShell className="bg-[var(--color-light)]">
+        <AlliFAQ items={FAQ_NUTRIMONTSE} titulo="Pregúntale a Alli" subtitulo="Toca una pregunta y te respondo." />
       </SectionShell>
 
       {/* Cierre + WhatsApp */}

@@ -22,7 +22,7 @@ export function BigText({
   className?: string;
 }) {
   return (
-    <p className={`max-w-[720px] font-body text-[1.15rem] leading-[1.85] text-[#101820] sm:text-[1.25rem] ${className}`}>
+    <p className={`max-w-[720px] font-body text-[1.15rem] leading-[1.85] text-[#101820] [overflow-wrap:anywhere] sm:text-[1.25rem] ${className}`}>
       {children}
     </p>
   );
@@ -76,7 +76,7 @@ export function IconPoint({
         <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-[0_8px_20px_rgba(3,64,88,0.18)] ${toneClass}`}>
           <Icon size={28} strokeWidth={2} />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 [overflow-wrap:anywhere]">
           <h3 className="font-display text-[1.15rem] font-bold leading-[1.35] text-[#101820] sm:text-[1.25rem]">
             {title}
           </h3>

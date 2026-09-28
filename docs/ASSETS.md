@@ -31,7 +31,7 @@ placeholder solo — no hay que tocar código.
 
 | Archivo | Ruta en `public/` | Uso | Formato |
 |---|---|---|---|
-| `hero-portrait.png` | `assets/hero/hero-portrait.png` | Retrato/visual con efecto magnético (sigue el cursor) en el Hero del home | PNG (cargado como .png, no .webp — confirmado agosto 2026), fondo transparente recomendado |
+| `hero-portrait.webp` | `assets/hero/hero-portrait.webp` | Retrato/visual con efecto magnético (sigue el cursor) en el Hero del home | WebP con transparencia (convertido del PNG original el 28-sep-2026; original en `_originales/public-backup-20260928/`) |
 
 > Quién o qué aparece aquí es tu decisión — puede ser una persona (Lups, Alejandro, equipo) o un visual de marca/producto. El código no asume nada. Recorte vertical (retrato), ~1200×1500px, sujeto centrado con espacio de sobra arriba (el efecto magnético desplaza la imagen unos px en cualquier dirección al acercar el cursor).
 
@@ -63,11 +63,11 @@ Sigue sin usarse dentro del contenido de cada sección — solo en las transicio
 
 | Archivo | Ruta en `public/` | Uso | Formato |
 |---|---|---|---|
-| `alli-primary.png` | `assets/brand/alli/alli-primary.png` | Versión full color, transparente | PNG, fondo transparente |
-| `alli-blue.png` | `assets/brand/alli/alli-blue.png` | Sobre fondo Allitron Blue | PNG |
-| `alli-monochrome.png` | `assets/brand/alli/alli-monochrome.png` | Ghost / decorativo | PNG |
+| `alli-primary.webp` | `assets/brand/alli/alli-primary.webp` | Versión full color, transparente | PNG, fondo transparente |
+| `alli-blue.webp` | `assets/brand/alli/alli-blue.webp` | Sobre fondo Allitron Blue | PNG |
+| `alli-monochrome.webp` | `assets/brand/alli/alli-monochrome.webp` | Ghost / decorativo | PNG |
 
-> Cargados como `.png` (no `.webp`) — confirmado agosto 2026.
+> Convertidos a `.webp` el 28-sep-2026 (optimización de peso); los PNG originales viven en `_originales/public-backup-20260928/`.
 
 ---
 

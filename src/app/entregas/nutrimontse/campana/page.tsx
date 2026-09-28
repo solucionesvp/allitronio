@@ -1,11 +1,10 @@
 "use client";
 
+import { PASOS_NUTRIMONTSE } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { Gift, MessagesSquare, MapPin, Megaphone, Star, ShieldCheck, Target } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const B = "/entregas/nutrimontse";
 
@@ -38,13 +37,7 @@ const MESES = [
 export default function CampanaNutriMontsePage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref={B} hubLabel="Inicio" current="La campaña" />
-      <DocHero
-        eyebrow="PARTE 3 DE 6"
-        title={<>La campaña.</>}
-        subtitle="No es contenido por contenido. Es una campaña con un objetivo, una oferta y un camino para agendar."
-        logo={<OptionalImage src={BRAND_LOGO.light} alt="Allitron" style={{ height: 26, width: "auto" }} fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>} />}
-      />
+      <PropuestaTop pasos={PASOS_NUTRIMONTSE} paso={3} titulo=<>La campaña.</> escena="plan" mensaje="No es contenido por contenido: así se ve una campaña que vende." />
 
       <SectionShell className="bg-[var(--color-light)]">
         <SectionTitle kicker="El objetivo comercial">Más pacientes nuevas cada mes, y un enero con agenda llena.</SectionTitle>

@@ -1,12 +1,11 @@
 "use client";
 
+import { PASOS_NUTRIMONTSE } from "@/content/propuestas/pasos";
+import { PropuestaTop } from "@/components/propuestas/PropuestaTop";
 import { motion, useReducedMotion } from "framer-motion";
 import { MessagesSquare, Star, CalendarHeart, Search } from "lucide-react";
-import { OptionalImage } from "@/components/media/OptionalAsset";
-import { BRAND_LOGO } from "@/config/assets";
 import { SectionShell } from "@/components/entregas/ui";
-import { Breadcrumbs } from "@/components/entregas/Breadcrumbs";
-import { DocHero, BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const B = "/entregas/nutrimontse";
 
@@ -44,13 +43,7 @@ function Embudo() {
 export default function ObjetivosNutriMontsePage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
-      <Breadcrumbs hubHref={B} hubLabel="Inicio" current="Los objetivos" />
-      <DocHero
-        eyebrow="PARTE 4 DE 6"
-        title={<>Los objetivos.</>}
-        subtitle="Qué vamos a medir, cada semana, y a dónde queremos llegar."
-        logo={<OptionalImage src={BRAND_LOGO.light} alt="Allitron" style={{ height: 26, width: "auto" }} fallback={<span className="font-display text-xs tracking-[0.35em] text-foreground">ALLITRON</span>} />}
-      />
+      <PropuestaTop pasos={PASOS_NUTRIMONTSE} paso={4} titulo=<>Los objetivos.</> escena="meta" mensaje="Esto es lo que vamos a medir, cada semana." />
 
       <SectionShell className="bg-[var(--color-light)]">
         <SectionTitle kicker="Lo que medimos">Cuatro pasos, cada semana.</SectionTitle>

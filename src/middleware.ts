@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 // No es un truco de JS en el cliente: si no hay cookie válida, el servidor
 // nunca manda el HTML de la página protegida, redirige a la pantalla de acceso.
 
-type EntregasScope = "entregas_familia" | "entregas_shineray" | "entregas_fundadores" | "entregas_nayarit" | "entregas_allitron_shineray" | "entregas_isuzu" | "entregas_nutrimontse";
+type EntregasScope = "entregas_familia" | "entregas_shineray" | "entregas_fundadores" | "entregas_nayarit" | "entregas_allitron_shineray" | "entregas_isuzu" | "entregas_nutrimontse" | "entregas_viesaine";
 
 const ENTREGAS_PROTECTED: { prefix: string; scope: EntregasScope }[] = [
   { prefix: "/entregas/valdes-menchaca-talavera", scope: "entregas_familia" },
@@ -14,6 +14,7 @@ const ENTREGAS_PROTECTED: { prefix: string; scope: EntregasScope }[] = [
   { prefix: "/entregas/allitron-shineray", scope: "entregas_allitron_shineray" },
   { prefix: "/entregas/isuzu", scope: "entregas_isuzu" },
   { prefix: "/entregas/nutrimontse", scope: "entregas_nutrimontse" },
+  { prefix: "/entregas/viesaine", scope: "entregas_viesaine" },
 ];
 
 // ── /interno/finanzas — control financiero (no público, no indexado) ──────
