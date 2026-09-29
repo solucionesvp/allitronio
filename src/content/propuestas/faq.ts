@@ -56,3 +56,19 @@ export const FAQ_VIESAINE: FaqItem[] = [
   { pregunta: "¿A nombre de quién quedan las cuentas?", respuesta: "De ustedes. Facebook, Instagram, Google y la página quedan a su nombre; nosotros entramos con permisos que pueden quitar cuando quieran." },
   { pregunta: "¿Qué opción nos conviene?", respuesta: "La de 6 meses: un tratamiento toma semanas, y febrero y marzo son cuando los pacientes de enero terminan, recomiendan y dejan su opinión. Además incluye su página." },
 ];
+
+// IBS (Innovación Blue Sky) · Shineray Tepic y Puerto Vallarta — tratamiento "usted".
+// Debe coincidir con src/app/entregas/ibs/cotizacion/page.tsx (constantes arriba).
+export const FAQ_IBS: FaqItem[] = [
+  { pregunta: "¿Cuántas publicaciones van a hacer al mes?", respuesta: "Alrededor de ocho piezas al mes entre Tepic y Puerto Vallarta, además de los anuncios de cada plaza. No son de relleno: unidades trabajando, pruebas de carga, entregas, asesores y clientes reales, siempre con el diseño y los legales que pide Shineray México." },
+  { pregunta: "¿Quién paga los anuncios y cuánto?", respuesta: "Los anuncios van aparte, directo a Facebook y Google con la tarjeta de la empresa. Recomendamos de $4,000 a $5,000 por plaza al mes. Si Shineray confirma su apoyo publicitario para distribuidores, lo usamos primero ahí." },
+  { pregunta: "¿Me garantizan que vamos a vender?", respuesta: "No prometemos una cifra exacta de ventas; nadie serio lo haría. Sí nos comprometemos a trabajar cada semana, a llevarle a sus asesores prospectos que sí usan un vehículo para trabajar y a entregarle un reporte claro cada mes." },
+  { pregunta: "¿Esto cumple con lo que pide Shineray México?", respuesta: "Sí. Trabajamos con sus lineamientos: nombre de la agencia, logo, colores, medidas, legales y solo modelos autorizados. Lo que necesite autorización de planta, como un rotulado, lo enviamos antes a su equipo de marketing." },
+  { pregunta: "¿Y Ricardo?", respuesta: "Ricardo sigue al frente de la venta, y ahora con más herramientas. Lo ponemos en los videos de la marca, su perfil sigue siendo suyo y sus prospectos entran al mismo tablero, para que ninguno se pierda y él vea cómo avanza cada uno." },
+  { pregunta: "¿A nombre de quién quedan las cuentas?", respuesta: "De IBS. Google, Facebook, Instagram, TikTok, WhatsApp, la web y el dominio quedan a nombre de la empresa. Nosotros entramos con permisos que ustedes pueden quitar cuando quieran." },
+  { pregunta: "¿Qué pasa con la página que ya existe?", respuesta: "La tomamos como punto de partida. La web final usa un dominio con el nombre de Shineray, como pide planta, y tiene modelos, servicio, promociones, flotillas, nosotros y el aviso de privacidad." },
+  { pregunta: "¿Y Guadalajara?", respuesta: "Todo queda listo para sumarla. Cuando se confirme la ubicación, agregamos su ficha de Google, su página y su campaña, y se cotiza como extensión." },
+  { pregunta: "¿Cuándo vamos a ver algo?", respuesta: "En la segunda semana damos de alta Shineray Tepic y Shineray Puerto Vallarta en Google. Los anuncios se encienden la semana del 9 de noviembre, y en la sexta semana le entregamos el primer reporte en una sola hoja." },
+  { pregunta: "¿Qué necesitan de nosotros?", respuesta: "Los accesos actuales o saber quién los tiene, los datos oficiales de cada plaza, el material de Shineray, una persona que apruebe en uno o dos días y el presupuesto de anuncios." },
+  { pregunta: "¿Qué opción nos conviene?", respuesta: "La Opción 1, todo junto: cuesta menos que la de bloques, la campaña no se detiene y deja a IBS lista antes del lanzamiento nacional de Shineray." },
+];

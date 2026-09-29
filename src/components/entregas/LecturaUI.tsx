@@ -116,6 +116,7 @@ export function CityCard({
   rivales,
   contexto,
   oportunidad,
+  marca = "Isuzu",
   delay = 0,
 }: {
   ciudad: string;
@@ -125,6 +126,8 @@ export function CityCard({
   rivales: Rival[];
   contexto: string;
   oportunidad: string;
+  /** Marca del cliente para la etiqueta "[marca] hoy en Google". */
+  marca?: string;
   delay?: number;
 }) {
   return (
@@ -139,7 +142,7 @@ export function CityCard({
         <div className="space-y-5 p-6 sm:p-7">
           <div>
             <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.12em] text-allitron-navy">
-              Isuzu hoy en Google
+              {marca} hoy en Google
             </p>
             <p className="mt-1 font-body text-[1.08rem] leading-[1.65] text-[#101820]">{isuzu}</p>
             <p className="mt-2 font-body text-[1.02rem] font-medium leading-[1.6] text-[#B4531F]">
