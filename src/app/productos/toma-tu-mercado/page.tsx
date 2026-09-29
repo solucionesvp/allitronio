@@ -152,7 +152,7 @@ function PackageCard({ p, featured, onChoose, delay }: { p: TtmPackage; featured
       </ul>
 
       <p className="mt-6 font-body text-[0.74rem] text-[var(--tm-muted)]">
-        Pauta mínima recomendada: <strong className="text-[var(--tm-ink)]">{p.minAdSpend}</strong>, directo a la plataforma.
+        {p.adSpendIncluded}
       </p>
 
       <button
@@ -554,7 +554,7 @@ export default function TomaTuMercadoPage() {
           </div>
         </section>
 
-        {/* ── 8. Pauta aparte + impresos (claro) ─────────────────────────── */}
+        {/* ── 8. Pauta incluida + impresos (claro) ─────────────────────────── */}
         <section className="w-full bg-[var(--tm-bg)] px-8 py-24 lg:px-16 xl:px-24">
           <div className="mx-auto grid max-w-[1100px] gap-6 md:grid-cols-[0.8fr_1.2fr]">
             <motion.div {...reveal(0.06)} className="flex flex-col justify-center rounded-sm border border-[var(--tm-line)] bg-[var(--tm-card)] p-8">

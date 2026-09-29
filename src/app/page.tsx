@@ -1,23 +1,14 @@
-import ConnectionIntro from "@/components/sections/ConnectionIntro";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import Hero from "@/components/sections/Hero";
-import WorkMarquee from "@/components/sections/WorkMarquee";
-import Solutions from "@/components/sections/Solutions";
-import HubTeaser from "@/components/sections/HubTeaser";
+import type { Metadata } from "next";
+import HomePage from "@/components/home/HomePage";
+
+// Home rediseñado 29-sep-2026. Los componentes anteriores (Hero,
+// ConnectionIntro, WorkMarquee, Solutions, HubTeaser) quedan en
+// src/components/sections/ sin usarse, por si se retoma algo.
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
-  return (
-    <>
-      <ConnectionIntro />
-      <Navbar />
-      <main>
-        <Hero />
-        <WorkMarquee />
-        <Solutions />
-        <HubTeaser />
-      </main>
-      <Footer />
-    </>
-  );
+  return <HomePage />;
 }

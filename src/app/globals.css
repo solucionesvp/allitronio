@@ -343,3 +343,17 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge Chromium */
 }
+
+
+/* Entrada del hero sin esperar a JavaScript (home y /productos, 29-sep-2026):
+   el texto y la foto se ven desde el primer pintado; la animación es CSS. */
+@keyframes site-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.site-fade-up {
+  animation: site-fade-up 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-fade-up { animation: none; }
+}

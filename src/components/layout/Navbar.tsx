@@ -14,22 +14,18 @@ import { Menu, X, ChevronDown, ArrowUpRight } from "lucide-react";
 import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_LOGO } from "@/config/assets";
 import { waLink } from "@/config/contact";
-import { PRODUCT_ACCENTS, PRODUCT_NAMES, PRODUCT_ROUTES } from "@/config/productTheme";
+import { PORTFOLIO_AVAILABLE } from "@/data/portfolio";
 
-/** Las 4 landings reales — accesibles desde el menú en todas las páginas,
- * no solo desde el scroll del home. Cada una con su acento de producto. */
-const PRODUCT_LINKS = (
-  [
-    ["allitron-90", "Diagnóstico + roadmap de 90 días"],
-    ["local", "Por qué aparecer en Google antes que en redes"],
-    ["second-brain", "Tu memoria operativa, siempre lista"],
-    ["lazup", "Tu negocio ordenado dentro de WhatsApp"],
-  ] as const
-).map(([id, desc]) => ({
-  label: PRODUCT_NAMES[id],
-  href: PRODUCT_ROUTES[id],
-  accent: PRODUCT_ACCENTS[id],
-  desc,
+/** Menú de productos (29-sep-2026): solo los productos disponibles hoy,
+ * desde el portafolio (src/data/portfolio.ts). "Ver todos" lleva a /productos,
+ * donde también están los que vienen en camino. */
+// Regla (Lups, 29-sep-2026): el menú NO lleva a las landings de anuncios;
+// lleva a la presentación de cada producto dentro de /productos.
+const PRODUCT_LINKS = PORTFOLIO_AVAILABLE.map((p) => ({
+  label: p.name,
+  href: `/productos#${p.id}`,
+  accent: p.accent,
+  desc: p.menuLine,
 }));
 
 const NAV_LINKS = [
@@ -94,7 +90,7 @@ export default function Navbar() {
 
         {/* Nav links — desktop only */}
         <ul className="hidden items-center gap-10 md:flex" role="list">
-          {/* Productos — despliega las 4 landings reales */}
+          {/* Productos — disponibles hoy + liga al portafolio */}
           <li
             className="relative"
             onMouseEnter={() => setProductsOpen(true)}
@@ -147,11 +143,11 @@ export default function Navbar() {
                   ))}
 
                   <Link
-                    href="/#productos"
+                    href="/productos"
                     onClick={() => setProductsOpen(false)}
                     className={`mt-1 flex items-center gap-1.5 border-t ${CHROME_LINE} px-3 pb-1 pt-3 font-display text-[0.6rem] font-bold tracking-[0.18em] text-allitron-blue transition-colors hover:text-allitron-orange`}
                   >
-                    VER TODO
+                    VER TODOS LOS PRODUCTOS
                     <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
                   </Link>
                 </motion.div>
@@ -204,7 +200,7 @@ export default function Navbar() {
             transition={{ duration: 0.3, ease: EASE }}
             className={`border-t ${CHROME_LINE} bg-[var(--color-chrome-bg-solid)] px-8 pb-10 pt-6 backdrop-blur-xl md:hidden`}
           >
-            {/* Productos — las 4 landings, siempre visibles en móvil */}
+            {/* Productos — disponibles hoy, siempre visibles en móvil */}
             <span className={`mb-3 block font-display text-[0.5rem] font-bold tracking-[0.36em] ${MUTED}`}>
               PRODUCTOS
             </span>
@@ -236,6 +232,16 @@ export default function Navbar() {
                   </Link>
                 </motion.li>
               ))}
+              <li>
+                <Link
+                  href="/productos"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-1.5 py-3.5 font-display text-[0.62rem] font-bold tracking-[0.18em] text-allitron-blue"
+                >
+                  VER TODOS LOS PRODUCTOS
+                  <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
+                </Link>
+              </li>
             </ul>
 
             <ul className="flex flex-col gap-1" role="list">

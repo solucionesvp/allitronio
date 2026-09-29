@@ -7,7 +7,8 @@ const TITLE = "Domina Google — Que te encuentren en Google y te escriban por W
 const DESCRIPTION =
   "Web, Google Maps y WhatsApp conectados en 7 días hábiles. Un solo pago, sin mensualidad. Desde Tepic, Nayarit.";
 const URL_PATH = "/productos/domina-google/lanzamiento";
-const IMAGE = "/assets/products/local/lanzamiento/hero-desktop.webp";
+// Imagen al compartir: opengraph-image.jpg en esta misma carpeta
+// (JPG 1200×630 del mismo hero; WhatsApp no siempre muestra .webp).
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -20,13 +21,11 @@ export const metadata: Metadata = {
     siteName: "Allitron",
     title: TITLE,
     description: DESCRIPTION,
-    images: [{ url: IMAGE, width: 1920, height: 1288, alt: "Domina Google — Allitron" }],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: [IMAGE],
   },
 };
 

@@ -9,10 +9,13 @@ import { WHATSAPP_NUMBER, buildWhatsAppLink } from "@/config/contact";
 // la landing pasa a ser la fuente de verdad y la ficha su espejo.
 //
 // ÚNICA fuente de precio en el código: TTM_PACKAGES (abajo).
-// Estado 28-sep-2026: precios PROPUESTOS, pendientes de aprobación de Lups.
+// Estado 28-sep-2026: precios aprobados por Lups con PAUTA MÍNIMA INCLUIDA
+// (Allitron regala $1,000 MXN al mes de anuncios; el precio suma el resto de
+// la pauta mínima de los 3 meses). Si el cliente quiere más pauta, la paga él.
+// TTM_PRICES_APPROVED = true desde 29-sep-2026 (página indexable y en el menú).
 // Mientras TTM_PRICES_APPROVED sea false, la página no se indexa (layout.tsx).
 
-export const TTM_PRICES_APPROVED = false;
+export const TTM_PRICES_APPROVED = true;
 
 export const TTM_WHATSAPP_NUMBER = WHATSAPP_NUMBER;
 export { buildWhatsAppLink };
@@ -39,7 +42,8 @@ export interface TtmPackage {
   regularPrice: number;
   /** true = "desde" (se cotiza con tabulador). */
   from: boolean;
-  minAdSpend: string;
+  /** Pauta incluida en el precio (texto para la tarjeta del paquete). */
+  adSpendIncluded: string;
   highlights: readonly string[];
 }
 
@@ -48,11 +52,11 @@ export const TTM_PACKAGES: readonly TtmPackage[] = [
     id: "basico",
     label: "Básico",
     forWho: "Emprendedor o negocio local: una ubicación, un producto o servicio estrella, una ciudad.",
-    founderPrice: 11900,
+    founderPrice: 17900,
     founderSlots: 5,
-    regularPrice: 14900,
+    regularPrice: 20900,
     from: false,
-    minAdSpend: "$3,000 MXN al mes",
+    adSpendIncluded: "Incluye $3,000 MXN al mes en anuncios durante los 3 meses — $1,000 de esos van de regalo.",
     highlights: [
       "Diagnóstico del problema real",
       "Estudio de 3 a 5 competidores directos",
@@ -67,11 +71,11 @@ export const TTM_PACKAGES: readonly TtmPackage[] = [
     id: "profesional",
     label: "Profesional",
     forWho: "PyME establecida: hasta dos ubicaciones o dos líneas de venta, hasta dos ciudades.",
-    founderPrice: 24900,
+    founderPrice: 45900,
     founderSlots: 5,
-    regularPrice: 29900,
+    regularPrice: 50900,
     from: false,
-    minAdSpend: "$8,000 MXN al mes",
+    adSpendIncluded: "Incluye $8,000 MXN al mes en anuncios durante los 3 meses — $1,000 de esos van de regalo.",
     highlights: [
       "Todo lo del Básico, más:",
       "Estudio de hasta 8 competidores y mapa de quién domina tu mercado",
@@ -90,7 +94,7 @@ export const TTM_PACKAGES: readonly TtmPackage[] = [
     founderSlots: 0,
     regularPrice: 49000,
     from: true,
-    minAdSpend: "$20,000 MXN al mes",
+    adSpendIncluded: "La inversión en anuncios se cotiza en tu plan de medios, y también te regalamos $1,000 MXN al mes.",
     highlights: [
       "Todo lo del Profesional, más:",
       "Campañas por plaza, sucursal o segmento",
@@ -122,7 +126,7 @@ export function founderRemaining(p: TtmPackage): number {
 export const TTM_PAYMENT_TERMS =
   "Pagas en tres partes ligadas al avance: 40% al firmar, 30% cuando apruebas la estrategia y 30% al día 30 de la campaña.";
 
-export const TTM_PRICE_NOTE = "Precios por ciclo de 90 días, en MXN. Más IVA si requieres factura. La pauta va aparte.";
+export const TTM_PRICE_NOTE = "Precios por ciclo de 90 días, en MXN, con la inversión mínima en anuncios ya incluida. Más IVA si requieres factura. Si quieres invertir más en anuncios, la diferencia la pagas tú.";
 
 // ── Qué incluye cada paquete (explorador navegable) ──────────────────────────
 // Valores por paquete: [Básico, Profesional, Empresarial]. "✓" = incluido,
@@ -176,7 +180,7 @@ export const TTM_INCLUDES: readonly TtmIncludeGroup[] = [
     icon: "chart",
     intro: "Lo que se lanza, dónde se lanza y cómo sabes si está funcionando.",
     items: [
-      { item: "Plataformas", note: "Dónde corren tus anuncios. La inversión en anuncios la pagas tú, directo a la plataforma.", values: ["Facebook e Instagram", "Meta + Google", "Según plan"] },
+      { item: "Plataformas", note: "Dónde corren tus anuncios. La inversión mínima de tu paquete ya va incluida en el precio.", values: ["Facebook e Instagram", "Meta + Google", "Según plan"] },
       { item: "Landing de campaña y remarketing", note: "Una página hecha para convertir esta campaña y anuncios para quien ya te visitó.", values: ["—", "✓", "✓"] },
       { item: "Guion de respuesta para tu WhatsApp", note: "Qué contestar y en qué orden para que un prospecto llegue a comprar. Tú o tu equipo atienden.", values: ["✓", "✓", "✓"] },
       { item: "Reportes", note: "Prospectos, costo por prospecto y ventas que tú nos reportas, con decisiones claras.", values: ["Mensual", "Quincenal", "Quincenal + junta"] },
@@ -241,29 +245,29 @@ export const TTM_PRINT = {
   note: "El diseño va incluido según tu paquete. La impresión se cotiza aparte y se paga por adelantado.",
 } as const;
 
-// ── Pauta aparte ─────────────────────────────────────────────────────────────
+// ── Pauta incluida ───────────────────────────────────────────────────────────
 export const TTM_ADSPEND = {
-  title: "Tu dinero de anuncios es tuyo.",
-  body: "La pauta la pagas directo a Meta o Google con tu tarjeta, en tu propia cuenta. Ves cuánto se gasta y nadie se queda con un porcentaje escondido. Nuestro honorario es aparte y fijo.",
+  title: "Los anuncios ya van incluidos. Y $1,000 al mes corren por nuestra cuenta.",
+  body: "Tu precio ya trae la inversión mínima en anuncios de tu paquete durante los 90 días, y de esa inversión te regalamos $1,000 al mes. Sin sorpresas ni un gasto extra cada mes. Los anuncios corren en la cuenta de tu negocio, así que el historial es tuyo, y en cada reporte ves cuánto se invirtió de verdad. Si quieres invertir más, la diferencia la pagas tú.",
 } as const;
 
 // ── Requisitos / no es para ti / no incluye ─────────────────────────────────
 export const TTM_REQUIREMENTS = [
   "Un producto o servicio que ya vendes, con precio definido",
-  "Presupuesto de anuncios mínimo según tu paquete",
+  "Una oferta con margen para invertir en conseguir clientes",
   "Alguien que conteste WhatsApp rápido",
   "Disposición para mostrar tu negocio real (fotos o video)",
   "Anotar qué prospectos se vuelven clientes",
 ] as const;
 
 export const TTM_NOT_FOR = [
-  "Esperas vender sin invertir en anuncios",
+  "Esperas vender sin cambiar nada de cómo atiendes hoy",
   "Quieres solo posts bonitos para Instagram",
   "Esperas que nosotros atendamos tu WhatsApp y cerremos tus ventas",
 ] as const;
 
 export const TTM_EXCLUDES: readonly { title: string; instead: string }[] = [
-  { title: "Presupuesto de anuncios", instead: "Lo pagas directo a Meta o Google, en tu cuenta. Te decimos cuánto se necesita según tu paquete." },
+  { title: "Anuncios por encima del mínimo de tu paquete", instead: "La inversión mínima ya va incluida. Si quieres invertir más, la diferencia la pagas tú." },
   { title: "Costo de impresión", instead: "Cotizamos con imprentas de confianza y se paga por adelantado. Nosotros diseñamos y revisamos la calidad." },
   { title: "Manejo de redes o calendario de publicaciones", instead: "No es este servicio. Aquí se construye una campaña con objetivo de ventas." },
   { title: "Atención de mensajes y cierre de ventas", instead: "Tú o tu equipo contestan. Te dejamos el guion de respuesta para que cierren mejor." },
@@ -274,7 +278,7 @@ export const TTM_EXCLUDES: readonly { title: string; instead: string }[] = [
 // ── Garantía ─────────────────────────────────────────────────────────────────
 export const TTM_GUARANTEE = {
   yes: `Investigación entregada, estrategia documentada, campaña lanzada en ${TTM_LAUNCH_TIME} desde que recibimos tu información completa, medición funcionando, optimización y reportes durante los ${TTM_CYCLE}.`,
-  no: "Ventas, un número exacto de prospectos o un costo fijo por prospecto. Tampoco resultados si la pauta es menor a la mínima o si tu negocio tarda en contestar. Nadie honesto puede prometerte eso.",
+  no: "Ventas, un número exacto de prospectos o un costo fijo por prospecto. Tampoco resultados si tu negocio tarda en contestar o cambia su oferta a media campaña. Nadie honesto puede prometerte eso.",
 } as const;
 
 // ── Quién lo hace (equipo) ────────────────────────────────────────────────────
@@ -340,8 +344,8 @@ export const TTM_FAQ: readonly { q: string; a: string }[] = [
     a: "La primera semana se aprende, el primer mes se ajusta y el segundo y tercero se aprovecha lo que funciona. Una campaña de 30 días se apaga justo cuando empieza a tener datos.",
   },
   {
-    q: "¿Cuánto tengo que invertir en anuncios?",
-    a: "Desde $3,000 MXN al mes en el paquete Básico. El monto ideal lo definimos en el diagnóstico con tus números. Lo pagas directo a la plataforma.",
+    q: "¿Tengo que pagar los anuncios aparte?",
+    a: "No. La inversión mínima en anuncios ya va incluida en tu precio: $3,000 al mes en el Básico y $8,000 al mes en el Profesional, y de eso $1,000 al mes te los regalamos. Si quieres invertir más, la diferencia la pagas tú.",
   },
   {
     q: "¿Y si no tengo página web?",

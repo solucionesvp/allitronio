@@ -12,7 +12,7 @@ import { BRAND_LOGO, BRAND_ALLI } from "@/config/assets";
 import { waLink } from "@/config/contact";
 
 const FOOTER_LINKS = [
-  { label: "Productos", href: "/#productos" },
+  { label: "Productos", href: "/productos" },
   { label: "Hub", href: "/hub" },
   { label: "Aviso de Privacidad", href: "/aviso-de-privacidad" },
 ] as const;

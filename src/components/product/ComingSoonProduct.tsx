@@ -63,7 +63,7 @@ export default function ComingSoonProduct({
             AVÍSAME / QUIERO SABER MÁS <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
           </a>
           <Link
-            href="/#productos"
+            href="/productos"
             className={`inline-flex items-center gap-1.5 font-body text-[0.82rem] ${MUTED} transition-colors hover:text-[var(--color-chrome-ink)]`}
           >
             Ver los demás productos <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
