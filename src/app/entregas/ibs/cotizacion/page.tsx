@@ -9,21 +9,19 @@ import { buildWhatsAppLink, WHATSAPP_DISPLAY } from "@/config/contact";
 import { OptionalImage } from "@/components/media/OptionalAsset";
 import { BRAND_ALLI } from "@/config/assets";
 import { Reveal, SectionShell } from "@/components/entregas/ui";
-import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
+import { BigText, SectionTitle, IconPoint, BigPageNav } from "@/components/entregas/LecturaUI";
 
 // ── Números de la cotización — único lugar donde se editan ──────────────
-// Fuente y lógica: vault → 05 Clientes/Shineray/IBS/04 IBS — Cotización.
-// Precio "primeros clientes Allitron" (mismo criterio que Isuzu), validado por Lups.
-// Lista tachada = Domina Google ×2 ($14,999) + web multiplaza ($35,000)
-//   + tablero de prospectos ($18,000) + Toma tu Mercado Empresarial ×2 ciclos ($49,000).
-const LISTA_TOTAL = 181000;
-const OP1_MENSUAL = 16500;
-const OP1_MESES = 6;
-const BLOQUES = [
-  { fase: "Fase 0", nombre: "Bloque 1 · Nombre, llaves y Google", cuando: "Semanas 1 y 2", que: "Cuentas a nombre de IBS, Shineray Tepic y Puerto Vallarta en Google, redes homologadas.", pago: 15000, forma: "Pago único" },
-  { fase: "Fase 0", nombre: "Bloque 2 · Web y tablero", cuando: "Semanas 3 y 4", que: "La web oficial con una página por plaza y el tablero de prospectos.", pago: 26000, forma: "Pago único" },
-  { fase: "Fase 0", nombre: "Bloque 3 · Primera temporada de venta", cuando: "Noviembre, diciembre y enero", que: "Anuncios por plaza, contenido con Ricardo y las unidades, pruebas de manejo y seguimiento.", pago: 14000, meses: 3, forma: "Al mes" },
-  { fase: "Fase 1", nombre: "Bloque 4 · Listos para el lanzamiento", cuando: "Febrero y marzo", que: "Casos reales, opiniones, más de lo que vende y reporte cada mes.", pago: 14000, meses: 2, forma: "Al mes" },
+// Fuente: vault → 05 Clientes/Shineray/IBS/04 IBS — Cotización (v2, 1-oct-2026).
+// Precios dados por Lups/Alejandro. Nunca llamar "manejo de redes" al concepto 1.
+const MESES = 6;
+const OPERACION_MES = 8000; // Operación digital y campaña · Tepic y Vallarta
+const IDENTIDAD_TOTAL = 30000; // Identidad corporativa
+const IDENTIDAD_MES = 5000; // en 6 pagos
+const CONCEPTOS = [
+  { nombre: "Operación digital y campaña comercial", detalle: "Tepic y Puerto Vallarta: web oficial, fichas de Google, campaña por plaza y contenido de campaña con las unidades.", mes: OPERACION_MES, total: OPERACION_MES * MESES },
+  { nombre: "Identidad corporativa del grupo", detalle: "Nombre, logotipo, colores, aplicaciones y manual de marca e identidad.", mes: IDENTIDAD_MES, total: IDENTIDAD_TOTAL },
+  { nombre: "Arquitectura digital", detalle: "Correos institucionales, dominios, cuentas a nombre de la empresa y soporte de TI durante los 6 meses.", mes: 0, total: 0 },
 ];
 const PAUTA_PLAZA = "$4,000 a $5,000";
 
@@ -36,105 +34,63 @@ const WA_DUDA = buildWhatsAppLink(
 );
 
 const fmt = (n: number) => `$${n.toLocaleString("es-MX")}`;
-const OP1_TOTAL = OP1_MENSUAL * OP1_MESES;
-const OP2_TOTAL = BLOQUES.reduce((s, b) => s + b.pago * (b.meses ?? 1), 0);
+const TOTAL = CONCEPTOS.reduce((t, c) => t + c.total, 0);
+const MES_TOTAL = OPERACION_MES + IDENTIDAD_MES;
 
 export default function CotizacionIbsPage() {
   return (
     <main className="overflow-x-clip bg-allitron-base">
 
-      <PropuestaTop pasos={PASOS_IBS} paso={6} titulo=<>Cuánto cuesta.</> escena="cierre" mensaje="Dos formas de trabajar juntos. Al final puede preguntarme lo que quiera." />
+      <PropuestaTop pasos={PASOS_IBS} paso={6} titulo=<>Cuánto cuesta.</> escena="cierre" mensaje="Seis meses de trabajo, en un pago mensual. Al final puede preguntarme lo que quiera." />
 
-      {/* Precio de primeros clientes */}
+      {/* La propuesta */}
       <SectionShell className="bg-[var(--color-light)]">
-        <SectionTitle kicker="Precio de primeros clientes Allitron">Un precio justo para empezar juntos.</SectionTitle>
-        <Reveal>
-          <div className="neu flex flex-col gap-2 rounded-[22px] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-            <p className="font-body text-[1.1rem] text-secondary">Valor normal de todo el trabajo, 6 meses:</p>
-            <p className="font-display text-[1.8rem] font-black text-secondary/70 line-through decoration-allitron-orange decoration-[3px]">{fmt(LISTA_TOTAL)}</p>
-          </div>
-        </Reveal>
-        <BigText className="mt-6">
-          IBS es de los primeros clientes de Allitron. Por eso le damos un precio especial, que no se repetirá igual más adelante.
-        </BigText>
-      </SectionShell>
-
-      {/* Opción 1 */}
-      <SectionShell className="bg-[var(--color-light)]">
+        <SectionTitle kicker="Seis meses de trabajo">Una sola propuesta, clara.</SectionTitle>
         <Reveal>
           <div className="overflow-hidden rounded-[28px] shadow-[0_24px_60px_rgba(16,24,32,0.12)]">
             <div className="flex flex-wrap items-center justify-between gap-3 bg-allitron-blue px-7 py-5 sm:px-10">
               <div className="flex items-center gap-3">
                 <Wallet size={30} className="shrink-0 text-white" />
-                <p className="font-display text-[1.4rem] font-black text-white sm:text-[1.6rem]">Opción 1 · Todo junto</p>
+                <p className="font-display text-[1.4rem] font-black text-white sm:text-[1.6rem]">Octubre a marzo</p>
               </div>
               <span className="flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-1.5 font-display text-[0.85rem] font-bold text-allitron-navy">
-                <ThumbsUp size={16} /> Recomendada
+                <Layers size={16} /> Tepic y Puerto Vallarta
               </span>
             </div>
             <div className="bg-white p-7 sm:p-10">
-              <p className="font-display text-[3rem] font-black leading-none text-[#101820] sm:text-[3.6rem]">
-                {fmt(OP1_MENSUAL)}
-                <span className="ml-2 font-body text-[1.2rem] font-normal text-secondary">al mes</span>
-              </p>
-              <p className="mt-3 font-body text-[1.15rem] text-secondary">
-                Durante {OP1_MESES} meses, de octubre a marzo. Total: <strong className="text-[#101820]">{fmt(OP1_TOTAL)}</strong>
-              </p>
-              <ul className="mt-6 space-y-3">
-                {[
-                  "Incluye todo: las dos fases y las dos plazas, Tepic y Puerto Vallarta.",
-                  `Al firmar se pagan los dos primeros meses (${fmt(OP1_MENSUAL * 2)}); después, un pago al inicio de cada mes.`,
-                  "La campaña no se detiene y llegan listos al lanzamiento nacional de Shineray.",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-3 font-body text-[1.1rem] leading-[1.6] text-[#101820]">
-                    <span className="mt-[0.6em] h-2.5 w-2.5 shrink-0 rounded-full bg-allitron-blue" />
-                    {t}
-                  </li>
+              <div className="space-y-5">
+                {CONCEPTOS.map((c) => (
+                  <div key={c.nombre} className="flex flex-col gap-2 border-b border-[#101820]/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="font-display text-[1.2rem] font-black text-[#101820]">{c.nombre}</p>
+                      <p className="mt-1 font-body text-[1.02rem] leading-[1.6] text-secondary">{c.detalle}</p>
+                    </div>
+                    <div className="shrink-0 sm:text-right">
+                      {c.total > 0 ? (
+                        <>
+                          <p className="font-display text-[1.5rem] font-black text-[#101820]">{fmt(c.total)}</p>
+                          <p className="font-body text-[0.95rem] text-secondary">{fmt(c.mes)} al mes × {MESES}</p>
+                        </>
+                      ) : (
+                        <p className="font-display text-[1.2rem] font-black text-allitron-navy">Incluida</p>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
+              <div className="mt-6 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <p className="font-body text-[1.15rem] text-secondary">Total por 6 meses</p>
+                <p className="font-display text-[2.6rem] font-black leading-none text-[#101820] sm:text-[3rem]">{fmt(TOTAL)}</p>
+              </div>
+              <p className="mt-4 rounded-[16px] bg-allitron-blue/10 p-4 font-body text-[1.1rem] leading-[1.6] text-[#101820]">
+                Son <strong>{fmt(MES_TOTAL)} al mes</strong> durante {MESES} meses, pagados al inicio de cada mes.
+              </p>
             </div>
           </div>
         </Reveal>
-      </SectionShell>
-
-      {/* Opción 2 */}
-      <SectionShell className="bg-[var(--color-light)]">
-        <Reveal>
-          <div className="mb-6 flex items-center gap-3">
-            <Layers size={30} className="text-allitron-navy" />
-            <p className="font-display text-[1.4rem] font-black text-[#101820] sm:text-[1.6rem]">Opción 2 · Por bloques</p>
-          </div>
-        </Reveal>
-        <BigText className="mb-8">Se paga bloque por bloque. Al terminar cada uno, usted decide si seguimos.</BigText>
-        <div className="grid gap-4">
-          {BLOQUES.map((b, i) => (
-            <Reveal key={b.nombre} delay={0.05 * i}>
-              <div className="neu flex flex-col gap-4 rounded-[22px] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
-                <div className="min-w-0">
-                  <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.14em] text-allitron-navy">
-                    {b.fase} · {b.cuando}
-                  </p>
-                  <h3 className="mt-1 font-display text-[1.25rem] font-black text-[#101820]">{b.nombre}</h3>
-                  <p className="mt-1 font-body text-[1.05rem] leading-[1.6] text-secondary">{b.que}</p>
-                </div>
-                <div className="shrink-0 text-left sm:text-right">
-                  <p className="font-display text-[1.8rem] font-black text-[#101820]">{fmt(b.pago)}</p>
-                  <p className="font-body text-[0.98rem] text-secondary">
-                    {b.forma}
-                    {b.meses ? ` · ${b.meses} meses = ${fmt(b.pago * b.meses)}` : ""}
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal>
-          <p className="mt-6 text-right font-body text-[1.15rem] text-secondary">
-            Total de los 4 bloques: <strong className="font-display text-[1.4rem] text-[#101820]">{fmt(OP2_TOTAL)}</strong>
-          </p>
-        </Reveal>
-        <div className="mt-8">
-          <Highlight>La Opción 1 cuesta {fmt(OP2_TOTAL - OP1_TOTAL)} menos que la Opción 2, y la campaña no se detiene entre bloques.</Highlight>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <IconPoint icon={ThumbsUp} title="No es manejo de redes" text="No cobramos por publicar. Cobramos por una campaña con objetivo comercial: que los encuentren, les escriban y se suban a la unidad." />
+          <IconPoint icon={Layers} tone="navy" title="Cuando entre Guadalajara" text="Se suma la tercera plaza y se ajusta la tarifa mensual de operación. La identidad ya estará lista para usarse ahí." delay={0.05} />
         </div>
       </SectionShell>
 
@@ -164,10 +120,11 @@ export default function CotizacionIbsPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           {[
             "El dinero de los anuncios.",
-            "La plaza de Guadalajara: se suma como extensión cuando se confirme la ubicación.",
-            "El costo del dominio y de los correos, que se contratan a nombre de IBS.",
+            "La plaza de Guadalajara: se suma cuando se confirme la ubicación y se ajusta la tarifa.",
+            "El costo anual del dominio y de las licencias de correo, que se contratan a nombre de la empresa.",
+            "El registro de la marca ante el IMPI (sus derechos oficiales); nosotros hacemos la búsqueda previa.",
             "Impresión de lonas, volantes o rotulados (diseñamos; la impresión se cotiza aparte y el rotulado requiere visto bueno de planta).",
-            "Conectar con sistemas de Shineray México o su tienda en Mercado Libre (se cotiza cuando planta lo defina).",
+            "Sistemas de ventas o CRM, y conexión con sistemas de Shineray México (se cotizan aparte si se necesitan).",
             "Atender los mensajes de los clientes o cerrar ventas: eso lo hacen sus asesores.",
           ].map((t, i) => (
             <Reveal key={t} delay={0.04 * i}>
@@ -179,7 +136,7 @@ export default function CotizacionIbsPage() {
           ))}
         </div>
         <BigText className="mt-8">
-          Precios en pesos. Si requiere factura, se agrega el IVA; la razón social a la que se factura la definimos juntos al firmar. Trabajamos con contrato firmado, y todas las cuentas quedan a nombre de IBS.
+          Precios en pesos. Si requiere factura, se agrega el IVA; la razón social a la que se factura la definimos juntos al firmar. Trabajamos con contrato firmado, y todas las cuentas y la marca quedan a nombre de la empresa.
         </BigText>
       </SectionShell>
 
@@ -196,7 +153,7 @@ export default function CotizacionIbsPage() {
               Gracias por leer hasta aquí.
             </p>
             <p className="max-w-[600px] font-body text-[1.15rem] leading-[1.8] text-secondary">
-              Díganos qué opción prefiere y preparamos el contrato. Si firmamos antes del 9 de octubre, los anuncios estarán encendidos la semana del 9 de noviembre.
+              Si está de acuerdo, preparamos el contrato. Si firmamos antes del 9 de octubre, los anuncios estarán encendidos la semana del 9 de noviembre.
             </p>
             <div className="mt-2 flex w-full max-w-[560px] flex-col gap-4">
               <a

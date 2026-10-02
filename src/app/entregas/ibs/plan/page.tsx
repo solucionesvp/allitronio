@@ -7,7 +7,10 @@ import {
   MapPin,
   Globe,
   Megaphone,
-  LayoutDashboard,
+  Server,
+  Eye,
+  MessageCircle,
+  Timer,
   UserRound,
   Truck,
   TrendingUp,
@@ -24,19 +27,19 @@ import { Reveal, SectionShell } from "@/components/entregas/ui";
 import { BigText, SectionTitle, IconPoint, Highlight, BigPageNav } from "@/components/entregas/LecturaUI";
 
 const LINEA = [
-  { cuando: "Octubre · inicio de noviembre", que: "Cimientos", texto: "Nombre y cuentas en orden, Google, web, tablero y campaña lista.", tone: "bg-allitron-navy" },
-  { cuando: "Noviembre · Diciembre · Enero", que: "Primera temporada de venta", texto: "Anuncios por plaza, pruebas de manejo y cada prospecto registrado.", tone: "bg-allitron-blue" },
+  { cuando: "Octubre · inicio de noviembre", que: "Cimientos", texto: "Nombre del grupo, cuentas y correos en orden, Google, web y campaña lista.", tone: "bg-allitron-navy" },
+  { cuando: "Noviembre · Diciembre · Enero", que: "Primera temporada de venta", texto: "Anuncios por plaza, pruebas de manejo e identidad del grupo terminada.", tone: "bg-allitron-blue" },
   { cuando: "Febrero · Marzo", que: "Listos para el lanzamiento", texto: "Casos reales, opiniones y todo alineado al lanzamiento nacional de Shineray.", tone: "bg-allitron-orange" },
 ];
 
 const FASE0 = [
-  { icon: KeyRound, title: "Un solo nombre y las llaves", text: "Definir con ustedes el nombre de la agencia y usarlo igual en todos lados, como pide Shineray: “Shineray, distribuidor y plaza”. Todas las cuentas quedan a nombre de IBS." },
+  { icon: KeyRound, title: "La marca del grupo", text: "Crear la identidad corporativa (nombre, logo, aplicaciones y manual) y usarla igual en todos lados, como pide Shineray: “Shineray, distribuidor y plaza”. Lo explicamos en la parte 4." },
+  { icon: Server, title: "Correos, dominios y soporte", text: "Correos institucionales con una sola nomenclatura, dominio del grupo, cuentas a nombre de la empresa y soporte de TI durante los 6 meses para lo digital del grupo." },
   { icon: MapPin, title: "Aparecer en Google", text: "Con nuestro servicio Domina Google damos de alta Shineray Tepic y Shineray Puerto Vallarta: dirección, teléfono, horario, fotos reales, botón de WhatsApp y respuesta a cada opinión." },
   { icon: Globe, title: "La web oficial de la agencia", text: "Con dominio de Shineray, como pide planta. Modelos, servicio, promociones, flotillas y nosotros, una página por plaza, aviso de privacidad y el WhatsApp correcto." },
   { icon: BadgeCheck, title: "Redes como pide Shineray", text: "Facebook, Instagram, TikTok y WhatsApp Business con el logo blanco sobre rojo, el nombre correcto, datos de contacto, catálogo y los legales en cada oferta." },
   { icon: Megaphone, title: "Campaña para quien trabaja", text: "Anuncios por plaza para quien vive de mover carga: reparto, construcción, abarrotes, agua, carpintería, instalaciones, hoteles y servicios. El objetivo es una cita o una prueba de manejo." },
-  { icon: LayoutDashboard, title: "Un solo tablero de prospectos", text: "Cada mensaje de Google, la web, Facebook o Ricardo llega al mismo lugar y avisa al asesor. Se ve si se atendió, si hubo prueba de manejo, si el crédito va en trámite, si se vendió y, si no, por qué." },
-  { icon: UserRound, title: "Ricardo al frente", text: "Lo ponemos en los videos de la marca, como sugiere Shineray: asesores explicando cada unidad. Su perfil sigue siendo suyo y sus prospectos entran al tablero para darles seguimiento." },
+    { icon: UserRound, title: "Ricardo al frente", text: "Lo ponemos en los videos de la marca, como sugiere Shineray: asesores explicando cada unidad. Su perfil sigue siendo suyo y la campaña le lleva más prospectos." },
   { icon: Truck, title: "Que se suban a la unidad", text: "Pruebas de manejo y de carga, demostraciones y unidades en exhibición en lugares con mucha gente, si ustedes lo autorizan. La confianza en una marca nueva se gana en persona." },
 ];
 
@@ -45,8 +48,8 @@ const ENTREGABLES0 = [
   "Redes y WhatsApp con el nombre, el logo y los datos que pide Shineray.",
   "Web oficial con una página por plaza y botón directo a WhatsApp.",
   "Campaña de temporada corriendo y medida, plaza por plaza.",
-  "Tablero de prospectos funcionando para todo el equipo de ventas.",
-  "Primer reporte: cuántos prospectos, cuántas pruebas de manejo, cuántas ventas.",
+  "Nombre, logo y manual de marca del grupo, con correos institucionales funcionando.",
+  "Reporte mensual: cuántos prospectos, cuántas pruebas de manejo, cuántas ventas.",
 ];
 
 const FASE1 = [
@@ -56,6 +59,14 @@ const FASE1 = [
   { icon: Target, title: "Listos para el lanzamiento nacional", text: "Cuando Shineray active su campaña en todo el país, los interesados de la región llegan a la agencia correcta y a un asesor que responde." },
   { icon: Building2, title: "Guadalajara, cuando esté confirmada", text: "Su ficha, su página y su campaña se suman al mismo sistema, sin empezar de cero." },
   { icon: CalendarDays, title: "Un reporte cada mes", text: "En una hoja: inversión, prospectos, pruebas de manejo, créditos y ventas por plaza. Útil también para los reportes que pide Shineray." },
+];
+
+const MEDIMOS = [
+  { icon: Eye, title: "Que los encuentren", text: "Vistas, llamadas y rutas desde Google Maps en cada plaza, y visitas a la web." },
+  { icon: MessageCircle, title: "Que les escriban", text: "Mensajes de WhatsApp y formularios, por plaza y por modelo." },
+  { icon: Timer, title: "Que se responda rápido", text: "Cuánto tarda el equipo en contestar en horario de trabajo." },
+  { icon: Truck, title: "Que se suban a la unidad", text: "Citas, pruebas de manejo y demostraciones." },
+  { icon: BadgeCheck, title: "Que se venda", text: "Créditos en trámite, unidades vendidas y, si no, por qué no se cerró." },
 ];
 
 const NECESITAMOS = [
@@ -139,6 +150,19 @@ export default function PlanIbsPage() {
         </div>
       </SectionShell>
 
+      {/* Cómo medimos (antes "La meta") */}
+      <SectionShell className="bg-[var(--color-light)]">
+        <SectionTitle kicker="Cómo lo vamos a medir">Cinco números, cada mes, por plaza.</SectionTitle>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {MEDIMOS.map((m, i) => (
+            <IconPoint key={m.title} icon={m.icon} title={m.title} text={m.text} tone={i === MEDIMOS.length - 1 ? "orange" : "blue"} delay={0.04 * i} />
+          ))}
+        </div>
+        <div className="mt-10">
+          <Highlight>Meta de trabajo: que cada plaza tenga los prospectos y pruebas de manejo para sostener por lo menos el ritmo que Shineray espera de un punto de venta: 4 a 8 unidades al mes. Es una meta, no una promesa.</Highlight>
+        </div>
+      </SectionShell>
+
       {/* Reglas de Shineray */}
       <SectionShell className="bg-[var(--color-light)]">
         <SectionTitle kicker="Siempre dentro de las reglas">Lo que Shineray pide, lo cuidamos nosotros.</SectionTitle>
@@ -169,7 +193,7 @@ export default function PlanIbsPage() {
       </SectionShell>
 
       <SectionShell className="bg-[var(--color-light)] !py-10">
-        <BigPageNav backHref="/entregas/ibs" nextHref="/entregas/ibs/meta" nextLabel="Siguiente: A dónde queremos llegar" />
+        <BigPageNav backHref="/entregas/ibs" nextHref="/entregas/ibs/marca" nextLabel="Siguiente: La marca del grupo" />
       </SectionShell>
 
       <footer className="border-t border-white/[0.06] bg-allitron-base px-6 py-12 text-center sm:px-10">

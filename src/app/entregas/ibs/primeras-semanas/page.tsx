@@ -16,7 +16,7 @@ const SEMANAS = [
     puntos: [
       "Reunión de arranque con usted, Ricardo y la persona que aprobará los cambios.",
       "Lista de todas las cuentas: quién es dueño y quién tiene la contraseña.",
-      "Definimos juntos el nombre de la agencia y el dominio, según los lineamientos de Shineray.",
+      "Ustedes eligen entre los tres nombres; revisamos que esté libre en el IMPI y en dominios.",
     ],
   },
   {
@@ -27,7 +27,7 @@ const SEMANAS = [
     puntos: [
       "Alta de Shineray Tepic y Shineray Puerto Vallarta en Google Maps.",
       "Facebook, Instagram, TikTok y WhatsApp con el nombre, el logo y los datos correctos.",
-      "Medimos el punto de partida: así sabremos cuánto crecemos.",
+      "Dominio y correos institucionales del grupo funcionando.",
     ],
   },
   {
@@ -37,7 +37,7 @@ const SEMANAS = [
     titulo: "Construcción",
     puntos: [
       "La web oficial, con una página para cada plaza.",
-      "El tablero donde llegan todos los prospectos.",
+      "Primeras propuestas de logo del grupo (dos caminos).",
       "Fotos y video reales en Tepic, con Ricardo y las unidades trabajando.",
     ],
   },
@@ -48,7 +48,7 @@ const SEMANAS = [
     titulo: "Pruebas",
     puntos: [
       "Probamos todo como si fuéramos un cliente, en las dos plazas.",
-      "Una hora de capacitación para los asesores en el tablero.",
+      "Logo aprobado y primeras aplicaciones: perfiles, firma de correo y tarjetas.",
       "Usted aprueba anuncios y web antes de salir.",
     ],
   },
@@ -71,7 +71,7 @@ const SEMANAS = [
     puntos: [
       "Apagamos lo que no trae buenos prospectos y subimos lo que sí.",
       "Revisamos qué tan rápido se responde en cada plaza.",
-      "Le entregamos el primer reporte, en una sola hoja.",
+      "Le entregamos el primer reporte, en una sola hoja. El manual de marca completo se entrega en diciembre.",
     ],
   },
 ];
@@ -129,7 +129,7 @@ export default function PrimerasSemanasIbsPage() {
             <div>
               <p className="font-display text-[1.3rem] font-black text-white">Para cumplir estas fechas necesitamos de su lado:</p>
               <p className="mt-3 font-body text-[1.1rem] leading-[1.75] text-white/90">
-                Las contraseñas o saber quién las tiene, los datos oficiales de cada plaza, el material de Shineray México, una persona que apruebe en uno o dos días y el dinero de anuncios listo antes del 9 de noviembre.
+                Elegir el nombre en la primera semana, las contraseñas o saber quién las tiene, los datos oficiales de cada plaza, el material de Shineray México, una persona que apruebe en uno o dos días y el dinero de anuncios listo antes del 9 de noviembre.
               </p>
             </div>
           </div>

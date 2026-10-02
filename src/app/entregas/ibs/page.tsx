@@ -19,8 +19,8 @@ export default function HubIbsPage() {
     <main className="relative overflow-x-clip bg-[var(--color-light)]">
       <PropuestaPortada
         pasos={PASOS_IBS}
-        para="Propuesta para IBS · Shineray Tepic y Puerto Vallarta"
-        titulo=<>Que el cliente los encuentre. <br /> Y que nadie se pierda en el camino.</>
+        para="Propuesta para el grupo IBS · Tepic, Puerto Vallarta y Guadalajara"
+        titulo=<>No ser “el Shineray de Tepic”. <br /> Ser el grupo de referencia.</>
         mensaje="Buen día, Ingeniero, soy Alli. Son seis partes cortas: empiece por la carta y, al terminar cada una, le llevo a la siguiente."
         empezar="Empezar por la carta"
       />
@@ -31,7 +31,7 @@ export default function HubIbsPage() {
           <BentoTile
             icon={ICONS_CONTENIDO.documento}
             title="1 · Una carta para usted"
-            subtitle="Lo que ya lograron, lo que encontramos y por qué ahora."
+            subtitle="Lo que ya lograron, lo que encontramos y por qué ahora es el momento de crear marca."
             size="protagonist"
             kind="documento"
             href={`${B}/carta`}
@@ -54,10 +54,10 @@ export default function HubIbsPage() {
           />
           <BentoTile
             icon={ICONS_CONTENIDO.link}
-            title="4 · A dónde queremos llegar"
-            subtitle="Qué vamos a medir cada mes y la referencia que da la propia Shineray."
+            title="4 · La marca del grupo"
+            subtitle="Tres nombres para que ustedes elijan, qué significan y cómo se verían."
             kind="documento"
-            href={`${B}/meta`}
+            href={`${B}/marca`}
             delay={0.15}
           />
           <BentoTile
@@ -71,7 +71,7 @@ export default function HubIbsPage() {
           <BentoTile
             icon={ICONS_CONTENIDO.pdf}
             title="6 · Cuánto cuesta"
-            subtitle="Dos formas de trabajar juntos: todo junto o por bloques."
+            subtitle="Seis meses de trabajo, en un solo pago mensual."
             kind="documento"
             href={`${B}/cotizacion`}
             delay={0.25}

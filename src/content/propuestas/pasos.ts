@@ -47,7 +47,7 @@ export const PASOS_IBS = armar("ibs", [
   ["carta", "Carta"],
   ["lo-que-vimos", "Lo que vimos"],
   ["plan", "El plan"],
-  ["meta", "La meta"],
+  ["marca", "La marca"],
   ["primeras-semanas", "Primeras semanas"],
   ["cotizacion", "Cuánto cuesta"],
 ]);

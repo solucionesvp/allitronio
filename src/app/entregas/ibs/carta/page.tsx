@@ -12,7 +12,8 @@ const PARRAFOS = [
   "Lo difícil ya se hizo: las plazas otorgadas, los locales abiertos, la empresa dada de alta y un crédito Banorte colocado en la venta de un vehículo Shineray. Eso no lo tiene cualquier distribuidor.",
   "Estos días buscamos a Shineray como lo haría un cliente. En Google Maps, Shineray Tepic y Shineray Puerto Vallarta todavía no aparecen. Mientras tanto, en las dos plazas JAC está a unos metros, y en la misma avenida de Tepic están Nissan, Renault, Chevrolet, Ford y Toyota, con cientos de opiniones cada una.",
   "El cliente ya está dispuesto a comprar una marca china: casi tres de cada diez autos nuevos que se venden en México ya lo son. Lo que necesita es encontrarlos, confiar y subirse a la unidad.",
-  "Shineray va a lanzar su marca en todo el país de enero a mayo. Nuestra propuesta es que IBS llegue a ese momento lista: fácil de encontrar, igual en todos lados, como pide planta, y con cada prospecto registrado hasta la venta.",
+  "Shineray va a lanzar su marca en todo el país de enero a mayo. Ese es el momento de presentarse como lo que son: un grupo con experiencia, no “el Shineray de Tepic”. Por eso les proponemos crear desde hoy una marca propia para el grupo, que acompañe a Shineray y que el cliente recuerde.",
+  "Y junto con la marca, que IBS llegue lista a ese lanzamiento: fácil de encontrar, igual en todos lados, como pide planta, y con cada prospecto atendido hasta la venta.",
 ];
 
 const DATOS = [
