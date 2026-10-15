@@ -6,7 +6,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import HeroAlli from "@/components/brand/HeroAlli";
 import { PRODUCT_VOLANTE as IMG } from "@/config/assets";
 import { VOLANTE_CTA_LABEL, VOLANTE_CTA_SECONDARY, VOLANTE_HERO } from "@/data/tomaElVolanteContent";
 import { trackLandingEvent } from "@/lib/landingEvents";
@@ -14,9 +13,11 @@ import { ACCENT, CtaButton, GhostLink, reveal, SECTION_X, TOMA_EL_VOLANTE_ACCENT
 import { ResponsiveCinematicImage } from "./ResponsiveCinematicImage";
 
 export default function CinematicHero({ onPrimary }: { onPrimary: () => void }) {
-  const [desktopOk, setDesktopOk] = useState(false);
-  const [movilOk, setMovilOk] = useState(false);
-  const photo = desktopOk || movilOk;
+  // null = aún sin saber; true/false = resultado de la carga. El respaldo
+  // (solo un resplandor ámbar, sin personajes) aparece cuando AMBAS fotos fallaron.
+  const [desktopOk, setDesktopOk] = useState<boolean | null>(null);
+  const [movilOk, setMovilOk] = useState<boolean | null>(null);
+  const noPhoto = desktopOk === false && movilOk === false;
 
   return (
     <section
@@ -41,14 +42,14 @@ export default function CinematicHero({ onPrimary }: { onPrimary: () => void }) 
           onStatusChange={setDesktopOk}
         />
       </motion.div>
-      {desktopOk && (
+      {desktopOk === true && (
         <div
           aria-hidden="true"
           className="absolute inset-0 hidden md:block"
           style={{ background: "linear-gradient(90deg, rgba(16,24,32,0.92) 0%, rgba(16,24,32,0.66) 34%, rgba(16,24,32,0.14) 58%, rgba(16,24,32,0) 68%), linear-gradient(0deg, rgba(16,24,32,0.7) 0%, rgba(16,24,32,0) 28%)" }}
         />
       )}
-      {!photo && (
+      {noPhoto && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
@@ -105,7 +106,7 @@ export default function CinematicHero({ onPrimary }: { onPrimary: () => void }) 
           sizes="100vw"
           onStatusChange={setMovilOk}
         />
-        {movilOk && (
+        {movilOk === true && (
           <div
             className="absolute inset-0"
             style={{ background: "linear-gradient(180deg, #101820 0%, rgba(16,24,32,0.55) 14%, rgba(16,24,32,0) 32%)" }}
@@ -113,7 +114,6 @@ export default function CinematicHero({ onPrimary }: { onPrimary: () => void }) 
         )}
       </div>
 
-      {!photo && <HeroAlli left="62%" delay={0.5} glow={ACCENT} />}
     </section>
   );
 }

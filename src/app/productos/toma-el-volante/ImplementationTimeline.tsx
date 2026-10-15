@@ -7,16 +7,14 @@
 // (<details> nativos: accesibles por teclado y lector de pantalla).
 
 import { motion } from "framer-motion";
-import { Check, ChevronDown, ClipboardList, FileText, Funnel, GraduationCap, LineChart, Megaphone, Repeat, Target } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { PRODUCT_VOLANTE as IMG } from "@/config/assets";
 import {
   VOLANTE_ADSPEND,
-  VOLANTE_DELIVERABLES,
   VOLANTE_DETAILS_TITLE,
   VOLANTE_FAQ,
   VOLANTE_GROUPS,
   VOLANTE_GUARANTEE,
-  VOLANTE_METHOD,
   VOLANTE_NOT_FOR,
   VOLANTE_REQUIREMENTS,
   VOLANTE_TIMELINE,
@@ -24,10 +22,9 @@ import {
 } from "@/data/tomaElVolanteContent";
 import { EYEBROW, H2, L, reveal, SECTION_X } from "./ui";
 import { ResponsiveCinematicImage } from "./ResponsiveCinematicImage";
-import { SceneStrip } from "./SceneStrip";
+import PhaseTabs from "./PhaseTabs";
+import DeliverablesBento from "./DeliverablesBento";
 
-const PHASE_IMAGES = [IMG.fase1, IMG.fase2, IMG.fase3, IMG.fase4, IMG.fase5] as const;
-const DELIVERABLE_ICONS = [FileText, Target, Funnel, Megaphone, ClipboardList, LineChart, Repeat, GraduationCap] as const;
 
 function Detail({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -77,57 +74,13 @@ export default function ImplementationTimeline() {
           </div>
         </div>
 
-        <ol className="relative mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-5 lg:gap-5">
-          {VOLANTE_METHOD.map((step, i) => (
-            <motion.li key={step.n} {...reveal(0.07 * i)} className="relative flex flex-col">
-              <div className="overflow-hidden rounded-sm border border-[var(--tm-line)]">
-                <ResponsiveCinematicImage
-                  base={PHASE_IMAGES[i]}
-                  alt={`Fase ${step.n}: ${step.label}`}
-                  ratio="4 / 3"
-                  sizes="(min-width: 1024px) 220px, (min-width: 768px) 45vw, 100vw"
-                />
-              </div>
-              <span className="mt-5 font-display text-[0.58rem] font-bold tracking-[0.3em]" style={{ color: L.accentText }}>
-                FASE {step.n}
-              </span>
-              <h3 className="mt-2 font-display text-[1.15rem] font-black leading-tight text-[var(--tm-ink)]">{step.label}</h3>
-              <p className="mt-2 font-body text-[0.82rem] leading-[1.65] text-[var(--tm-muted)]">{step.body}</p>
-            </motion.li>
-          ))}
-        </ol>
-
-        <SceneStrip
-          className="mt-14"
-          ratio="3 / 2"
-          tone="light"
-          scenes={[
-            { base: IMG.escenaShowroom, alt: "Escena ilustrativa: salón de exhibición de una agencia por la noche" },
-            { base: IMG.escenaFaroB, alt: "Escena ilustrativa: detalle de un faro de auto con lluvia" },
-            { base: IMG.escenaVolanteClasico, alt: "Escena ilustrativa: interior de un auto visto desde el asiento del conductor" },
-          ]}
-        />
+        <PhaseTabs />
 
         <div className="mt-24">
           <motion.h3 {...reveal(0.05)} className={`${H2} text-[var(--tm-ink)]`} style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.1rem)" }}>
             {T.deliverablesTitle}
           </motion.h3>
-          <ul className="mt-10 grid gap-x-10 gap-y-6 sm:grid-cols-2">
-            {VOLANTE_DELIVERABLES.map((d, i) => {
-              const Icon = DELIVERABLE_ICONS[i];
-              return (
-                <motion.li key={d.title} {...reveal(0.04 * i)} className="flex gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(245,163,0,0.14)" }}>
-                    <Icon className="h-4 w-4" style={{ color: L.accentText }} strokeWidth={2.2} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h4 className="font-display text-[0.98rem] font-black text-[var(--tm-ink)]">{d.title}</h4>
-                    <p className="mt-1 font-body text-[0.84rem] leading-[1.6] text-[var(--tm-muted)]">{d.body}</p>
-                  </div>
-                </motion.li>
-              );
-            })}
-          </ul>
+          <DeliverablesBento />
         </div>
 
         <div className="mt-24">

@@ -8,7 +8,7 @@
 // muestra `fallback` si el archivo no existe. Usa <img> nativo porque next/image
 // no permite assets opcionales (mismo criterio que LaunchImage).
 
-import { useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 
 interface Props {
   base: string;
@@ -35,10 +35,25 @@ export function ResponsiveCinematicImage({
   onStatusChange,
 }: Props) {
   const [failed, setFailed] = useState(false);
+  // Si el archivo cargó o falló antes de hidratar, onLoad/onError no se disparan:
+  // se revisa el estado real del <img> al montar.
+  const imgRef = useCallback(
+    (el: HTMLImageElement | null) => {
+      if (!el || !el.complete) return;
+      if (el.naturalWidth === 0) {
+        setFailed(true);
+        onStatusChange?.(false);
+      } else {
+        onStatusChange?.(true);
+      }
+    },
+    [onStatusChange],
+  );
   if (failed) return <>{fallback}</>;
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ aspectRatio: ratio }}>
       <img
+        ref={imgRef}
         src={`${base}-1400.webp`}
         srcSet={`${base}-800.webp 800w, ${base}-1400.webp 1400w, ${base}.webp 2000w`}
         sizes={sizes}

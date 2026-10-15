@@ -6,14 +6,12 @@
 // condensadas. Todo rotulado como escena ficticia ilustrativa.
 
 import { motion } from "framer-motion";
-import { Clock3, Gauge, MessageSquareWarning, Repeat, Users } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { PRODUCT_VOLANTE as IMG } from "@/config/assets";
-import { VOLANTE_LEAKS_SHORT, VOLANTE_SEQUENCE } from "@/data/tomaElVolanteContent";
+import { VOLANTE_SEQUENCE } from "@/data/tomaElVolanteContent";
 import { ACCENT, EYEBROW, H2, reveal, SECTION_X } from "./ui";
 import { ResponsiveCinematicImage } from "./ResponsiveCinematicImage";
-import { SceneStrip } from "./SceneStrip";
-
-const LEAK_ICONS = [Gauge, MessageSquareWarning, Repeat, Users] as const;
+import LeakBento from "./LeakBento";
 
 export default function ProblemSequence() {
   const S = VOLANTE_SEQUENCE;
@@ -76,32 +74,12 @@ export default function ProblemSequence() {
           </div>
         </div>
 
-        <SceneStrip
-          className="mt-14"
-          ratio="16 / 9"
-          scenes={[
-            { base: IMG.escenaCruce, alt: "Escena ilustrativa: una persona revisa opciones en su teléfono al anochecer, junto a un auto usado" },
-            { base: IMG.escenaInventario, alt: "Escena ilustrativa: dos personas recorren una bodega con inventario sin rotar" },
-          ]}
-        />
-
         <motion.div {...reveal(0.1)} className="mt-20 max-w-[820px] border-l-2 pl-6" style={{ borderColor: ACCENT }}>
           <p className="font-display text-[1.35rem] font-bold leading-[1.35] text-foreground sm:text-[1.7rem]">{S.question}</p>
           <p className="mt-4 font-body text-[0.96rem] leading-[1.8] text-foreground/78">{S.answer}</p>
         </motion.div>
 
-        <ul className="mt-16 grid gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-          {VOLANTE_LEAKS_SHORT.map((l, i) => {
-            const Icon = LEAK_ICONS[i];
-            return (
-              <motion.li key={l.title} {...reveal(0.06 * i)} className="bg-allitron-base p-6">
-                <Icon className="h-5 w-5" style={{ color: ACCENT }} strokeWidth={2.1} aria-hidden="true" />
-                <h3 className="mt-4 font-display text-[0.98rem] font-black text-foreground">{l.title}</h3>
-                <p className="mt-2 font-body text-[0.82rem] leading-[1.65] text-foreground/68">{l.body}</p>
-              </motion.li>
-            );
-          })}
-        </ul>
+        <LeakBento />
       </div>
     </section>
   );

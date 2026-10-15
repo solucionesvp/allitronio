@@ -23,7 +23,6 @@ import { trackLandingEvent } from "@/lib/landingEvents";
 import { PRODUCT_VOLANTE as IMG } from "@/config/assets";
 import { CtaButton, EYEBROW, GRADIENT, H2, L, reveal, SECTION_X, ViewTracker } from "./ui";
 import { ResponsiveCinematicImage } from "./ResponsiveCinematicImage";
-import { SceneStrip } from "./SceneStrip";
 
 export default function PricingSection({ onCta }: { onCta: () => void }) {
   const D = VOLANTE_DECISION;
@@ -113,17 +112,6 @@ export default function PricingSection({ onCta }: { onCta: () => void }) {
             </motion.div>
           </div>
         </ViewTracker>
-
-        <SceneStrip
-          className="mt-10"
-          ratio="3 / 2"
-          tone="light"
-          scenes={[
-            { base: IMG.escenaAgenciaA, alt: "Escena ilustrativa: Alli frente a una agencia automotriz al anochecer" },
-            { base: IMG.escenaAgenciaB, alt: "Escena ilustrativa: Alli junto a la fila de autos de una agencia" },
-            { base: IMG.escenaAgenciaC, alt: "Escena ilustrativa: Alli en el estacionamiento de una agencia con piso mojado" },
-          ]}
-        />
 
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           {[
