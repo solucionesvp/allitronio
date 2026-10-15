@@ -15,6 +15,7 @@ import {
   PRODUCT_ACCENTS,
   PRODUCT_NAMES,
   PRODUCT_ROUTES,
+  TOMA_EL_VOLANTE_TOKENS,
   TOMA_TU_MERCADO_TOKENS,
 } from "@/config/productTheme";
 import {
@@ -24,15 +25,17 @@ import {
   PRODUCT_LOCAL_LAUNCH,
   PRODUCT_MARKET,
   PRODUCT_SECOND_BRAIN,
+  PRODUCT_VOLANTE,
 } from "@/config/assets";
 import { DG_DELIVERY } from "@/data/dominaGoogleContent";
 import { getActiveTier } from "@/data/dominaGoogleLaunchContent";
+import { VOLANTE_ADSPEND_FLOOR, VOLANTE_CYCLE, VOLANTE_PRICE, volanteBetaRemaining } from "@/data/tomaElVolanteContent";
 import { TTM_CYCLE, TTM_LAUNCH_TIME, TTM_PACKAGES, founderRemaining } from "@/data/tomaTuMercadoContent";
 
 export type PortfolioStatus = "disponible" | "proximamente";
 
 export interface PortfolioProduct {
-  id: "domina-google" | "toma-tu-mercado" | "allitron-90" | "segundo-cerebro" | "lazup";
+  id: "domina-google" | "toma-tu-mercado" | "toma-el-volante" | "allitron-90" | "segundo-cerebro" | "lazup";
   name: string;
   status: PortfolioStatus;
   href: string;
@@ -114,6 +117,30 @@ export const PORTFOLIO: readonly PortfolioProduct[] = [
     image: PRODUCT_MARKET.heroDesktop,
     gallery: [PRODUCT_MARKET.fase2, PRODUCT_MARKET.impresos, PRODUCT_MARKET.problemaCon],
     keyword: "MERCADO",
+  },
+  {
+    id: "toma-el-volante",
+    name: "Toma el Volante",
+    status: "disponible",
+    href: "/productos/toma-el-volante",
+    accent: TOMA_EL_VOLANTE_TOKENS.accent,
+    gradient: TOMA_EL_VOLANTE_TOKENS.gradient,
+    menuLine: "Para agencias automotrices: del lead a la venta, con capacitación a tus asesores",
+    problem: "Me llegan mensajes y se enfrían antes de convertirse en cita.",
+    promise: "Campaña, embudo, tablero y capacitación para tu equipo de ventas. La pauta la pagas tú, en tu cuenta.",
+    forWho: "Agencias y grupos automotrices de Nayarit con control de leads y un equipo dispuesto a capacitarse.",
+    gets: [
+      "Línea base y tope de costo por cita calificada",
+      "Embudo con precalificación, campaña en Meta y Google y 12 piezas al mes",
+      "Tablero de lead a cierre",
+      "4 sesiones de capacitación para tus asesores + biblioteca de videos",
+    ],
+    timing: `Ciclo de ${VOLANTE_CYCLE}`,
+    priceFrom: mxn(volanteBetaRemaining() > 0 ? VOLANTE_PRICE.beta : VOLANTE_PRICE.regular),
+    priceNote: `por ciclo, sin pauta (desde ${mxn(VOLANTE_ADSPEND_FLOOR)} al mes en tu cuenta)`,
+    image: PRODUCT_VOLANTE.heroDesktop,
+    gallery: [PRODUCT_VOLANTE.fase2, PRODUCT_VOLANTE.zoom, PRODUCT_VOLANTE.problemaCon],
+    keyword: "VOLANTE",
   },
   {
     id: "allitron-90",

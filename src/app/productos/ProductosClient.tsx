@@ -312,7 +312,7 @@ export default function ProductosClient() {
               DISPONIBLES HOY
             </motion.span>
             <motion.h2 {...reveal(0.06)} className={`max-w-[640px] ${H2}`} style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)" }}>
-              Dos productos, dos momentos distintos de tu negocio.
+              Tres productos, tres momentos distintos de tu negocio.
             </motion.h2>
             <div className="mt-12 grid gap-6 md:grid-cols-2">
               {PORTFOLIO_AVAILABLE.map((p, i) => (

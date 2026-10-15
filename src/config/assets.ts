@@ -323,3 +323,25 @@ export const ASSETS = {
 } as const;
 
 export type AssetPath = string;
+
+/**
+ * Toma el Volante (vertical automotriz de Toma tu Mercado) — landing
+ * /productos/toma-el-volante. Rutas SIN extensión (igual que Toma tu Mercado):
+ * basta guardar el archivo con este nombre en public/assets/products/volante/
+ * y aparece solo. `equipo` reutiliza la foto del equipo de Toma tu Mercado.
+ */
+const VOLANTE = `${B}/products/volante` as const;
+export const PRODUCT_VOLANTE = {
+  heroDesktop: `${VOLANTE}/hero-desktop`,
+  heroMovil: `${VOLANTE}/hero-movil`,
+  problemaSin: `${VOLANTE}/problema-sin`,
+  problemaCon: `${VOLANTE}/problema-con`,
+  fase1: `${VOLANTE}/fase-1-linea-base`,
+  fase2: `${VOLANTE}/fase-2-estrategia`,
+  fase3: `${VOLANTE}/fase-3-embudo`,
+  fase4: `${VOLANTE}/fase-4-capacitacion`,
+  fase5: `${VOLANTE}/fase-5-medir`,
+  zoom: `${VOLANTE}/capacitacion-zoom`,
+  ctaFinal: `${VOLANTE}/cta-final`,
+  equipo: `${MERCADO}/equipo`,
+} as const;

@@ -35,6 +35,8 @@ export const metadata: Metadata = {
     "Allitron 90",
     "Domina Google",
     "Toma tu Mercado",
+    "Toma el Volante",
+    "marketing para agencias automotrices Nayarit",
     "Segundo Cerebro",
     "LAZUP CRM",
     "Aurora IA",

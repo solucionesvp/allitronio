@@ -175,7 +175,7 @@ export default function HomePage() {
         {/* ── 3. Productos (claro alterno, filas con foto) ──────────────── */}
         <section className={`${SECTION} bg-[var(--pf-bg-alt)]`}>
           <div className="mx-auto max-w-[1200px]">
-            <SectionHead eyebrow="PRODUCTOS" title="Dos productos disponibles hoy. Cada uno para un momento distinto de tu negocio." />
+            <SectionHead eyebrow="PRODUCTOS" title="Tres productos disponibles hoy. Cada uno para un momento distinto de tu negocio." />
             <div className="mt-14 flex flex-col gap-8">
               {PORTFOLIO_AVAILABLE.map((p, i) => (
                 <motion.article

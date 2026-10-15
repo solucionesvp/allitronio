@@ -125,3 +125,26 @@ export const TOMA_TU_MERCADO_LIGHT = {
   line: "rgba(20,26,23,0.12)",
   accentText: "#0B6B4F",
 } as const;
+
+/** "Toma el Volante" — vertical automotriz de Toma tu Mercado (14-oct-2026).
+ * Acento ámbar de carretera: distinto del verde de Toma tu Mercado, del coral
+ * de Domina Google y del naranja de Allitron 90. Paleta clara aislada, misma
+ * estructura que TOMA_TU_MERCADO_LIGHT. El degradado del botón es lo bastante
+ * profundo para llevar texto blanco. Contraste aprox.: ink/bg 15:1,
+ * muted/bg 6.4:1, accentText/bg 5.3:1. */
+export const TOMA_EL_VOLANTE_TOKENS = {
+  accent: "#F5A300",
+  accentDeep: "#8A5200",
+  accentSoft: "rgba(245,163,0,0.14)",
+  gradient: "linear-gradient(135deg, #E8A020 0%, #C97A00 50%, #8A5200 100%)",
+} as const;
+
+export const TOMA_EL_VOLANTE_LIGHT = {
+  bg: "#F6F3EC",
+  bgAlt: "#ECE7DA",
+  card: "#FFFFFF",
+  ink: "#16130C",
+  muted: "#5A5444",
+  line: "rgba(22,19,12,0.12)",
+  accentText: "#8A5200",
+} as const;
