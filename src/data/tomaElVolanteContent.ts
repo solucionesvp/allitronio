@@ -17,7 +17,8 @@ export const VOLANTE_PRICES_APPROVED = false;
 export const VOLANTE_WHATSAPP_NUMBER = WHATSAPP_NUMBER;
 export { buildWhatsAppLink };
 
-export const VOLANTE_CTA_LABEL = "QUIERO MI DIAGNÓSTICO DE AGENCIA";
+export const VOLANTE_CTA_LABEL = "SOLICITAR DIAGNÓSTICO COMERCIAL";
+export const VOLANTE_CTA_SECONDARY = "VER CÓMO FUNCIONA";
 export const VOLANTE_WHATSAPP_MESSAGE =
   "VOLANTE — vi la página de Toma el Volante y quiero el diagnóstico de mi agencia.";
 
@@ -48,8 +49,8 @@ export function volanteBetaRemaining(): number {
 export const VOLANTE_HERO = {
   eyebrow: "TOMA EL VOLANTE · POR TOMA TU MERCADO",
   title: "LLEGAN MENSAJES. SE ENFRÍAN. Y LA VENTA SE LA LLEVA LA AGENCIA DE ENFRENTE.",
-  body: `Para agencias y grupos automotrices de Nayarit. En ${VOLANTE_CYCLE} ordenamos lo que pasa entre el anuncio y la firma: la campaña, el embudo, el tablero y el equipo que contesta.`,
-  note: `Beta: los primeros ${VOLANTE_PRICE.betaSlots} grupos de Nayarit.`,
+  body: "En 90 días conectamos campañas, atención, seguimiento y medición para que tu concesionaria sepa qué ocurre entre el primer mensaje y el cierre.",
+  note: `Para concesionarias y grupos automotrices de Nayarit. Beta: hasta ${VOLANTE_PRICE.betaSlots} grupos.`,
 } as const;
 
 // ── Historia del problema ────────────────────────────────────────────────────
@@ -338,3 +339,153 @@ export const VOLANTE_FAQ: readonly { q: string; a: string }[] = [
     a: "Se capacitan, no se obliga. Se enseña qué publicar, qué cuidar y cómo responder, y cada asesor decide.",
   },
 ] as const;
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Rediseño cinematográfico (15-oct-2026): "Del caos al control".
+// Todo lo de abajo es contenido de las escenas nuevas. Cifras de escenas y del
+// tablero son FICTICIAS e ilustrativas; no son casos ni resultados.
+// ═════════════════════════════════════════════════════════════════════════════
+
+export const VOLANTE_PAUTA_CICLO = VOLANTE_ADSPEND_FLOOR * 3; // 24,000
+export const VOLANTE_INVERSION_ORIENTATIVA = VOLANTE_PRICE.beta + VOLANTE_PAUTA_CICLO; // 73,900
+
+// ── Acto 2: la venta que se escapa ───────────────────────────────────────────
+export const VOLANTE_SEQUENCE = {
+  eyebrow: "ACTO 2 · LA VENTA QUE SE ESCAPA",
+  title: "Un lunes cualquiera, a las 9:40.",
+  steps: [
+    { time: "09:40", title: "23 mensajes pendientes", body: "Llegaron durante el fin de semana, después de pagar por conseguirlos." },
+    { time: "10:15", title: "Los asesores están con clientes en piso", body: "Nadie tiene tiempo de contestar y nadie sabe a quién le toca." },
+    { time: "14:00", title: "Primera respuesta, tarde y genérica", body: "El mismo PDF para todos. Sin nombre, sin cita, sin siguiente paso." },
+  ],
+  meanwhile: "Mientras tanto, el cliente ya está comparando alternativas.",
+  fiction: "Escena ficticia ilustrativa. Los horarios, las cantidades, las personas y la agencia no corresponden a ningún caso real.",
+  question: "¿Cuántas oportunidades dejó escapar tu agencia después de pagar por conseguirlas?",
+  answer: "Casi nadie lo sabe, porque nadie mide lo que pasa después del mensaje. No necesitas más mensajes sin seguimiento: necesitas saber qué ocurrió con cada oportunidad. Eso es lo primero que revisamos.",
+} as const;
+
+export const VOLANTE_LEAKS_SHORT: readonly { title: string; body: string }[] = [
+  { title: "Entrada sin calificar", body: "El que cotiza crédito y el que solo preguntó el precio reciben el mismo trato." },
+  { title: "Respuesta sin guion", body: "Cada asesor improvisa y el cliente se queda con quien contestó primero y mejor." },
+  { title: "Recompra sin método", body: "Quien ya compró es la venta más barata y nadie lo vuelve a llamar." },
+  { title: "Equipo sin base", body: "Les piden publicar, pero nadie les enseña qué decir ni qué permite la planta." },
+] as const;
+
+// ── Acto 3: del mensaje al cierre ────────────────────────────────────────────
+export const VOLANTE_JOURNEY = {
+  id: "sistema",
+  eyebrow: "ACTO 3 · DEL MENSAJE AL CIERRE",
+  title: "Cada oportunidad tiene un camino, un dueño y un registro.",
+  body: "Así viaja un prospecto cuando el proceso está instalado. Se entiende sin animaciones y se mide en cada paso.",
+  steps: [
+    { n: "1", title: "El anuncio atrae", body: "Campaña en Meta y Google con un modelo y un perfil definidos." },
+    { n: "2", title: "El prospecto consulta", body: "Escribe por WhatsApp o deja sus datos." },
+    { n: "3", title: "Se registra y precalifica", body: "Preguntas breves separan quién está listo de quién apenas explora." },
+    { n: "4", title: "Se asigna la atención", body: "Un asesor responsable y un tiempo máximo de respuesta." },
+    { n: "5", title: "Se agenda o se da seguimiento", body: "Cita en agencia o siguiente contacto con fecha." },
+    { n: "6", title: "Se registra el resultado", body: "Venta, cita perdida o seguimiento: nada queda sin etiqueta." },
+    { n: "7", title: "Se analiza el desempeño", body: "Costo por cita y por venta contra el tope definido." },
+  ],
+} as const;
+
+export const VOLANTE_DASHBOARD = {
+  title: "Así se ve el tablero",
+  banner: "EJEMPLO ILUSTRATIVO · DATOS FICTICIOS",
+  note: "Muestra el formato de lectura. El tablero real se alimenta de tu CRM o de tu control actual y usa tus datos. No sustituye tu CRM.",
+  stages: [
+    { id: "leads", label: "Leads", value: 120, detail: "Todos los contactos del periodo, con su origen: Meta, Google o referido." },
+    { id: "calificados", label: "Calificados", value: 54, detail: "Los que pasaron la precalificación: interés real, modelo y forma de pago." },
+    { id: "citas", label: "Citas", value: 21, detail: "Citas agendadas con asesor, fecha y modelo de interés." },
+    { id: "ventas", label: "Ventas", value: 5, detail: "Cierres registrados con su origen para medir el costo real por venta." },
+  ],
+  kpis: [
+    { label: "Costo por cita calificada", value: "$780", hint: "Tope del ejemplo: $900", ok: true },
+    { label: "Leads sin atender hoy", value: "3", hint: "Con asesor y hora límite", ok: false },
+    { label: "Nivel de pauta", value: "Arranque", hint: "Se revisa cada semana", ok: true },
+  ],
+} as const;
+
+// ── Acto 4: calculadora ──────────────────────────────────────────────────────
+export const VOLANTE_CALC = {
+  eyebrow: "ACTO 4 · LOS NÚMEROS TOMAN EL VOLANTE",
+  title: "Antes de invertir, calcula cuánto puedes pagar por cada cita.",
+  body: "Mueve los valores con los de tu agencia. Todo se calcula en tu navegador: no guardamos ni recibimos estos datos.",
+  defaults: { profit: 30000, share: 15, conversion: 20 },
+  limits: {
+    profit: { min: 1000, max: 500000, step: 500 },
+    share: { min: 1, max: 40, step: 1 },
+    conversion: { min: 1, max: 100, step: 1 },
+  },
+  disclaimer: "Estimación ilustrativa. No es un resultado garantizado ni una promesa de ventas: depende de tu inventario, precios, equipo y mercado.",
+} as const;
+
+export interface AcquisitionResult {
+  maxPerSale: number;
+  maxPerAppointment: number;
+}
+
+export function computeAcquisition(profit: number, sharePct: number, conversionPct: number): AcquisitionResult {
+  const safe = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
+  const maxPerSale = safe(profit) * (safe(sharePct) / 100);
+  const maxPerAppointment = maxPerSale * (safe(conversionPct) / 100);
+  return { maxPerSale, maxPerAppointment };
+}
+
+// ── Acto 5: 90 días ──────────────────────────────────────────────────────────
+export const VOLANTE_TIMELINE = {
+  eyebrow: "ACTO 5 · 90 DÍAS PARA INSTALAR EL SISTEMA",
+  title: "Cinco fases. Un solo ciclo de 90 días.",
+  body: "Es un ciclo de instalación y operación, no una promesa de resultados inmediatos. Cada fase deja algo en tus manos.",
+  deliverablesTitle: "Lo que queda funcionando al terminar",
+} as const;
+
+// ── Acto 6: decisión ─────────────────────────────────────────────────────────
+export const VOLANTE_DECISION = {
+  eyebrow: "ACTO 6 · LA DECISIÓN",
+  title: "Lo que pagas, lo que incluye y lo que no.",
+  includes: [
+    "Línea base, estrategia y tope de costo por cita calificada",
+    "Embudo con precalificación y guiones de respuesta",
+    "Campaña operada en Meta y Google",
+    "12 piezas al mes, media jornada de producción y hasta 4 impresos",
+    "Tablero de lead a cierre",
+    "4 sesiones de capacitación y biblioteca de videos",
+  ],
+  excludes: [
+    "La pauta publicitaria: la pagas tú en tu cuenta (mínimo $8,000 al mes)",
+    "IVA, si requieres factura",
+    "Viáticos de sesiones presenciales fuera de Tepic",
+    "Marcas, sucursales o plazas adicionales (tienen condiciones propias)",
+    "Piezas extra: estática $600 y video corto $1,500",
+  ],
+  conditions: [
+    "Cubre una razón social, una sucursal, una plaza (Tepic) y hasta 2 marcas.",
+    "Exclusividad comercial según las condiciones vigentes del contrato.",
+    "Beta: hasta 5 grupos o razones sociales, a cambio de permiso por escrito para documentar el caso con cifras reales.",
+  ],
+  operation: [
+    "Un responsable con poder de decisión.",
+    "Un control de leads, aunque sea una hoja o tu CRM.",
+    "Asesores disponibles para las sesiones, en horario laboral.",
+    "Alguien que conteste los mensajes en minutos.",
+  ],
+  after: `Al terminar los 90 días puedes continuar desde ${formatMXN(VOLANTE_PRICE.continuityMonthly)} al mes. La continuidad de la capacitación se define aparte.`,
+  orientative: "Inversión mínima orientativa de los primeros 90 días. No es un precio cerrado: cambia con plazas, marcas, sucursales y la pauta que decidas.",
+} as const;
+
+export const VOLANTE_DIAGNOSIS = {
+  id: "diagnostico",
+  title: "DESCUBRE DÓNDE ESTÁ PERDIENDO OPORTUNIDADES TU CONCESIONARIA.",
+  review: [
+    "Captación actual",
+    "Atención de los leads",
+    "Tiempos de respuesta disponibles",
+    "Seguimiento comercial",
+    "Indicadores existentes",
+    "Posibles fugas en el proceso",
+  ],
+  next: "Al enviar, se abre WhatsApp con tu mensaje ya escrito. Te respondemos para agendar el diagnóstico.",
+  tagline: "Toma el volante de tu proceso comercial.",
+} as const;
+
+export const VOLANTE_DETAILS_TITLE = "Detalles del plan";
