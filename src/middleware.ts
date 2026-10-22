@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { COOKIE_SESION } from "@/lib/reuniones/config";
+import { verificarSesion } from "@/lib/reuniones/session";
 
 // ── Candado de /entregas y /interno — protección real, del lado del servidor
 // No es un truco de JS en el cliente: si no hay cookie válida, el servidor
@@ -25,13 +27,16 @@ const ENTREGAS_PROTECTED: { prefix: string; scope: EntregasScope }[] = [
 // aplica otra vez en cada API route — el middleware solo decide quién entra.
 const FINANZAS_ROLES = new Set(["admin", "viewer"]);
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/entregas/acceso")) {
     return NextResponse.next();
   }
   if (pathname.startsWith("/interno/finanzas/acceso")) {
+    return NextResponse.next();
+  }
+  if (pathname.startsWith("/interno/reuniones/acceso")) {
     return NextResponse.next();
   }
 
@@ -45,6 +50,19 @@ export function middleware(req: NextRequest) {
     url.search = "";
     url.searchParams.set("next", pathname);
     url.searchParams.set("scope", entregasMatch.scope);
+    return NextResponse.redirect(url);
+  }
+
+  // ── /interno/reuniones — agenda del equipo. A diferencia de las cookies de
+  // arriba (valor fijo), esta sesión va FIRMADA (HMAC): no se puede fabricar.
+  if (pathname === "/interno" || pathname === "/interno/" || pathname.startsWith("/interno/reuniones")) {
+    const persona = await verificarSesion(req.cookies.get(COOKIE_SESION)?.value);
+    if (persona) return NextResponse.next();
+
+    const url = req.nextUrl.clone();
+    url.pathname = "/interno/reuniones/acceso";
+    url.search = "";
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

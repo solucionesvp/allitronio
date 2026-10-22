@@ -8,7 +8,7 @@
 import { usePathname } from "next/navigation";
 import WhatsAppChatWidget from "./WhatsAppChatWidget";
 
-const EXCLUDED_PREFIXES = ["/productos/domina-google", "/productos/toma-tu-mercado", "/productos/toma-el-volante", "/entregas", "/interno", "/api"];
+const EXCLUDED_PREFIXES = ["/productos/domina-google", "/productos/toma-tu-mercado", "/productos/toma-el-volante", "/entregas", "/interno", "/reuniones", "/api"];
 
 export default function ChatWidgetGate() {
   const pathname = usePathname() || "/";

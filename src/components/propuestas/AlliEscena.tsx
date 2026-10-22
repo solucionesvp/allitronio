@@ -16,6 +16,7 @@ export function AlliEscena({
   mensaje,
   prioridad = false,
   hero = false,
+  compacta = false,
 }: {
   escena: EscenaAlli;
   mensaje: string;
@@ -23,6 +24,8 @@ export function AlliEscena({
   prioridad?: boolean;
   /** true en la parte de arriba de la página: más panorámica en escritorio para que título, Alli y botón quepan en la primera pantalla. */
   hero?: boolean;
+  /** true en páginas de acción (agendar, confirmar): escena más baja para que lo importante quede a la vista. */
+  compacta?: boolean;
 }) {
   const e = ALLI_ESCENAS[escena];
   const reduced = useReducedMotion() ?? false;
@@ -34,7 +37,9 @@ export function AlliEscena({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.7, ease: EASE }}
-        className={`relative isolate aspect-[4/3] overflow-hidden rounded-[28px] shadow-[0_24px_60px_rgba(16,24,32,0.18)] sm:aspect-[16/9] ${hero ? "lg:aspect-[21/9]" : ""}`}
+        className={`relative isolate overflow-hidden rounded-[28px] shadow-[0_24px_60px_rgba(16,24,32,0.18)] ${
+          compacta ? "aspect-[16/9] sm:aspect-[21/8] lg:aspect-[21/7]" : `aspect-[4/3] sm:aspect-[16/9] ${hero ? "lg:aspect-[21/9]" : ""}`
+        }`}
       >
         <motion.img
           src={e.sm}

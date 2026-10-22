@@ -8,7 +8,7 @@
 
 const P = "/assets/propuestas/alli";
 
-export type EscenaAlli = "portada" | "carta" | "investigacion" | "plan" | "meta" | "calendario" | "cierre";
+export type EscenaAlli = "portada" | "carta" | "investigacion" | "plan" | "meta" | "calendario" | "cierre" | "agenda" | "confirmada";
 
 export interface EscenaInfo {
   sm: string;
@@ -25,6 +25,8 @@ export const ALLI_ESCENAS: Record<EscenaAlli, EscenaInfo> = {
   plan: { sm: `${P}/alli-plan-800.webp`, lg: `${P}/alli-plan-1600.webp`, alt: "Alli explica el plan frente a un pizarrón", foco: "80% 50%" },
   meta: { sm: `${P}/alli-meta-800.webp`, lg: `${P}/alli-meta-1600.webp`, alt: "Alli señala una gráfica que sube", foco: "30% 50%" },
   calendario: { sm: `${P}/alli-calendario-800.webp`, lg: `${P}/alli-calendario-1600.webp`, alt: "Alli marca avances en un calendario", foco: "68% 50%" },
+  agenda: { sm: `${P}/alli-agenda-800.webp`, lg: `${P}/alli-agenda-1600.webp`, alt: "Alli muestra en una tableta el calendario para agendar tu reunión", foco: "72% 50%" },
+  confirmada: { sm: `${P}/alli-confirmada-800.webp`, lg: `${P}/alli-confirmada-1600.webp`, alt: "Alli levanta el pulgar junto a una videollamada: reunión confirmada", foco: "72% 50%" },
   cierre: { sm: `${P}/alli-cierre-800.webp`, lg: `${P}/alli-cierre-1600.webp`, alt: "Alli ofrece la mano para cerrar el acuerdo", foco: "55% 50%" },
 };
 
