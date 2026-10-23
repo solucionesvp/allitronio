@@ -74,24 +74,52 @@ function botonesCalendario(ctx: ContextoCorreo): string {
     </td></tr></table>`;
 }
 
-function plantilla(opts: { preheader: string; titulo: string; subtitulo?: string; cuerpo: string }): string {
+const IMG_ALLI = {
+  agenda: `${SITE_URL}/assets/propuestas/alli/email-agenda.jpg`,
+  confirmada: `${SITE_URL}/assets/propuestas/alli/email-confirmada.jpg`,
+} as const;
+
+/** Tarjeta grande con día y hora: lo primero que el cliente necesita ver. */
+function tarjetaHorario(ctx: ContextoCorreo): string {
+  const r = ctx.reunion;
+  const h = textoHorario(r);
+  const mod = r.modalidad === "presencial" ? "Presencial en Tepic" : "Videollamada";
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:${C.navy};border-radius:14px;">
+    <tr><td style="padding:22px 24px;font-family:Arial,Helvetica,sans-serif;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#9FD8EE;">${esc(r.producto_nombre)}</div>
+      <div style="margin-top:8px;font-size:30px;line-height:1.1;font-weight:800;color:#FFFFFF;">${esc(h.hora.split(" (")[0])}</div>
+      <div style="margin-top:6px;font-size:16px;line-height:1.4;color:#FFFFFF;">${esc(h.fecha)}</div>
+      <div style="margin-top:10px;font-size:13px;color:#9FD8EE;">${esc(mod)} · atiende ${esc(ctx.anfitrion.nombre)}${h.extra ? ` · ${esc(h.extra)}` : ""}</div>
+    </td></tr></table>`;
+}
+
+function plantilla(opts: { preheader: string; titulo: string; subtitulo?: string; cuerpo: string; hero?: keyof typeof IMG_ALLI }): string {
+  const hero = IMG_ALLI[opts.hero ?? "agenda"];
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(opts.titulo)}</title></head>
 <body style="margin:0;padding:0;background:${C.fondo};">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${esc(opts.preheader)}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.fondo};"><tr><td align="center" style="padding:28px 12px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#FFFFFF;border-radius:10px;overflow:hidden;border:1px solid ${C.linea};">
-    <tr><td style="background:${C.navy};padding:22px 32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.38em;color:#FFFFFF;">ALLITRON</td></tr>
-    <tr><td style="height:3px;background:${C.azul};font-size:0;line-height:0;">&nbsp;</td></tr>
-    <tr><td style="padding:34px 32px 8px;font-family:Arial,Helvetica,sans-serif;">
-      <h1 style="margin:0;font-size:26px;line-height:1.2;color:${C.tinta};font-weight:800;">${esc(opts.titulo)}</h1>
-      ${opts.subtitulo ? `<p style="margin:10px 0 0;font-size:15px;line-height:1.6;color:${C.gris};">${opts.subtitulo}</p>` : ""}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.fondo};"><tr><td align="center" style="padding:24px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:18px;overflow:hidden;border:1px solid ${C.linea};">
+    <tr><td style="background:${C.navy};padding:18px 28px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.38em;color:#FFFFFF;">ALLITRON</td></tr>
+    <tr><td style="padding:0;background:#DCE9EE;line-height:0;font-size:0;">
+      <img src="${esc(hero)}" width="600" alt="Alli, la guía de Allitron" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none;background:#DCE9EE;">
     </td></tr>
-    <tr><td style="padding:18px 32px 34px;font-family:Arial,Helvetica,sans-serif;">${opts.cuerpo}</td></tr>
-    <tr><td style="padding:22px 32px;background:${C.fondo};border-top:1px solid ${C.linea};font-family:Arial,Helvetica,sans-serif;">
-      <div style="font-size:15px;font-weight:800;color:${C.tinta};">${esc(MARCA.asistente)}</div>
-      <div style="font-size:13px;color:${C.gris};margin-top:2px;">${esc(MARCA.rolAsistente)}</div>
-      <div style="font-size:12px;line-height:1.6;color:${C.gris};margin-top:12px;">Este mensaje lo envió ${esc(MARCA.asistente)}. Si respondes a este correo, lo lee el equipo de Allitron.<br>${esc(MARCA.nombre)} · ${esc(MARCA.ciudad)} · <a href="${SITE_URL}/aviso-de-privacidad" style="color:${C.gris};">Aviso de privacidad</a></div>
+    <tr><td style="height:4px;background:${C.azul};font-size:0;line-height:0;">&nbsp;</td></tr>
+    <tr><td style="padding:30px 28px 6px;font-family:Arial,Helvetica,sans-serif;">
+      <h1 style="margin:0;font-size:27px;line-height:1.2;color:${C.tinta};font-weight:800;">${esc(opts.titulo)}</h1>
+      ${opts.subtitulo ? `<p style="margin:10px 0 0;font-size:16px;line-height:1.6;color:${C.gris};">${opts.subtitulo}</p>` : ""}
+    </td></tr>
+    <tr><td style="padding:20px 28px 32px;font-family:Arial,Helvetica,sans-serif;">${opts.cuerpo}</td></tr>
+    <tr><td style="padding:22px 28px;background:${C.fondo};border-top:1px solid ${C.linea};font-family:Arial,Helvetica,sans-serif;">
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td style="vertical-align:middle;padding-right:12px;"><div style="width:42px;height:42px;line-height:42px;text-align:center;border-radius:21px;background:${C.azul};color:#FFFFFF;font-size:18px;font-weight:800;">A</div></td>
+        <td style="vertical-align:middle;">
+          <div style="font-size:16px;font-weight:800;color:${C.tinta};">${esc(MARCA.asistente)}</div>
+          <div style="font-size:13px;color:${C.gris};margin-top:2px;">${esc(MARCA.rolAsistente)}</div>
+        </td>
+      </tr></table>
+      <div style="font-size:12px;line-height:1.6;color:${C.gris};margin-top:14px;">Este mensaje lo envió ${esc(MARCA.asistente)}. Si respondes a este correo, lo lee el equipo de Allitron.<br>${esc(MARCA.nombre)} · ${esc(MARCA.ciudad)} · <a href="${SITE_URL}/aviso-de-privacidad" style="color:${C.gris};">Aviso de privacidad</a></div>
     </td></tr>
   </table>
 </td></tr></table></body></html>`;
@@ -152,6 +180,7 @@ export function correoConfirmacionCliente(ctx: ContextoCorreo, reprogramada = fa
         ? boton(enlaceMaps(ctx.oficina), "Ver cómo llegar")
         : "";
   const cuerpo = `
+    ${tarjetaHorario(ctx)}
     ${d.html}
     ${cta ? `<div style="margin:26px 0 0;">${cta}</div>` : ""}
     ${botonesCalendario(ctx)}
@@ -164,6 +193,7 @@ export function correoConfirmacionCliente(ctx: ContextoCorreo, reprogramada = fa
       titulo,
       subtitulo: `Hola ${esc(nombre)}, ${reprogramada ? "este es tu nuevo horario" : "ya quedó agendada. Aquí están los detalles"}.`,
       cuerpo,
+      hero: "confirmada",
     }),
     texto: [
       `Hola ${nombre},`,
@@ -220,6 +250,7 @@ export function correoAvisoInterno(ctx: ContextoCorreo, accion: "nueva" | "repro
       titulo,
       subtitulo: `Aviso de ${esc(MARCA.asistente)}. Atiende ${esc(ctx.anfitrion.nombre)}.`,
       cuerpo,
+      hero: accion === "nueva" ? "confirmada" : "agenda",
     }),
     texto: [
       `${titulo} — atiende ${ctx.anfitrion.nombre}`,
