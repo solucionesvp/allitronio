@@ -170,10 +170,10 @@ function adjuntoIcs(ctx: ContextoCorreo, metodo: "PUBLISH" | "CANCEL"): AdjuntoC
   };
 }
 
-async function destinatariosInternos(db: SupabaseClient, anfitrion: Anfitrion): Promise<string[]> {
+export async function destinatariosInternos(db: SupabaseClient, anfitrion?: Anfitrion | null): Promise<string[]> {
   const { data } = await db.from("anfitriones").select("email").eq("activo", true);
   const todos = ((data ?? []) as { email: string | null }[]).map((a) => a.email).filter((e): e is string => Boolean(e));
-  if (anfitrion.email) todos.push(anfitrion.email);
+  if (anfitrion?.email) todos.push(anfitrion.email);
   return [...new Set(todos.map((e) => e.toLowerCase()))];
 }
 

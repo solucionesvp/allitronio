@@ -8,7 +8,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, CalendarDays, Landmark, Loader2, LogOut, Mail } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Landmark, Loader2, LogOut, Mail, Wallet } from "lucide-react";
+import { pesos } from "@/lib/cobros/calculos";
+import { fechaYmd } from "@/lib/cobros/formato";
 import { AlliEscena } from "@/components/propuestas/AlliEscena";
 import { ZONA_OFICINA } from "@/lib/reuniones/config";
 import { ymdEnZona } from "@/lib/reuniones/tz";
@@ -20,8 +22,20 @@ interface Resumen {
   proximas: number;
 }
 
+interface ResumenCobros {
+  porCobrar: number;
+  nPorCobrar: number;
+  vencido: number;
+  nVencidos: number;
+  cobradoMes: number;
+  borradores: number;
+  sinEnviar: number;
+  pendientes: { id: string; folio: string; cliente: string; saldo: number; estado_pago: string; vence: string | null }[];
+}
+
 const MODULOS: { id: string; titulo: string; texto: string; href?: string; icono: React.ReactNode; nota?: string }[] = [
   { id: "reuniones", titulo: "Reuniones", texto: "Agenda, nuevas reuniones, productos, horarios y bloqueos.", href: "/interno/reuniones", icono: <CalendarDays className="h-7 w-7" /> },
+  { id: "cobros", titulo: "Cobros", texto: "Comprobantes, abonos y saldos de cada cliente, ligados a sus citas.", href: "/interno/cobros", icono: <Wallet className="h-7 w-7" /> },
   { id: "finanzas", titulo: "Finanzas", texto: "Control financiero del negocio.", href: "/interno/finanzas", icono: <Landmark className="h-7 w-7" />, nota: "Por ahora tiene su propio acceso" },
   { id: "newsletter", titulo: "Newsletter", texto: "Correos a clientes y seguimiento.", icono: <Mail className="h-7 w-7" />, nota: "Próximamente" },
 ];
@@ -30,6 +44,21 @@ export default function HubInterno() {
   const router = useRouter();
   const [r, setR] = useState<Resumen | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [cb, setCb] = useState<ResumenCobros | "sin_esquema" | "error" | null>(null);
+
+  useEffect(() => {
+    let vivo = true;
+    fetch("/api/cobros/admin/resumen", { cache: "no-store" })
+      .then(async (res) => {
+        const j = await res.json().catch(() => ({}));
+        if (!vivo) return;
+        setCb(j.ok ? (j as ResumenCobros) : j.error === "sin_esquema" ? "sin_esquema" : "error");
+      })
+      .catch(() => vivo && setCb("error"));
+    return () => {
+      vivo = false;
+    };
+  }, []);
 
   useEffect(() => {
     let vivo = true;
@@ -97,6 +126,58 @@ export default function HubInterno() {
             ))}
           </div>
         ) : null}
+
+        <section className="mb-10" aria-label="Cobros">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <h2 className="font-display text-[1.5rem] font-bold text-[#101820]">Cobros</h2>
+            <span className="flex flex-wrap gap-2">
+              <Link href="/interno/cobros" className="inline-flex min-h-[44px] items-center rounded-[14px] border-2 border-[#101820]/15 bg-white px-4 font-display text-[0.85rem] font-bold text-[#101820] hover:border-allitron-blue">Ver todos</Link>
+              <Link href="/interno/cobros?nuevo=1" className="inline-flex min-h-[44px] items-center rounded-[14px] bg-allitron-navy px-4 font-display text-[0.85rem] font-bold text-white hover:bg-[#02303f]">Nuevo cobro</Link>
+            </span>
+          </div>
+          {cb === null ? (
+            <div className="flex justify-center py-6 text-secondary" role="status"><Loader2 className="h-6 w-6 animate-spin" /></div>
+          ) : cb === "sin_esquema" ? (
+            <p role="status" className="rounded-[16px] border-2 border-allitron-orange/50 bg-allitron-orange/10 px-5 py-4 font-body text-[1rem] text-[#101820]">Falta correr <code>supabase/cobros-schema.sql</code> en Supabase para activar Cobros.</p>
+          ) : cb === "error" ? (
+            <p role="status" className="rounded-[16px] border-2 border-allitron-orange/50 bg-allitron-orange/10 px-5 py-4 font-body text-[1rem] text-[#101820]">No pudimos leer los cobros ahora mismo. Entra al módulo para revisar.</p>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {[
+                  { v: pesos(cb.porCobrar), t: `Por cobrar · ${cb.nPorCobrar} ${cb.nPorCobrar === 1 ? "cobro" : "cobros"}` },
+                  { v: pesos(cb.vencido), t: `Vencido · ${cb.nVencidos}`, alerta: cb.nVencidos > 0 },
+                  { v: pesos(cb.cobradoMes), t: "Cobrado este mes", ok: true },
+                ].map((x) => (
+                  <div key={x.t} className="neu rounded-[22px] p-5">
+                    <p className={`font-display text-[1.9rem] font-black leading-none ${x.alerta ? "text-[#B4541B]" : x.ok ? "text-emerald-700" : "text-[#101820]"}`}>{x.v}</p>
+                    <p className="mt-2 font-body text-[1rem] text-secondary">{x.t}</p>
+                  </div>
+                ))}
+              </div>
+              {(cb.borradores > 0 || cb.sinEnviar > 0) && (
+                <p className="mt-3 font-body text-[0.92rem] text-secondary">
+                  {cb.sinEnviar > 0 && <span>{cb.sinEnviar} {cb.sinEnviar === 1 ? "cobro emitido sin enviar por correo" : "cobros emitidos sin enviar por correo"}. </span>}
+                  {cb.borradores > 0 && <span>{cb.borradores} {cb.borradores === 1 ? "borrador sin emitir" : "borradores sin emitir"}.</span>}
+                </p>
+              )}
+              {cb.pendientes.length > 0 ? (
+                <ul className="mt-4 divide-y divide-[#101820]/8 overflow-hidden rounded-[22px] bg-white shadow-[0_8px_24px_rgba(16,24,32,0.06)]">
+                  {cb.pendientes.map((p) => (
+                    <li key={p.id}>
+                      <Link href={`/interno/cobros?id=${p.id}`} className="flex min-h-[56px] flex-wrap items-center justify-between gap-2 px-5 py-3 hover:bg-allitron-blue/5">
+                        <span className="min-w-0"><span className="font-mono text-[0.82rem] text-secondary">{p.folio}</span> <span className="font-display font-bold text-[#101820]">{p.cliente}</span>{p.vence && <span className="ml-2 font-body text-[0.82rem] text-secondary">vence {fechaYmd(p.vence)}</span>}</span>
+                        <span className={`font-display font-black ${p.estado_pago === "vencido" ? "text-[#B4541B]" : "text-[#101820]"}`}>{pesos(p.saldo)}{p.estado_pago === "vencido" && <span className="ml-2 text-[0.72rem] uppercase tracking-wider">vencido</span>}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4 font-body text-[1rem] text-secondary">No hay cobros pendientes. Todo al corriente.</p>
+              )}
+            </>
+          )}
+        </section>
 
         <h2 className="mb-4 font-display text-[1.5rem] font-bold text-[#101820]">Módulos</h2>
         <div className="grid gap-4 sm:grid-cols-2">

@@ -97,7 +97,7 @@ export default function TabNueva({ datos, recargar }: { datos: DatosPanel; recar
       <div>
         <label className={P.label} htmlFor="n-hora">Horario (hora de Tepic)</label>
         {manual ? (
-          <input id="n-hora" type="datetime-local" step={1800} className={P.input} value={manualValor} onChange={(e) => setManualValor(e.target.value)} />
+          <input id="n-hora" type="datetime-local" step={60} className={P.input} value={manualValor} onChange={(e) => setManualValor(e.target.value)} />
         ) : (
           <select id="n-hora" className={P.input} value={inicio} onChange={(e) => setInicio(e.target.value)} disabled={!slug}>
             <option value="">{slug ? (slots.length ? "Elige…" : "Sin horarios libres") : "Primero elige producto"}</option>

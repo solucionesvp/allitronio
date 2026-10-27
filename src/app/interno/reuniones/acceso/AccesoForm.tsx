@@ -8,8 +8,8 @@ export default function AccesoForm() {
   const router = useRouter();
   const params = useSearchParams();
   const destino = params.get("next");
-  // Solo destinos cubiertos por esta sesión firmada: el inicio interno y Reuniones.
-  const permitido = destino === "/interno" || (destino?.startsWith("/interno/reuniones") && !destino.startsWith("//"));
+  // Solo destinos cubiertos por esta sesión firmada: el inicio interno, Reuniones y Cobros.
+  const permitido = destino === "/interno" || ((destino?.startsWith("/interno/reuniones") || destino?.startsWith("/interno/cobros")) && !destino.startsWith("//"));
   const next = permitido && destino ? destino : "/interno";
 
   const [code, setCode] = useState("");

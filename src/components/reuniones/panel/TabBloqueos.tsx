@@ -38,8 +38,8 @@ export default function TabBloqueos({ datos, recargar }: { datos: DatosPanel; re
             <option value="">Todo el equipo</option>
             {datos.anfitriones.map((a) => <option key={a.id} value={a.id}>{a.nombre}</option>)}
           </select></div>
-        <div><label className={P.label} htmlFor="b-ini">Desde (hora de Tepic)</label><input id="b-ini" type="datetime-local" step={1800} className={P.input} value={f.inicio} onChange={(e) => setF({ ...f, inicio: e.target.value })} /></div>
-        <div><label className={P.label} htmlFor="b-fin">Hasta</label><input id="b-fin" type="datetime-local" step={1800} className={P.input} value={f.fin} onChange={(e) => setF({ ...f, fin: e.target.value })} /></div>
+        <div><label className={P.label} htmlFor="b-ini">Desde (hora de Tepic)</label><input id="b-ini" type="datetime-local" step={60} className={P.input} value={f.inicio} onChange={(e) => setF({ ...f, inicio: e.target.value })} /></div>
+        <div><label className={P.label} htmlFor="b-fin">Hasta</label><input id="b-fin" type="datetime-local" step={60} className={P.input} value={f.fin} onChange={(e) => setF({ ...f, fin: e.target.value })} /></div>
         <div><label className={P.label} htmlFor="b-mot">Motivo</label><input id="b-mot" className={P.input} maxLength={120} value={f.motivo} onChange={(e) => setF({ ...f, motivo: e.target.value })} /></div>
         <div className="sm:col-span-4"><button className={P.btn} disabled={enviando}>Agregar bloqueo</button></div>
       </form>

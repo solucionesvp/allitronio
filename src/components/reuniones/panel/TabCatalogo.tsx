@@ -63,8 +63,8 @@ function EditorProducto({ p, datos, alGuardar }: { p: ProductoReunion | null; da
           <div><label className={P.label}>Nombre</label><input className={P.input} required value={f.nombre} onChange={(e) => set("nombre", e.target.value)} /></div>
           <div><label className={P.label}>Identificador (URL: /reuniones?producto=…)</label><input className={P.input} required disabled={Boolean(p)} value={f.slug} onChange={(e) => set("slug", e.target.value.toLowerCase())} /></div>
           <div className="sm:col-span-2"><label className={P.label}>Descripción corta (se muestra al cliente)</label><input className={P.input} maxLength={400} value={f.descripcion} onChange={(e) => set("descripcion", e.target.value)} /></div>
-          <div><label className={P.label}>Duración (min)</label><input type="number" min={10} max={240} step={5} className={P.input} value={f.duracion_min} onChange={(e) => set("duracion_min", e.target.value)} /></div>
-          <div><label className={P.label}>Margen entre reuniones (min)</label><input type="number" min={0} max={120} step={5} className={P.input} value={f.buffer_min} onChange={(e) => set("buffer_min", e.target.value)} /></div>
+          <div><label className={P.label}>Duración (min)</label><input type="number" min={10} max={240} step={1} className={P.input} value={f.duracion_min} onChange={(e) => set("duracion_min", e.target.value)} /></div>
+          <div><label className={P.label}>Margen entre reuniones (min)</label><input type="number" min={0} max={120} step={1} className={P.input} value={f.buffer_min} onChange={(e) => set("buffer_min", e.target.value)} /></div>
           <div><label className={P.label}>Costo (MXN, vacío = sin costo definido)</label><input type="number" min={0} step="0.01" className={P.input} value={f.costo_mxn} onChange={(e) => set("costo_mxn", e.target.value)} /></div>
           <div><label className={P.label}>Orden en la lista</label><input type="number" className={P.input} value={f.orden} onChange={(e) => set("orden", e.target.value)} /></div>
           <fieldset className="sm:col-span-2 flex flex-wrap gap-x-6 gap-y-2 font-body text-[0.84rem] text-[#101820]">
@@ -117,7 +117,20 @@ function EditorAnfitrion({ a, datos, alGuardar }: { a: Anfitrion | null; datos: 
   const [msg, setMsg] = useState<Msg>(null);
   const [guardando, setGuardando] = useState(false);
 
-  const preset = () => setHorario({ 1: [{ ini: "09:00", fin: "18:00" }], 2: [{ ini: "09:00", fin: "18:00" }], 3: [{ ini: "09:00", fin: "18:00" }], 4: [{ ini: "09:00", fin: "18:00" }], 5: [{ ini: "09:00", fin: "18:00" }] });
+  const semana = (dias: number[], rangos: Rango[]) => Object.fromEntries(dias.map((d) => [d, rangos.map((r) => ({ ...r }))])) as Record<number, Rango[]>;
+  const presetOficina = () => setHorario(semana([1, 2, 3, 4, 5], [{ ini: "09:00", fin: "18:00" }]));
+  const presetDomina = () => setHorario(semana([1, 2, 3, 4, 5, 6], [{ ini: "09:00", fin: "11:00" }, { ini: "17:00", fin: "20:00" }]));
+  const limpiarTodo = () => {
+    setHorario({});
+    setMsg({ tipo: "ok", t: "Horario vacío. Arma el que quieras y toca Guardar (no se guarda hasta entonces)." });
+  };
+  /** Copia lo del primer día con horario a todos los días de lunes a sábado. */
+  const copiarATodos = () =>
+    setHorario((h) => {
+      const base = [1, 2, 3, 4, 5, 6, 0].map((d) => h[d]).find((x) => x && x.length > 0);
+      return base ? semana([1, 2, 3, 4, 5, 6], base) : h;
+    });
+  const copiarDia = (d: number) => setHorario((h) => ({ ...h, ...semana([1, 2, 3, 4, 5, 6].filter((x) => x !== d), h[d] ?? []) }));
   const cambiar = (d: number, i: number, k: keyof Rango, v: string) =>
     setHorario((h) => ({ ...h, [d]: (h[d] ?? []).map((r, j) => (j === i ? { ...r, [k]: v } : r)) }));
 
@@ -126,10 +139,20 @@ function EditorAnfitrion({ a, datos, alGuardar }: { a: Anfitrion | null; datos: 
     setGuardando(true);
     setMsg(null);
     const reglas = Object.entries(horario).flatMap(([d, rs]) => rs.map((r) => ({ dia_semana: Number(d), hora_inicio: r.ini, hora_fin: r.fin })));
-    const r = await accion({ accion: "guardar_anfitrion", id: a?.id, ...f, reglas });
+    for (const x of reglas) {
+      if (!x.hora_inicio || !x.hora_fin || x.hora_fin <= x.hora_inicio) {
+        const nom = DIAS.find((d) => d.n === x.dia_semana)?.nombre ?? "";
+        setGuardando(false);
+        return setMsg({ tipo: "error", t: `${nom}: la hora de fin debe ser posterior a la de inicio (cada rango va dentro del mismo día).` });
+      }
+    }
+    // Sin horario no puede estar activo: se guarda inactivo en vez de rechazar el cambio.
+    const sinHorario = reglas.length === 0 && f.activo;
+    if (sinHorario) setF((x) => ({ ...x, activo: false }));
+    const r = await accion({ accion: "guardar_anfitrion", id: a?.id, ...f, activo: sinHorario ? false : f.activo, reglas });
     setGuardando(false);
     if (!r.ok) return setMsg({ tipo: "error", t: r.mensaje ?? "No se pudo guardar." });
-    setMsg({ tipo: "ok", t: "Guardado." });
+    setMsg({ tipo: "ok", t: sinHorario ? "Guardado sin horario: quedó inactivo hasta que agregues uno." : "Guardado." });
     await alGuardar();
   }
 
@@ -150,7 +173,12 @@ function EditorAnfitrion({ a, datos, alGuardar }: { a: Anfitrion | null; datos: 
           <fieldset className="sm:col-span-2">
             <div className="mb-3 flex items-center justify-between">
               <legend className={`${P.label} !mb-0`}>Horario semanal en que se puede agendar</legend>
-              <button type="button" className={P.btnGhost} onClick={preset}>Lun–Vie 9:00–18:00</button>
+            </div>
+            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Atajos de horario">
+              <button type="button" className={P.btnDanger} onClick={limpiarTodo}><Trash2 className="h-3.5 w-3.5" /> Borrar todo el horario</button>
+              <button type="button" className={P.btnGhost} onClick={presetDomina}>Lun–Sáb 9–11 y 17–20</button>
+              <button type="button" className={P.btnGhost} onClick={presetOficina}>Lun–Vie 9–18</button>
+              <button type="button" className={P.btnGhost} onClick={copiarATodos}>Copiar a Lun–Sáb</button>
             </div>
             <div className="flex flex-col gap-2">
               {DIAS.map((d) => (
@@ -160,13 +188,17 @@ function EditorAnfitrion({ a, datos, alGuardar }: { a: Anfitrion | null; datos: 
                     {(horario[d.n] ?? []).length === 0 && <span className="pt-2 font-body text-[0.8rem] text-secondary">No disponible</span>}
                     {(horario[d.n] ?? []).map((r, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <input type="time" step={1800} aria-label={`${d.nombre} desde`} className={`${P.input} !w-auto`} value={r.ini} onChange={(e) => cambiar(d.n, i, "ini", e.target.value)} />
+                        <input type="time" step={60} aria-label={`${d.nombre} desde`} className={`${P.input} !w-auto`} value={r.ini} onChange={(e) => cambiar(d.n, i, "ini", e.target.value)} />
                         <span className="text-secondary">a</span>
-                        <input type="time" step={1800} aria-label={`${d.nombre} hasta`} className={`${P.input} !w-auto`} value={r.fin} onChange={(e) => cambiar(d.n, i, "fin", e.target.value)} />
+                        <input type="time" step={60} aria-label={`${d.nombre} hasta`} className={`${P.input} !w-auto`} value={r.fin} onChange={(e) => cambiar(d.n, i, "fin", e.target.value)} />
                         <button type="button" className={P.btnDanger} aria-label="Quitar rango" onClick={() => setHorario((h) => ({ ...h, [d.n]: (h[d.n] ?? []).filter((_, j) => j !== i) }))}><Trash2 className="h-3.5 w-3.5" /></button>
                       </div>
                     ))}
-                    <button type="button" className={`${P.btnGhost} !w-fit`} onClick={() => setHorario((h) => ({ ...h, [d.n]: [...(h[d.n] ?? []), { ini: "09:00", fin: "13:00" }] }))}><Plus className="h-3.5 w-3.5" /> Añadir rango</button>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" className={`${P.btnGhost} !w-fit`} onClick={() => setHorario((h) => ({ ...h, [d.n]: [...(h[d.n] ?? []), { ini: "09:00", fin: "13:00" }] }))}><Plus className="h-3.5 w-3.5" /> Añadir rango</button>
+                      {(horario[d.n] ?? []).length > 0 && <button type="button" className={`${P.btnGhost} !w-fit`} onClick={() => copiarDia(d.n)}>Copiar a Lun–Sáb</button>}
+                      {(horario[d.n] ?? []).length > 0 && <button type="button" className={`${P.btnGhost} !w-fit`} onClick={() => setHorario((h) => ({ ...h, [d.n]: [] }))}>Vaciar día</button>}
+                    </div>
                   </div>
                 </div>
               ))}

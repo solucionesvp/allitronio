@@ -129,7 +129,7 @@ export default function TabAgenda({ datos, ahora, recargar }: { datos: DatosPane
               <div className="mt-4 grid gap-3 border-t border-[#101820]/10 pt-4 sm:grid-cols-[1fr_auto] sm:items-end">
                 <div>
                   <label className={P.label} htmlFor={`rp-${r.id}`}>Nuevo horario (hora de Tepic)</label>
-                  <input id={`rp-${r.id}`} type="datetime-local" step={1800} className={P.input} value={nuevoInicio} onChange={(e) => setNuevoInicio(e.target.value)} />
+                  <input id={`rp-${r.id}`} type="datetime-local" step={60} className={P.input} value={nuevoInicio} onChange={(e) => setNuevoInicio(e.target.value)} />
                   <label className="mt-2 flex items-center gap-2 font-body text-[0.8rem] text-secondary"><input type="checkbox" checked={forzar} onChange={(e) => setForzar(e.target.checked)} /> Horario manual: ignorar horarios y bloqueos (nunca traslapa con otra reunión)</label>
                 </div>
                 <div className="flex gap-2">

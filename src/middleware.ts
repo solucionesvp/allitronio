@@ -55,7 +55,7 @@ export async function middleware(req: NextRequest) {
 
   // ── /interno/reuniones — agenda del equipo. A diferencia de las cookies de
   // arriba (valor fijo), esta sesión va FIRMADA (HMAC): no se puede fabricar.
-  if (pathname === "/interno" || pathname === "/interno/" || pathname.startsWith("/interno/reuniones")) {
+  if (pathname === "/interno" || pathname === "/interno/" || pathname.startsWith("/interno/reuniones") || pathname.startsWith("/interno/cobros")) {
     const persona = await verificarSesion(req.cookies.get(COOKIE_SESION)?.value);
     if (persona) return NextResponse.next();
 

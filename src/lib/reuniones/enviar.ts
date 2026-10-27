@@ -6,8 +6,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface AdjuntoCorreo {
   filename: string;
-  contenido: string; // texto plano; se codifica en base64 al enviar
+  contenido: string; // texto plano (utf-8), o base64 si `base64` es true
   contentType: string;
+  /** El contenido ya viene en base64 (archivos binarios como PDF). */
+  base64?: boolean;
 }
 
 export interface EnvioCorreo {
@@ -16,6 +18,8 @@ export interface EnvioCorreo {
   html: string;
   texto: string;
   replyTo?: string | null;
+  /** Copia oculta (equipo): el destinatario principal no ve estas direcciones. */
+  bcc?: string[];
   adjuntos?: AdjuntoCorreo[];
   /** Evita duplicados si la petición se reintenta. */
   idempotencyKey?: string;
@@ -27,17 +31,19 @@ export function correoConfigurado(): { resend: boolean; remitente: boolean } {
 
 export async function enviarCorreo(
   db: SupabaseClient,
-  meta: { reunionId: string | null; tipo: string },
+  meta: { reunionId: string | null; tipo: string; cobroId?: string | null },
   e: EnvioCorreo
 ): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.REUNIONES_FROM_EMAIL;
   const para = [...new Set(e.para.filter(Boolean).map((p) => p.trim().toLowerCase()))];
 
+  const bcc = [...new Set((e.bcc ?? []).filter(Boolean).map((p) => p.trim().toLowerCase()))].filter((b) => !para.includes(b));
+
   const registrar = async (estado: "enviado" | "error", proveedorId?: string, error?: string) => {
     await db
       .from("email_log")
-      .insert({ reunion_id: meta.reunionId, tipo: meta.tipo, destinatarios: para, estado, proveedor_id: proveedorId ?? null, error: error ?? null });
+      .insert({ reunion_id: meta.reunionId, tipo: meta.tipo, destinatarios: para, estado, proveedor_id: proveedorId ?? null, error: error ?? null, ...(meta.cobroId ? { cobro_id: meta.cobroId } : {}) });
   };
 
   if (!apiKey || !from) {
@@ -64,11 +70,12 @@ export async function enviarCorreo(
         html: e.html,
         text: e.texto,
         ...(e.replyTo ? { reply_to: e.replyTo } : {}),
+        ...(bcc.length ? { bcc } : {}),
         ...(e.adjuntos?.length
           ? {
               attachments: e.adjuntos.map((a) => ({
                 filename: a.filename,
-                content: Buffer.from(a.contenido, "utf-8").toString("base64"),
+                content: a.base64 ? a.contenido : Buffer.from(a.contenido, "utf-8").toString("base64"),
                 content_type: a.contentType,
               })),
             }
